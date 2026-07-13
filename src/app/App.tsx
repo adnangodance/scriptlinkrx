@@ -81,6 +81,8 @@ type Page =
 
 type CartMode = "single" | "multi";
 
+const DEFAULT_PAGE: Page = "products";
+
 // ─── Design System Primitives ────────────────────────────────────────────────
 
 function Badge({
@@ -4095,7 +4097,7 @@ function CheckoutPrescriptionPage({ onNavigate }: { onNavigate: (p: Page) => voi
 // ─── App Shell ────────────────────────────────────────────────────────────────
 
 export default function App() {
-  const [page, setPage] = useState<Page>("products");
+  const [page, setPage] = useState<Page>(DEFAULT_PAGE);
   const [cartMode, setCartMode] = useState<CartMode>("single");
   const [multiCartPatientIds, setMultiCartPatientIds] = useState<number[]>([]);
   const cartPage: Page = cartMode === "multi" ? "cart-multi" : "cart-single";
