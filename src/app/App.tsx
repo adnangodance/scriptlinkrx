@@ -556,7 +556,7 @@ function HeaderActions({
             <div className="max-h-[260px] overflow-y-auto px-3 py-2">
               {cartPreviewItems.length > 0 ? (
                 cartPreviewItems.map(item => (
-                  <div key={`${item.id}-${item.name}`} className="grid grid-cols-[46px_minmax(0,1fr)_28px] items-start gap-3 rounded-[7px] px-1.5 py-3 transition-colors hover:bg-[#fffbf8]">
+                  <div key={`${item.id}-${item.name}`} className="group grid grid-cols-[46px_minmax(0,1fr)_28px] items-start gap-3 rounded-[7px] px-1.5 py-3 transition-colors hover:bg-[#fffbf8]">
                     <span className="flex size-11 items-center justify-center overflow-hidden rounded-[8px] bg-[#fbfaf8]">
                       <img src={item.img} alt="" className="h-9 w-10 object-contain mix-blend-multiply" />
                     </span>
@@ -575,7 +575,7 @@ function HeaderActions({
                         </button>
                       </span>
                     </span>
-                    <button onClick={() => removeCartItem(item.id)} className="flex size-7 items-center justify-center rounded-[6px] text-[#d92d20] transition-colors hover:bg-[#fbeaea]" aria-label={`Remove ${item.name}`}>
+                    <button onClick={() => removeCartItem(item.id)} className="flex size-7 items-center justify-center rounded-[6px] text-[#d92d20] opacity-0 transition-all hover:bg-[#fbeaea] group-hover:opacity-100" aria-label={`Remove ${item.name}`}>
                       <Trash2 size={15} />
                     </button>
                   </div>
