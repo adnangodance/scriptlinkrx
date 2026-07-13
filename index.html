@@ -2,6 +2,13 @@
   <!DOCTYPE html>
   <html lang="en">
     <head>
+      <script>
+        // Opening a Vite entry file directly cannot load its TypeScript modules.
+        // Send local file launches to the development server instead.
+        if (window.location.protocol === "file:") {
+          window.location.replace("http://localhost:5173/scriptlinkrx/");
+        }
+      </script>
       
       <meta charset="UTF-8" />
       <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -19,4 +26,3 @@
       
     </body>
   </html>
-  

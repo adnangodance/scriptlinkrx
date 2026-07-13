@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, useLayoutEffect, useMemo, type FormEvent } from "react";
+import { createContext, useContext, useState, useRef, useEffect, useLayoutEffect, useMemo, type Dispatch, type FormEvent, type SetStateAction } from "react";
 import {
   LayoutDashboard,
   BookOpen,
@@ -46,6 +46,7 @@ import {
   Minus,
   Syringe,
   X,
+  Loader2,
 } from "lucide-react";
 
 import img430 from "@/imports/ScriptlinkrxDashboard/9b6fa0a3b334659006bcf39e91b4da387a7b4cf0.png";
@@ -69,6 +70,7 @@ import userVerifiedIcon from "@/assets/user-verified.svg";
 type Page =
   | "dashboard"
   | "products"
+  | "favorites"
   | "product-detail"
   | "pharmacies"
   | "orders"
@@ -82,6 +84,74 @@ type Page =
 type CartMode = "single" | "multi";
 
 const DEFAULT_PAGE: Page = "products";
+
+type ProductFavoritesContextValue = {
+  favoriteProductIds: Set<number>;
+  setFavoriteProductIds: Dispatch<SetStateAction<Set<number>>>;
+  favoriteProducts: CardDef[];
+};
+
+const ProductFavoritesContext = createContext<ProductFavoritesContextValue | null>(null);
+
+function useProductFavorites() {
+  const context = useContext(ProductFavoritesContext);
+  if (!context) {
+    return {
+      favoriteProductIds: new Set<number>(),
+      setFavoriteProductIds: (() => undefined) as Dispatch<SetStateAction<Set<number>>>,
+      favoriteProducts: [],
+    };
+  }
+  return context;
+}
+
+type CartSummaryContextValue = {
+  cartItemCount: number;
+  cartPreviewItems: CartPreviewItem[];
+  addCartItems: (count?: number, product?: CartPreviewItem) => void;
+  updateCartItemQty: (id: number, delta: number) => void;
+  removeCartItem: (id: number) => void;
+  clearCartItems: () => void;
+};
+
+type CartPreviewItem = {
+  id: number;
+  name: string;
+  price: string;
+  img: string;
+  qty?: number;
+};
+
+const CartSummaryContext = createContext<CartSummaryContextValue | null>(null);
+
+function useCartSummary() {
+  const context = useContext(CartSummaryContext);
+  if (!context) {
+    return {
+      cartItemCount: 0,
+      cartPreviewItems: [],
+      addCartItems: () => undefined,
+      updateCartItemQty: () => undefined,
+      removeCartItem: () => undefined,
+      clearCartItems: () => undefined,
+    };
+  }
+  return context;
+}
+
+type AppLoadingContextValue = {
+  runWithAppLoader: (action: () => void) => void;
+};
+
+const AppLoadingContext = createContext<AppLoadingContextValue | null>(null);
+
+function useAppLoading() {
+  const context = useContext(AppLoadingContext);
+  if (!context) {
+    return { runWithAppLoader: (action: () => void) => action() };
+  }
+  return context;
+}
 
 // ─── Design System Primitives ────────────────────────────────────────────────
 
@@ -106,6 +176,16 @@ function Badge({
     >
       {children}
     </span>
+  );
+}
+
+function AppActionOverlay({ active }: { active: boolean }) {
+  if (!active) return null;
+
+  return (
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-white/65 backdrop-blur-[1px]" role="status" aria-live="polite" aria-label="Processing">
+      <Loader2 size={42} className="animate-spin text-[#183229]" />
+    </div>
   );
 }
 
@@ -417,14 +497,210 @@ function UserChip({ onNavigate }: { onNavigate: (p: Page) => void }) {
   );
 }
 
+function HeaderActions({
+  onNavigate,
+  cartPage = "cart-single",
+  favoriteProducts,
+  onProductSelect,
+}: {
+  onNavigate: (p: Page) => void;
+  cartPage?: Page;
+  favoriteProducts?: CardDef[];
+  onProductSelect?: (product: CardDef) => void;
+}) {
+  const [cartOpen, setCartOpen] = useState(false);
+  const [favoritesOpen, setFavoritesOpen] = useState(false);
+  const { cartItemCount, cartPreviewItems, updateCartItemQty, removeCartItem, clearCartItems } = useCartSummary();
+  const sharedFavorites = useProductFavorites();
+  const products = favoriteProducts ?? sharedFavorites.favoriteProducts;
+  const favoriteCount = products.length;
+  const cartSubtotal = cartPreviewItems.reduce((sum, item) => {
+    const unitPrice = Number.parseFloat(item.price.replace(/[^0-9.]/g, ""));
+    return sum + (Number.isFinite(unitPrice) ? unitPrice * (item.qty ?? 1) : 0);
+  }, 0);
+
+  return (
+    <div className="flex items-center gap-5">
+      <div className="relative">
+        <button
+          onClick={() => {
+            setCartOpen(open => !open);
+            setFavoritesOpen(false);
+          }}
+          className="relative flex items-center gap-1.5 text-[13px] font-medium text-[#1a1a1a] transition-opacity hover:opacity-70"
+          aria-expanded={cartOpen}
+        >
+          <span className="relative">
+            <ShoppingCart size={17} strokeWidth={1.5} />
+            {cartItemCount > 0 && (
+              <span className="absolute -right-2.5 -top-2 flex size-4 items-center justify-center rounded-full bg-[#183229] text-[9px] font-bold text-white">
+                {cartItemCount}
+              </span>
+            )}
+          </span>
+          Cart
+        </button>
+
+        {cartOpen && (
+          <div className="absolute right-0 top-8 z-50 w-[340px] overflow-hidden rounded-[6px] border border-[#e8e3df] bg-white shadow-[0_18px_45px_rgba(24,50,41,0.18)]">
+            <div className="flex h-12 items-center justify-between border-b border-[#eee8e3] px-4">
+              <p className="text-[14px] font-medium text-[#6f7782]">{cartItemCount} product{cartItemCount === 1 ? "" : "s"}</p>
+              {cartPreviewItems.length > 0 ? (
+                <button onClick={clearCartItems} className="text-[13px] font-semibold text-[#183229] transition-opacity hover:opacity-70">
+                  Clear all
+                </button>
+              ) : (
+                <ShoppingCart size={16} className="text-[#183229]" />
+              )}
+            </div>
+            <div className="max-h-[260px] overflow-y-auto px-3 py-2">
+              {cartPreviewItems.length > 0 ? (
+                cartPreviewItems.map(item => (
+                  <div key={`${item.id}-${item.name}`} className="grid grid-cols-[46px_minmax(0,1fr)_28px] items-start gap-3 rounded-[7px] px-1.5 py-3 transition-colors hover:bg-[#fffbf8]">
+                    <span className="flex size-11 items-center justify-center overflow-hidden rounded-[8px] bg-[#fbfaf8]">
+                      <img src={item.img} alt="" className="h-9 w-10 object-contain mix-blend-multiply" />
+                    </span>
+                    <span className="min-w-0">
+                      <span className="block truncate text-[14px] font-semibold text-[#1a1a1a]">{item.name}</span>
+                      <span className="mt-1 block truncate text-[12px] text-[#6f7782]">
+                        Price per unit: <strong className="font-bold text-[#1a1a1a]">{item.price}</strong>
+                      </span>
+                      <span className="mt-2 inline-flex h-7 items-center overflow-hidden rounded-full border border-[#d8dfdc] bg-white">
+                        <button onClick={() => updateCartItemQty(item.id, -1)} className="flex size-7 items-center justify-center text-[#6f7782] hover:bg-[#eef5f1]" aria-label={`Decrease ${item.name}`}>
+                          <Minus size={12} />
+                        </button>
+                        <span className="flex h-7 min-w-7 items-center justify-center px-1 text-[12px] font-semibold text-[#1a1a1a]">{item.qty ?? 1}</span>
+                        <button onClick={() => updateCartItemQty(item.id, 1)} className="flex size-7 items-center justify-center text-[#183229] hover:bg-[#eef5f1]" aria-label={`Increase ${item.name}`}>
+                          <Plus size={12} />
+                        </button>
+                      </span>
+                    </span>
+                    <button onClick={() => removeCartItem(item.id)} className="flex size-7 items-center justify-center rounded-[6px] text-[#d92d20] transition-colors hover:bg-[#fbeaea]" aria-label={`Remove ${item.name}`}>
+                      <Trash2 size={15} />
+                    </button>
+                  </div>
+                ))
+              ) : (
+                <div className="px-4 py-8 text-center">
+                  <ShoppingCart size={22} className="mx-auto text-[#c7cfcb]" />
+                  <p className="mt-2 text-[12px] font-semibold text-[#1a1a1a]">Your cart is empty</p>
+                  <p className="mt-1 text-[11px] text-[#6f7782]">Add products to see them here.</p>
+                </div>
+              )}
+            </div>
+            <div className="border-t border-[#eee8e3] px-3 py-3">
+              <button
+                onClick={() => {
+                  setCartOpen(false);
+                  onNavigate(cartPage);
+                }}
+                className="flex h-10 w-full items-center justify-center rounded-[10px] bg-[#183229] text-[12px] font-bold uppercase tracking-[0.02em] text-white transition-colors hover:bg-[#244438]"
+              >
+                Go to cart{cartSubtotal > 0 ? ` ($${cartSubtotal.toFixed(2)})` : ""}
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+
+      <div className="relative">
+        <button
+          onClick={() => {
+            setFavoritesOpen(open => !open);
+            setCartOpen(false);
+          }}
+          className="relative flex items-center gap-1.5 text-[13px] font-medium text-[#1a1a1a] transition-opacity hover:opacity-70"
+          aria-expanded={favoritesOpen}
+        >
+          <span className="relative">
+            <Heart size={17} strokeWidth={1.5} />
+            {favoriteCount > 0 && (
+              <span className="absolute -right-2.5 -top-2 flex size-4 items-center justify-center rounded-full bg-[#183229] text-[9px] font-bold text-white">
+                {favoriteCount}
+              </span>
+            )}
+          </span>
+          Favorites
+        </button>
+
+        {favoritesOpen && (
+          <div className="absolute right-0 top-8 z-50 w-[360px] overflow-hidden rounded-[6px] border border-[#e8e3df] bg-white shadow-[0_18px_45px_rgba(24,50,41,0.18)]">
+            <div className="flex h-12 items-center justify-between border-b border-[#eee8e3] px-4">
+              <p className="text-[14px] font-medium text-[#6f7782]">{favoriteCount} product{favoriteCount === 1 ? "" : "s"}</p>
+              <button
+                onClick={() => sharedFavorites.setFavoriteProductIds(new Set())}
+                className="text-[13px] font-semibold text-[#183229] transition-opacity hover:opacity-70"
+              >
+                Clear all
+              </button>
+            </div>
+
+            <div className="max-h-[260px] overflow-y-auto px-3 py-2">
+              {products.length > 0 ? (
+                products.map(product => (
+                  <button
+                    key={product.id}
+                    onClick={() => {
+                      onProductSelect?.(product);
+                      setFavoritesOpen(false);
+                      onNavigate("product-detail");
+                    }}
+                    className="grid w-full grid-cols-[42px_minmax(0,1fr)] items-center gap-3 rounded-[6px] px-1 py-2.5 text-left transition-colors hover:bg-[#fffbf8]"
+                  >
+                    <span className="flex h-8 w-10 items-center justify-center overflow-hidden bg-[#fbfaf8]">
+                      <img src={product.img} alt="" className="h-8 w-10 object-contain mix-blend-multiply" />
+                    </span>
+                    <span className="min-w-0">
+                      <span className="block truncate text-[14px] font-semibold text-[#1a1a1a]">{product.name}</span>
+                      <span className="mt-1 block truncate text-[12px] text-[#6f7782]">
+                        Price per unit: <strong className="font-bold text-[#1a1a1a]">{product.price}</strong>
+                      </span>
+                    </span>
+                  </button>
+                ))
+              ) : (
+                <div className="px-4 py-8 text-center">
+                  <Heart size={22} className="mx-auto text-[#c7cfcb]" />
+                  <p className="mt-2 text-[12px] font-semibold text-[#1a1a1a]">No favorites yet</p>
+                  <p className="mt-1 text-[11px] text-[#6f7782]">Save products from the catalog to see them here.</p>
+                </div>
+              )}
+            </div>
+
+            <div className="border-t border-[#eee8e3] px-3 py-3">
+              <button
+                onClick={() => {
+                  setFavoritesOpen(false);
+                  onNavigate("favorites");
+                }}
+                className="flex h-10 w-full items-center justify-center rounded-[10px] bg-[#183229] text-[12px] font-bold uppercase tracking-[0.02em] text-white transition-colors hover:bg-[#244438]"
+              >
+                Go to Favorites
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+
+      <UserChip onNavigate={onNavigate} />
+    </div>
+  );
+}
+
 function Header({
   title,
   breadcrumb,
   onNavigate,
+  favoriteProducts = [],
+  cartPage = "cart-single",
+  onProductSelect,
 }: {
   title: string;
   breadcrumb?: string[];
   onNavigate: (p: Page) => void;
+  favoriteProducts?: CardDef[];
+  cartPage?: Page;
+  onProductSelect?: (product: CardDef) => void;
 }) {
   return (
     <div className="flex items-start justify-between mb-6">
@@ -447,18 +723,7 @@ function Header({
           </p>
         )}
       </div>
-      <div className="flex items-center gap-5">
-        <button className="flex items-center gap-1.5 text-[13px] font-medium text-[#1a1a1a] hover:opacity-70 transition-opacity">
-          <ShoppingCart size={17} strokeWidth={1.5} />
-          Cart
-          <span className="w-2 h-2 rounded-full bg-[#ff5454] -mt-2 -ml-1" />
-        </button>
-        <button className="flex items-center gap-1.5 text-[13px] font-medium text-[#1a1a1a] hover:opacity-70 transition-opacity">
-          <Heart size={17} strokeWidth={1.5} />
-          Favorites
-        </button>
-        <UserChip onNavigate={onNavigate} />
-      </div>
+      <HeaderActions onNavigate={onNavigate} cartPage={cartPage} favoriteProducts={favoriteProducts} onProductSelect={onProductSelect} />
     </div>
   );
 }
@@ -493,6 +758,7 @@ function FigmaCard({
   imgContain,
   favorited,
   onFavorite,
+  favoriteLoading = false,
   hasRxBadge,
   btnOffsetX,
   heartVariant,
@@ -509,6 +775,7 @@ function FigmaCard({
   imgContain?: boolean;
   favorited: boolean;
   onFavorite: () => void;
+  favoriteLoading?: boolean;
   hasRxBadge?: boolean;
   btnOffsetX: number;
   heartVariant: "green" | "black" | "none";
@@ -579,6 +846,8 @@ function FigmaCard({
           className="col-1 grid-cols-[max-content] grid-rows-[max-content] inline-grid place-items-start relative row-1 z-10"
           style={{ marginLeft: btnOffsetX, marginTop: 15 }}
           onClick={(e) => { e.stopPropagation(); onFavorite(); }}
+          disabled={favoriteLoading}
+          aria-busy={favoriteLoading}
         >
           {/* White shadow circle */}
           <div className="col-1 relative row-1" style={{ width: 27.5, height: 27.5 }}>
@@ -604,7 +873,11 @@ function FigmaCard({
             </div>
           </div>
           {/* Heart icon */}
-          {heartVariant === "green" ? (
+          {favoriteLoading ? (
+            <div className="col-1 relative row-1" style={{ marginLeft: 6.2, marginTop: 6.1, width: 15.5, height: 15.5 }}>
+              <Loader2 size={15.5} className="animate-spin text-[#183229]" />
+            </div>
+          ) : heartVariant === "green" ? (
             /* Filled green heart */
             <div className="col-1 relative row-1" style={{ marginLeft: 5.7, marginTop: 5.87, width: 16.435, height: 16.435 }}>
               <svg className="absolute block inset-0 size-full" fill="none" preserveAspectRatio="none" viewBox="0 0 16.4348 16.4348">
@@ -721,16 +994,128 @@ function MultiPatientPanel({ activePharmacy, onSelect }: { activePharmacy: strin
   );
 }
 
+function FavoritesPage({
+  onNavigate,
+  cartPage,
+  onProductSelect,
+}: {
+  onNavigate: (p: Page) => void;
+  cartPage: Page;
+  onProductSelect: (product: CardDef) => void;
+}) {
+  const { favoriteProducts, setFavoriteProductIds } = useProductFavorites();
+  const { addCartItems } = useCartSummary();
+  const { runWithAppLoader } = useAppLoading();
+
+  function removeFavorite(id: number) {
+    setFavoriteProductIds(current => {
+      const next = new Set(current);
+      next.delete(id);
+      return next;
+    });
+  }
+
+  function addFavoriteProductToCart(product: CardDef) {
+    runWithAppLoader(() => {
+      addCartItems(1, {
+        id: product.id,
+        name: product.name,
+        price: product.price,
+        img: product.img,
+        qty: 1,
+      });
+    });
+  }
+
+  return (
+    <>
+      <Header title="Favorites" onNavigate={onNavigate} cartPage={cartPage} onProductSelect={onProductSelect} />
+
+      <section>
+        <div className="flex justify-end pb-3">
+          <button
+            onClick={() => setFavoriteProductIds(new Set())}
+            className="inline-flex h-9 items-center gap-2 rounded-[7px] px-3 text-[12px] font-semibold uppercase tracking-[0.02em] text-[#183229] transition-colors hover:bg-[#f6f4f5]"
+          >
+            Clear all <Trash2 size={15} />
+          </button>
+        </div>
+
+        {favoriteProducts.length > 0 ? (
+          <div className="flex flex-wrap gap-5">
+            {favoriteProducts.map(product => (
+              <article key={product.id} className="relative w-[268px]">
+                <FigmaCard
+                  name={product.name}
+                  price={product.price}
+                  pharmacies={product.pharmacies}
+                  img={product.img}
+                  imgW={product.imgW}
+                  imgH={product.imgH}
+                  imgL={product.imgL}
+                  imgT={product.imgT}
+                  imgContain={product.imgContain}
+                  favorited={true}
+                  onFavorite={() => removeFavorite(product.id)}
+                  hasRxBadge={product.hasRxBadge}
+                  btnOffsetX={product.btnOffsetX}
+                  heartVariant={product.heartVariant === "none" ? "black" : "green"}
+                  onClick={() => {
+                    onProductSelect(product);
+                    onNavigate("product-detail");
+                  }}
+                />
+                <div className="absolute bottom-3 left-5 right-5 z-20 grid grid-cols-[minmax(0,1fr)_34px] gap-2">
+                  <button
+                    onClick={(event) => {
+                      event.stopPropagation();
+                      addFavoriteProductToCart(product);
+                    }}
+                    className="flex h-8 items-center justify-center rounded-[10px] bg-white px-3 text-[10px] font-bold uppercase tracking-[0.02em] text-[#183229] transition-colors hover:bg-[#eef5f1]"
+                  >
+                    Add to cart
+                  </button>
+                  <button
+                    onClick={(event) => {
+                      event.stopPropagation();
+                      removeFavorite(product.id);
+                    }}
+                    className="flex h-8 items-center justify-center rounded-[10px] bg-white text-[#183229] transition-colors hover:bg-[#fbeaea] hover:text-[#d92d20]"
+                    aria-label={`Remove ${product.name}`}
+                  >
+                    <Trash2 size={14} />
+                  </button>
+                </div>
+              </article>
+            ))}
+          </div>
+        ) : (
+          <div className="flex flex-col items-center justify-center px-4 py-16 text-center">
+            <Heart size={28} className="text-[#c7cfcb]" />
+            <p className="mt-3 text-[15px] font-semibold text-[#1a1a1a]">No favorite products yet</p>
+            <p className="mt-1 max-w-[320px] text-[12px] text-[#6f7782]">Favorite products from the catalog and they will appear here.</p>
+            <button onClick={() => onNavigate("products")} className="mt-5 h-10 rounded-[10px] bg-[#183229] px-4 text-[12px] font-semibold text-white">
+              Browse catalog
+            </button>
+          </div>
+        )}
+      </section>
+    </>
+  );
+}
+
 function ProductsPage({
   onNavigate,
   cartMode,
   setCartMode,
+  onProductSelect,
 }: {
   onNavigate: (p: Page) => void;
   cartMode: CartMode;
   setCartMode: (mode: CartMode) => void;
+  onProductSelect: (product: CardDef) => void;
 }) {
-  const [favorites, setFavorites] = useState<Set<number>>(new Set([1, 11]));
+  const { favoriteProductIds, setFavoriteProductIds, favoriteProducts } = useProductFavorites();
   const [search, setSearch] = useState("");
   const [activePharmacy, setActivePharmacy] = useState("All Pharmacies");
   const [shippingStates, setShippingStates] = useState<string[]>([]);
@@ -738,6 +1123,7 @@ function ProductsPage({
   const [dosages, setDosages] = useState<string[]>([]);
   const [openCatalogFilter, setOpenCatalogFilter] = useState<string | null>(null);
   const [catalogFilterSearch, setCatalogFilterSearch] = useState<Record<string, string>>({});
+  const { runWithAppLoader } = useAppLoading();
   const searchRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -753,15 +1139,17 @@ function ProductsPage({
   }, []);
 
   function toggleFav(id: number) {
-    setFavorites((prev) => {
-      const next = new Set(prev);
-      next.has(id) ? next.delete(id) : next.add(id);
-      return next;
+    runWithAppLoader(() => {
+      setFavoriteProductIds((prev) => {
+        const next = new Set(prev);
+        next.has(id) ? next.delete(id) : next.add(id);
+        return next;
+      });
     });
   }
 
   function renderCard(card: CardDef) {
-    const fav = favorites.has(card.id);
+    const fav = favoriteProductIds.has(card.id);
     const heart: "green" | "black" | "none" =
       card.heartVariant === "none" ? "none" : fav ? "green" : "black";
     return (
@@ -781,7 +1169,10 @@ function ProductsPage({
         hasRxBadge={card.hasRxBadge}
         btnOffsetX={card.btnOffsetX}
         heartVariant={heart}
-        onClick={() => onNavigate("product-detail")}
+        onClick={() => {
+          onProductSelect(card);
+          onNavigate("product-detail");
+        }}
       />
     );
   }
@@ -838,21 +1229,7 @@ function ProductsPage({
       {/* Page header — matches Figma layout */}
       <div className="flex items-start justify-between mb-0">
         <h1 className="font-['Inter',sans-serif] font-medium text-[32px] text-black leading-none">Products</h1>
-        <div className="flex items-center gap-5">
-          <button
-            onClick={() => onNavigate(patientType === "multi" ? "cart-multi" : "cart-single")}
-            className="flex items-center gap-1.5 text-[14px] font-medium text-[#1a1a1a] relative hover:opacity-70"
-          >
-            <ShoppingCart size={18} strokeWidth={1.5} />
-            Cart
-            <span className="absolute -top-1 -right-2 w-2 h-2 rounded-full bg-[#ff5454] border border-white" />
-          </button>
-          <button className="flex items-center gap-1.5 text-[14px] font-medium text-[#1a1a1a] hover:opacity-70">
-            <Heart size={18} strokeWidth={1.5} />
-            Favorites
-          </button>
-          <UserChip onNavigate={onNavigate} />
-        </div>
+        <HeaderActions onNavigate={onNavigate} cartPage={patientType === "multi" ? "cart-multi" : "cart-single"} favoriteProducts={favoriteProducts} onProductSelect={onProductSelect} />
       </div>
 
       {/* Tab + search + filters bar */}
@@ -1121,16 +1498,20 @@ function ProductDetailPage({
   cartMode,
   setCartMode,
   onSaveMultiCartPatients,
+  product,
 }: {
   onNavigate: (p: Page) => void;
   cartMode: CartMode;
   setCartMode: (mode: CartMode) => void;
   onSaveMultiCartPatients: (patientIds: number[]) => void;
+  product: CardDef;
 }) {
-  const [size, setSize] = useState("1 (5mL) Vial");
-  const [strength, setStrength] = useState("2.4mg/1.2mg/mL");
-  const [injType, setInjType] = useState("Subcutaneous");
-  const [pharmacy, setPharmacy] = useState("Optimal Balance Pharmacy");
+  const defaultSize = product.dosage === "Gel" ? "30g Tube" : product.dosage === "Capsule" ? "30 Capsules" : "1 (5mL) Vial";
+  const defaultStrength = product.price.includes("mg") ? product.price : product.dosage === "Gel" ? "0.025% / 4% / 0.5%" : "2.4mg/1.2mg/mL";
+  const [size, setSize] = useState(defaultSize);
+  const [strength, setStrength] = useState(defaultStrength);
+  const [injType, setInjType] = useState(product.dosage === "Injection" ? "Subcutaneous" : product.dosage);
+  const [pharmacy, setPharmacy] = useState(product.pharmacy);
   const [qty, setQty] = useState(1);
   const [suppliesOpen, setSuppliesOpen] = useState(false);
   const [patientPickerOpen, setPatientPickerOpen] = useState(false);
@@ -1139,6 +1520,17 @@ function ProductDetailPage({
   const [activeInfoTab, setActiveInfoTab] = useState<"overview" | "formula" | "dosage" | "safety">("overview");
   const configurationCardRef = useRef<HTMLDivElement>(null);
   const [productCardHeight, setProductCardHeight] = useState(825);
+  const { addCartItems } = useCartSummary();
+  const { runWithAppLoader } = useAppLoading();
+
+  useEffect(() => {
+    setSize(defaultSize);
+    setStrength(defaultStrength);
+    setInjType(product.dosage === "Injection" ? "Subcutaneous" : product.dosage);
+    setPharmacy(product.pharmacy);
+    setQty(1);
+    setSelectedPatientIds(new Set());
+  }, [defaultSize, defaultStrength, product.dosage, product.id, product.pharmacy]);
 
   useLayoutEffect(() => {
     if (configurationCardRef.current) {
@@ -1146,11 +1538,12 @@ function ProductDetailPage({
     }
   }, [cartMode]);
 
+  const basePrice = Number.parseFloat(product.price.replace(/[^0-9.]/g, "")) || 125.43;
   const pharmacies = [
-    { name: "Optimal Balance Pharmacy", turnaround: "1-2 business days", price: 135.36 },
-    { name: "Rush Pharmacy FL", turnaround: "1-2 business days", price: 155.36 },
-    { name: "Precision Compounding Pharmacy", turnaround: "2-3 business days", price: 148.00 },
-  ];
+    { name: product.pharmacy, turnaround: "1-2 business days", price: basePrice },
+    { name: "Rush Pharmacy FL", turnaround: "1-2 business days", price: basePrice + 20 },
+    { name: "Precision Compounding Pharmacy", turnaround: "2-3 business days", price: basePrice + 12.64 },
+  ].filter((option, index, list) => list.findIndex(item => item.name === option.name) === index);
   const selectedPharmacy = pharmacies.find(option => option.name === pharmacy) ?? pharmacies[0];
   const patientMultiplier = cartMode === "multi" ? Math.max(selectedPatientIds.size, 1) : 1;
   const total = selectedPharmacy.price * qty * patientMultiplier;
@@ -1173,16 +1566,26 @@ function ProductDetailPage({
   }
 
   function addToCart() {
+    if (cartMode === "multi" && selectedPatientCount === 0) return;
     setCartMode(cartMode);
-    if (cartMode === "multi") {
-      onSaveMultiCartPatients([...selectedPatientIds]);
-    }
-    onNavigate(cartMode === "multi" ? "cart-multi" : "cart-single");
+    const itemCount = cartMode === "multi" ? Math.max(selectedPatientIds.size, 1) : qty;
+    runWithAppLoader(() => {
+      addCartItems(itemCount, {
+        id: product.id,
+        name: product.name,
+        price: `$${selectedPharmacy.price.toFixed(2)}`,
+        img: product.img,
+        qty: itemCount,
+      });
+      if (cartMode === "multi") {
+        onSaveMultiCartPatients([...selectedPatientIds]);
+      }
+    });
   }
 
   return (
     <>
-      <Header title="Products" breadcrumb={["Catalog", "Tesamorelin / Ipamorelin"]} onNavigate={onNavigate} />
+      <Header title="Products" breadcrumb={["Catalog", product.name]} onNavigate={onNavigate} />
 
       <div className="mb-4 flex flex-wrap items-center gap-3">
         <button onClick={() => onNavigate("products")} className="inline-flex h-9 items-center gap-1.5 rounded-[7px] border border-[#d8dfdc] bg-white px-3 text-[12px] font-semibold text-[#183229] hover:bg-[#f8faf9]">
@@ -1196,7 +1599,7 @@ function ProductDetailPage({
           style={{ "--detail-card-height": `${productCardHeight}px` } as React.CSSProperties}
         >
           <div className="flex h-[480px] shrink-0 items-center justify-center overflow-hidden bg-[#fbfaf8] p-12 xl:h-auto xl:min-h-0 xl:flex-1">
-            <img src={img452dash} alt="Compounded vial from the catalog" className="h-full max-h-[520px] w-full object-contain mix-blend-multiply" />
+            <img src={product.img} alt={product.name} className="h-full max-h-[520px] w-full object-contain mix-blend-multiply" />
           </div>
 
           <div className="border-t border-[#eee8e3] px-5 py-4">
@@ -1221,9 +1624,9 @@ function ProductDetailPage({
           <div className="border-b border-[#eee8e3] px-5 py-5 sm:px-6">
             <div className="flex flex-wrap items-start justify-between gap-4">
               <div className="min-w-0">
-                <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[#708078]">Peptide therapy</p>
-                <h1 className="mt-1 text-[25px] font-semibold leading-tight text-[#1a1a1a]">Tesamorelin / Ipamorelin</h1>
-                <p className="mt-2 max-w-[620px] text-[13px] leading-relaxed text-[#6f7782]">A synergistic peptide therapy designed to support growth hormone production, metabolic health, body composition, and recovery.</p>
+                <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[#708078]">{product.areaOfTreatment}</p>
+                <h1 className="mt-1 text-[25px] font-semibold leading-tight text-[#1a1a1a]">{product.name}</h1>
+                <p className="mt-2 max-w-[620px] text-[13px] leading-relaxed text-[#6f7782]">Configure this {product.dosage.toLowerCase()} prescription, choose pharmacy options, and assign patients when needed.</p>
               </div>
               <div className="text-right">
                 <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-[#8c8c8c]">From</p>
@@ -1231,7 +1634,7 @@ function ProductDetailPage({
               </div>
             </div>
             <div className="mt-4 flex flex-wrap gap-2">
-              {["Sterile", "Refrigerated", "Prescription required"].map(tag => (
+              {["Prescription required", product.dosage, product.shippingState].map(tag => (
                 <span key={tag} className="rounded-[6px] border border-[#d8dfdc] bg-[#fbfaf8] px-2 py-1 text-[10px] font-semibold text-[#52645c]">{tag}</span>
               ))}
             </div>
@@ -1244,20 +1647,20 @@ function ProductDetailPage({
                 <div>
                   <p className="mb-2 text-[11px] font-semibold uppercase tracking-[0.1em] text-[#667085]">Size</p>
                   <div className="flex flex-wrap gap-2">
-                    {["1 (2mL) Vial", "1 (5mL) Vial", "2 (5mL) Vials", "1 (10mL) Vial"].map(option => <OptionPill key={option} label={option} selected={size === option} onClick={() => setSize(option)} />)}
+                    {[defaultSize, "1 (2mL) Vial", "1 (5mL) Vial", "2 (5mL) Vials", "1 (10mL) Vial", "30g Tube", "30 Capsules"].filter((option, index, list) => list.indexOf(option) === index).map(option => <OptionPill key={option} label={option} selected={size === option} onClick={() => setSize(option)} />)}
                   </div>
                 </div>
                 <div>
                   <p className="mb-2 text-[11px] font-semibold uppercase tracking-[0.1em] text-[#667085]">Strength</p>
                   <div className="flex flex-wrap gap-2">
-                    {["1.2mg/0.6mg/mL", "2.4mg/1.2mg/mL", "4mg/2mg/mL"].map(option => <OptionPill key={option} label={option} selected={strength === option} onClick={() => setStrength(option)} />)}
+                    {[defaultStrength, "1.2mg/0.6mg/mL", "2.4mg/1.2mg/mL", "4mg/2mg/mL"].filter((option, index, list) => list.indexOf(option) === index).map(option => <OptionPill key={option} label={option} selected={strength === option} onClick={() => setStrength(option)} />)}
                   </div>
                 </div>
               </div>
               <div className="mt-5">
                 <p className="mb-2 text-[11px] font-semibold uppercase tracking-[0.1em] text-[#667085]">Administration route</p>
                 <div className="flex flex-wrap gap-2">
-                  {["Subcutaneous"].map(option => <OptionPill key={option} label={option} selected={injType === option} onClick={() => setInjType(option)} />)}
+                  {["Subcutaneous", product.dosage].filter((option, index, list) => list.indexOf(option) === index).map(option => <OptionPill key={option} label={option} selected={injType === option} onClick={() => setInjType(option)} />)}
                 </div>
               </div>
             </div>
@@ -2596,11 +2999,18 @@ function SinglePatientCartPage({
     `${patient.name} ${patient.phone} ${patient.address}`.toLowerCase().includes(patientSearch.toLowerCase())
   );
   const baseItems = [
+    { id: 1, pharmacy: "1st Choice Compounding Pharmacy", name: "Tirzepatide/Pyridoxine (B6)", detail: "20mg/25mg/mL | 1 (0.5mL) Vial", qty: 1, price: 125.43, image: imgPT141, kind: "vial" },
+    { id: 2, pharmacy: "1st Choice Compounding Pharmacy", name: "BD 27G X 1/2 Needle Only", detail: "1 Needle", qty: 1, price: 0, image: null, kind: "supply" },
     { id: 5, pharmacy: "Precision Compounding Pharmacy", name: "Aminoblend", detail: "100mg/50mg/50mg/50mg/100mg/mL | 1 (30mL) Vial", qty: 1, price: 35.99, image: img432, kind: "vial" },
   ];
   const items = baseItems.filter(item => !removedItems.has(item.id));
   const prescriptionItems = items.filter(item => item.kind !== "supply");
   const pharmacyGroups = [
+    {
+      name: "1st Choice Compounding Pharmacy",
+      items: items.filter(item => item.pharmacy === "1st Choice Compounding Pharmacy"),
+      shipping: ["UPS Next Day Air (Priority): $30.00", "FedEx Standard Overnight: $30.00"],
+    },
     {
       name: "Precision Compounding Pharmacy",
       items: items.filter(item => item.pharmacy === "Precision Compounding Pharmacy"),
@@ -4100,16 +4510,76 @@ export default function App() {
   const [page, setPage] = useState<Page>(DEFAULT_PAGE);
   const [cartMode, setCartMode] = useState<CartMode>("single");
   const [multiCartPatientIds, setMultiCartPatientIds] = useState<number[]>([]);
+  const [selectedProduct, setSelectedProduct] = useState<CardDef>(POPULAR_CARDS[0]);
+  const [favoriteProductIds, setFavoriteProductIds] = useState<Set<number>>(
+    () => new Set([...POPULAR_CARDS, ...ALL_CARDS].filter((card) => card.heartVariant === "green").map((card) => card.id)),
+  );
+  const favoriteProducts = useMemo(
+    () => [...POPULAR_CARDS, ...ALL_CARDS].filter((card) => favoriteProductIds.has(card.id)),
+    [favoriteProductIds],
+  );
   const cartPage: Page = cartMode === "multi" ? "cart-multi" : "cart-single";
+  const [cartPreviewItems, setCartPreviewItems] = useState<CartPreviewItem[]>([]);
+  const [appLoading, setAppLoading] = useState(false);
+  const cartItemCount = cartPreviewItems.reduce((count, item) => count + (item.qty ?? 1), 0);
+
+  function addCartItems(count = 1, product?: CartPreviewItem) {
+    if (product) {
+      setCartPreviewItems((current) => {
+        const existingIndex = current.findIndex((item) => item.id === product.id);
+        if (existingIndex === -1) {
+          return [{ ...product, qty: product.qty ?? count }, ...current].slice(0, 4);
+        }
+        const next = [...current];
+        const existing = next[existingIndex];
+        next.splice(existingIndex, 1);
+        return [{ ...existing, ...product, qty: (existing.qty ?? 1) + (product.qty ?? count) }, ...next].slice(0, 4);
+      });
+    }
+  }
+
+  function updateCartItemQty(id: number, delta: number) {
+    setCartPreviewItems((current) =>
+      current
+        .map((item) => item.id === id ? { ...item, qty: Math.max(0, (item.qty ?? 1) + delta) } : item)
+        .filter((item) => (item.qty ?? 1) > 0),
+    );
+  }
+
+  function removeCartItem(id: number) {
+    setCartPreviewItems((current) => current.filter((item) => item.id !== id));
+  }
+
+  function clearCartItems() {
+    setCartPreviewItems([]);
+  }
+
+  function runWithAppLoader(action: () => void) {
+    if (appLoading) return;
+    setAppLoading(true);
+    window.setTimeout(() => {
+      action();
+      setAppLoading(false);
+    }, 500);
+  }
 
   function renderPage() {
     switch (page) {
       case "dashboard":
         return <DashboardPage onNavigate={setPage} />;
       case "products":
-        return <ProductsPage onNavigate={setPage} cartMode={cartMode} setCartMode={setCartMode} />;
+        return (
+          <ProductsPage
+            onNavigate={setPage}
+            cartMode={cartMode}
+            setCartMode={setCartMode}
+            onProductSelect={setSelectedProduct}
+          />
+        );
+      case "favorites":
+        return <FavoritesPage onNavigate={setPage} cartPage={cartPage} onProductSelect={setSelectedProduct} />;
       case "product-detail":
-        return <ProductDetailPage onNavigate={setPage} cartMode={cartMode} setCartMode={setCartMode} onSaveMultiCartPatients={setMultiCartPatientIds} />;
+        return <ProductDetailPage onNavigate={setPage} cartMode={cartMode} setCartMode={setCartMode} onSaveMultiCartPatients={setMultiCartPatientIds} product={selectedProduct} />;
       case "pharmacies":
         return <PharmaciesPage onNavigate={setPage} />;
       case "orders":
@@ -4127,28 +4597,42 @@ export default function App() {
       case "checkout-prescription":
         return <CheckoutPrescriptionPage onNavigate={setPage} />;
       default:
-        return <ProductsPage onNavigate={setPage} cartMode={cartMode} setCartMode={setCartMode} />;
+        return (
+          <ProductsPage
+            onNavigate={setPage}
+            cartMode={cartMode}
+            setCartMode={setCartMode}
+            onProductSelect={setSelectedProduct}
+          />
+        );
     }
   }
 
   return (
-    <div className="flex min-h-screen bg-[#fffbf8] font-['Inter',sans-serif]">
-      {/* Sidebar Navigation */}
-      <Sidebar active={page} onNavigate={setPage} cartPage={cartPage} />
+    <AppLoadingContext.Provider value={{ runWithAppLoader }}>
+      <CartSummaryContext.Provider value={{ cartItemCount, cartPreviewItems, addCartItems, updateCartItemQty, removeCartItem, clearCartItems }}>
+        <ProductFavoritesContext.Provider value={{ favoriteProductIds, setFavoriteProductIds, favoriteProducts }}>
+          <div className="flex min-h-screen bg-[#fffbf8] font-['Inter',sans-serif]">
+            {/* Sidebar Navigation */}
+            <Sidebar active={page} onNavigate={setPage} cartPage={cartPage} />
 
-      {/* Main content area */}
-      <main className="flex-1 min-w-0 p-6 overflow-auto">
-        <div className="bg-card rounded-[10px] min-h-full p-7 shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
-          {renderPage()}
-        </div>
-      </main>
+            {/* Main content area */}
+            <main className="flex-1 min-w-0 p-6 overflow-auto">
+              <div className="bg-card rounded-[10px] min-h-full p-7 shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
+                {renderPage()}
+              </div>
+            </main>
 
-      {/* Chat bubble */}
-      <div className="fixed bottom-5 right-5 z-50">
-        <button className="w-11 h-11 bg-[#053c23] rounded-full flex items-center justify-center shadow-lg hover:bg-[#183229] transition-colors">
-          <MessageSquare size={16} className="text-[#d8ffa2]" />
-        </button>
-      </div>
-    </div>
+            {/* Chat bubble */}
+            <div className="fixed bottom-5 right-5 z-50">
+              <button className="w-11 h-11 bg-[#053c23] rounded-full flex items-center justify-center shadow-lg hover:bg-[#183229] transition-colors">
+                <MessageSquare size={16} className="text-[#d8ffa2]" />
+              </button>
+            </div>
+          </div>
+          <AppActionOverlay active={appLoading} />
+        </ProductFavoritesContext.Provider>
+      </CartSummaryContext.Provider>
+    </AppLoadingContext.Provider>
   );
 }
