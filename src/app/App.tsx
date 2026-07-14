@@ -1532,6 +1532,7 @@ function ProductDetailPage({
   const [selectedPatientIds, setSelectedPatientIds] = useState<Set<number>>(new Set());
   const [patientQuantities, setPatientQuantities] = useState<Record<number, number>>({});
   const [expandedPatientIds, setExpandedPatientIds] = useState<Set<number>>(new Set());
+  const [addedItemCount, setAddedItemCount] = useState<number | null>(null);
   const [activeInfoTab, setActiveInfoTab] = useState<"overview" | "formula" | "dosage" | "safety">("overview");
   const configurationCardRef = useRef<HTMLDivElement>(null);
   const [productCardHeight, setProductCardHeight] = useState(825);
@@ -1547,6 +1548,7 @@ function ProductDetailPage({
     setSelectedPatientIds(new Set());
     setPatientQuantities({});
     setExpandedPatientIds(new Set());
+    setAddedItemCount(null);
   }, [defaultSize, defaultStrength, product.dosage, product.id, product.pharmacy]);
 
   useLayoutEffect(() => {
@@ -1573,6 +1575,7 @@ function ProductDetailPage({
     .slice(0, 6);
 
   function togglePatient(id: number) {
+    setAddedItemCount(null);
     setSelectedPatientIds(current => {
       const next = new Set(current);
       if (next.has(id)) {
@@ -1629,6 +1632,18 @@ function ProductDetailPage({
         injectionType: injType,
         unitPrice: selectedPharmacy.price,
       })));
+      setAddedItemCount(itemCount);
+      setSize(defaultSize);
+      setStrength(defaultStrength);
+      setInjType(product.dosage === "Injection" ? "Intramuscular" : product.dosage);
+      setPharmacy(product.pharmacy);
+      setQty(1);
+      setSuppliesOpen(false);
+      setPatientPickerOpen(false);
+      setPatientSearch("");
+      setSelectedPatientIds(new Set());
+      setPatientQuantities({});
+      setExpandedPatientIds(new Set());
     });
   }
 
@@ -1702,7 +1717,7 @@ function ProductDetailPage({
 
           <div className="relative mt-6">
             <button onClick={() => setPatientPickerOpen(current => !current)} className="flex h-11 w-full items-center justify-center rounded-full border border-[#111] bg-white text-[12px] font-medium text-[#111] hover:bg-[#fafafa]">
-              Choose Patient
+              {selectedPatientCount === 0 ? "Choose patient" : "Add another patient"}
             </button>
             {patientPickerOpen && (
               <div className="absolute inset-x-0 top-12 z-30 overflow-hidden rounded-[10px] border border-[#d8dfdc] bg-white shadow-xl">
@@ -1775,6 +1790,13 @@ function ProductDetailPage({
                   );
                 })}
               </div>
+            </div>
+          )}
+
+          {addedItemCount !== null && (
+            <div className="mt-3 flex items-center justify-center gap-2 rounded-[9px] bg-[#edf5f0] px-3 py-2.5 text-[11px] font-semibold text-[#315a47]">
+              <CheckCircle2 size={15} strokeWidth={2} />
+              {addedItemCount} {addedItemCount === 1 ? "product" : "products"} added to cart
             </div>
           )}
 
@@ -2252,24 +2274,17 @@ function OrdersPage({ onNavigate }: { onNavigate: (p: Page) => void }) {
                 </div>
               </div>
 
-              <div className="grid gap-5 px-5 py-4 lg:grid-cols-[1.1fr_1.1fr_1.6fr]">
+              <div className="grid gap-5 px-5 py-4 lg:grid-cols-[0.9fr_1.6fr]">
                 <div>
                   <p className="mb-2 text-[10px] font-semibold uppercase tracking-[0.12em] text-[#8c95a1]">Patient</p>
                   <div className="space-y-2">
                     {("patients" in order ? order.patients : [order.patient]).map(patient => (
                       <div key={patient.name} className="rounded-[8px] border border-[#eee8e3] bg-[#fbfaf8] px-3 py-2.5">
                         <p className="text-[12px] font-semibold text-[#1a1a1a]">{patient.name} <span className="font-normal text-[#8c95a1]">({patient.gender})</span></p>
-                        <p className="mt-1 text-[11px] leading-relaxed text-[#6f7782]">{patient.address}</p>
                         <p className="mt-1 text-[11px] text-[#6f7782]">{patient.phone}</p>
                       </div>
                     ))}
                   </div>
-                </div>
-
-                <div>
-                  <p className="mb-2 text-[10px] font-semibold uppercase tracking-[0.12em] text-[#8c95a1]">Clinic</p>
-                  <p className="text-[12px] leading-relaxed text-[#6f7782]">{order.clinic.address}</p>
-                  <p className="mt-1 text-[12px] text-[#6f7782]">{order.clinic.phone}</p>
                 </div>
 
                 <div>
