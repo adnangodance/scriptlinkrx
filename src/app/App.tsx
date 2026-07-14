@@ -1401,6 +1401,16 @@ function ProductsPage({
               <span className={`text-[11px] font-semibold ${isActive ? "text-[#183229]" : "text-[#9d9d9d]"}`}>
                 {pharmacy.count}
               </span>
+              {pharmacy.name !== "All Pharmacies" && supportsMultiPatientShipping(pharmacy.name) && (
+                <span className="group relative inline-flex items-center gap-1 rounded-full bg-[#e7f5ec] px-2 py-0.5 text-[9px] font-semibold text-[#2f704c]">
+                  <CheckCircle2 size={10} />
+                  Multi-shipping
+                  <span className="pointer-events-none absolute bottom-[calc(100%+8px)] left-1/2 z-40 hidden w-56 -translate-x-1/2 rounded-[7px] bg-[#183229] px-3 py-2 text-left text-[10px] font-medium leading-relaxed text-white shadow-lg group-hover:block">
+                    One shipping fee covers prescriptions for multiple patients ordered from this pharmacy.
+                    <span className="absolute left-1/2 top-full -translate-x-1/2 border-4 border-transparent border-t-[#183229]" />
+                  </span>
+                </span>
+              )}
             </button>
           );
         })}
@@ -4173,6 +4183,27 @@ function MultiPatientCartPage({
             <p className="text-[12px] font-semibold uppercase tracking-[0.12em] text-[#667085]">Preview</p>
             <h2 className="mt-1 text-[22px] font-semibold text-[#1a1a1a]">Patient order</h2>
             <p className="mt-1 text-[12px] text-[#6f7782]">One shipment for {cartData.patients.length} {cartData.patients.length === 1 ? "patient" : "patients"} from {cartData.pharmacy}.</p>
+
+            <section className="mt-6">
+              <h3 className="border-b border-[#eee8e3] pb-3 text-[15px] font-semibold text-[#1a1a1a]">Patient information</h3>
+              <div className="mt-3 flex flex-col gap-2.5">
+                {cartData.patients.map(patient => (
+                  <div key={patient.name} className="rounded-[10px] border border-[#dfe5e2] bg-[#f7f9f8] px-4 py-3.5">
+                    <div className="flex items-start justify-between gap-3">
+                      <div>
+                        <p className="text-[13px] font-semibold text-[#1a1a1a]">{patient.name}</p>
+                        <p className="mt-0.5 text-[10px] text-[#7a837f]">DOB {patient.dob}</p>
+                      </div>
+                      <span className="rounded-full bg-[#e7efe9] px-2 py-1 text-[9px] font-semibold text-[#315a47]">Patient</span>
+                    </div>
+                    <div className="mt-3 space-y-2 text-[11px] leading-relaxed text-[#5f6964]">
+                      <div className="flex items-center gap-2"><Phone size={13} className="shrink-0 text-[#183229]" /><span>{patient.phone}</span></div>
+                      <div className="flex items-start gap-2"><MapPin size={13} className="mt-0.5 shrink-0 text-[#183229]" /><span className="whitespace-pre-line">{patient.address}</span></div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </section>
 
             <section className="mt-6">
               <h3 className="border-b border-[#eee8e3] pb-3 text-[15px] font-semibold text-[#1a1a1a]">Prescriptions</h3>
