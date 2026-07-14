@@ -436,7 +436,7 @@ function Sidebar({
   };
 
   return (
-    <aside className="w-[248px] min-h-screen flex flex-col bg-[#fffbf8] flex-shrink-0 border-r border-[#eaeaea]">
+    <aside className="sticky top-0 h-screen w-[248px] flex-shrink-0 flex flex-col border-r border-[#eaeaea] bg-[#fffbf8]">
       {/* Logo */}
       <button
         type="button"
@@ -3746,6 +3746,24 @@ function MultiPatientCartPage({
     }));
   }
 
+  function prescriptionFieldClass(value: string) {
+    const complete = value.trim().length > 0;
+    const state = complete
+      ? "border-[#78a98f] bg-[#f6fbf8] focus:border-[#315a47]"
+      : "border-[#e39a91] bg-[#fff8f7] focus:border-[#c94f43]";
+    return `h-10 w-full rounded-[8px] border px-3 text-[13px] font-medium text-[#4f5b56] outline-none transition-colors ${state}`;
+  }
+
+  function PrescriptionFieldStatus({ value }: { value: string }) {
+    const complete = value.trim().length > 0;
+    return (
+      <span className={`ml-2 inline-flex items-center gap-1 text-[9px] font-semibold ${complete ? "text-[#397052]" : "text-[#c94f43]"}`}>
+        {complete ? <CheckCircle2 size={11} /> : <AlertCircle size={11} />}
+        {complete ? "Complete" : "Required"}
+      </span>
+    );
+  }
+
   const allItems = cartData.patients.flatMap(p => p.items).filter(i => !removed.has(i.id));
   const summaryItemPreviewCount = 3;
   const hiddenSummaryItemCount = Math.max(0, allItems.length - summaryItemPreviewCount);
@@ -3786,11 +3804,13 @@ function MultiPatientCartPage({
             {cartRowsWithNumbers.map(({ patient, item, prescriptionNumber }, rowIndex) => (
               <Fragment key={item.id}>
               {(rowIndex === 0 || (cartRowsWithNumbers[rowIndex - 1].item.pharmacy ?? cartData.pharmacy) !== (item.pharmacy ?? cartData.pharmacy)) && (
-                <div className={`${rowIndex === 0 ? "" : "mt-5"} rounded-t-[12px] border border-[#dedbd8] bg-[#ecebea] px-5 py-3`}>
-                  <h2 className="text-[15px] font-semibold text-[#1a1a1a]">{item.pharmacy ?? cartData.pharmacy} Cart</h2>
+                <div className={`${rowIndex === 0 ? "" : "mt-5"} rounded-t-[16px] border border-[#e8e3df] bg-[#fbf6f2] px-5 py-3`}>
+                  <div className="flex items-center justify-between gap-3">
+                    <h2 className="text-[15px] font-semibold text-[#1a1a1a]">{item.pharmacy ?? cartData.pharmacy} Cart</h2>
+                  </div>
                 </div>
               )}
-              <div className="border-x border-b border-[#e8e3df] bg-white px-4 py-4 transition-colors hover:bg-[#fffbf8]">
+              <div className="border-x border-b border-[#e8e3df] bg-white px-5 py-4 transition-colors hover:bg-[#fffbf8]">
                 {(() => {
                   const includedSupplies = patient.items.filter(supply => supply.kind === "supply" && !removed.has(supply.id));
                   return (
@@ -3867,11 +3887,13 @@ function MultiPatientCartPage({
                   </button>
                 </div>
 
-                {(
                   <div className="mt-4">
-                        <div className="rounded-[10px] border border-[#e8e3df] bg-[#fcfcfb] p-3.5">
+                        <div className="rounded-[14px] border border-[#d9e4de] bg-white p-3.5 shadow-[0_5px_18px_rgba(24,50,41,0.08)]">
                           <div className="flex flex-wrap items-center justify-between gap-2">
-                            <h3 className="text-[14px] font-semibold text-[#1a1a1a]">Prescription details</h3>
+                            <div>
+                              <p className="mb-0.5 text-[9px] font-semibold uppercase tracking-[0.12em] text-[#6f7782]">Prescription</p>
+                              <h3 className="text-[14px] font-semibold text-[#1a1a1a]">Prescription details</h3>
+                            </div>
                             <span className="rounded-full bg-[#f2f7f4] px-2.5 py-1 text-[11px] font-semibold text-[#52645c]">{patient.name}</span>
                           </div>
                           <div className="mt-3">
@@ -3883,7 +3905,7 @@ function MultiPatientCartPage({
                             />
                           </div>
                           <div className="mt-4 grid gap-4 md:grid-cols-[minmax(0,1fr)_200px_240px]">
-                            <div>
+                            <div className="rounded-[9px] bg-[#f6f9f7] p-3">
                               <label className="mb-1.5 block text-[12px] font-semibold text-[#1a1a1a]">Qty Size</label>
                               <input
                                 value={item.detail.split("|")[1]?.trim() ?? item.detail}
@@ -3891,34 +3913,34 @@ function MultiPatientCartPage({
                                 className="h-10 w-full cursor-not-allowed rounded-[7px] border border-[#d8dfdc] bg-white px-3 text-[13px] font-medium text-[#6f7782] outline-none"
                               />
                             </div>
-                            <div>
-                              <label className="mb-1.5 block text-[12px] font-semibold text-[#1a1a1a]">Days Supply</label>
+                            <div className="rounded-[9px] bg-[#f6f9f7] p-3">
+                              <label className="mb-1.5 flex items-center text-[12px] font-semibold text-[#1a1a1a]">Days Supply <PrescriptionFieldStatus value={prescriptionDetails[item.id]?.days ?? "1"} /></label>
                               <input
                                 type="number"
                                 min="1"
                                 value={prescriptionDetails[item.id]?.days ?? "1"}
                                 onChange={event => updatePrescriptionDetail(item.id, "days", event.target.value)}
-                                className="h-10 w-full rounded-[7px] border border-[#d8dfdc] bg-white px-3 text-[13px] font-medium text-[#6f7782] outline-none transition-colors placeholder:text-[#b9c0bc] focus:border-[#183229]"
+                                className={prescriptionFieldClass(prescriptionDetails[item.id]?.days ?? "1")}
                               />
                             </div>
-                            <div>
-                              <label className="mb-1.5 block text-[12px] font-semibold text-[#1a1a1a]">Authorized Refills</label>
+                            <div className="rounded-[9px] bg-[#f6f9f7] p-3">
+                              <label className="mb-1.5 flex items-center text-[12px] font-semibold text-[#1a1a1a]">Authorized Refills <PrescriptionFieldStatus value={prescriptionDetails[item.id]?.refills ?? "1"} /></label>
                               <input
                                 type="number"
                                 min="0"
                                 value={prescriptionDetails[item.id]?.refills ?? "1"}
                                 onChange={event => updatePrescriptionDetail(item.id, "refills", event.target.value)}
-                                className="h-10 w-full rounded-[7px] border border-[#d8dfdc] bg-white px-3 text-[13px] font-medium text-[#6f7782] outline-none transition-colors placeholder:text-[#b9c0bc] focus:border-[#183229]"
+                                className={prescriptionFieldClass(prescriptionDetails[item.id]?.refills ?? "1")}
                               />
                             </div>
                           </div>
                           <div className="mt-4 grid gap-4 md:grid-cols-2">
-                            <div>
-                              <label className="mb-1.5 block text-[12px] font-semibold text-[#1a1a1a]">Directions of Use</label>
+                            <div className="rounded-[9px] bg-[#f6f9f7] p-3">
+                              <label className="mb-1.5 flex items-center text-[12px] font-semibold text-[#1a1a1a]">Directions of Use <PrescriptionFieldStatus value={prescriptionDetails[item.id]?.directions ?? "Inject (2.5 mg) subcutaneously once weekly."} /></label>
                               <select
                                 value={prescriptionDetails[item.id]?.directions ?? "Inject (2.5 mg) subcutaneously once weekly."}
                                 onChange={event => updatePrescriptionDetail(item.id, "directions", event.target.value)}
-                                className="h-10 w-full rounded-[7px] border border-[#d8dfdc] bg-white py-0 pl-3 pr-8 text-[13px] font-medium text-[#6f7782] outline-none transition-colors focus:border-[#183229]"
+                                className={`${prescriptionFieldClass(prescriptionDetails[item.id]?.directions ?? "Inject (2.5 mg) subcutaneously once weekly.")} pr-8`}
                               >
                                 <option>Inject (2.5 mg) subcutaneously once weekly.</option>
                                 <option>Inject (5 mg) subcutaneously once weekly.</option>
@@ -3926,12 +3948,12 @@ function MultiPatientCartPage({
                                 <option>Use as directed by prescriber</option>
                               </select>
                             </div>
-                            <div>
-                              <label className="mb-1.5 block text-[12px] font-semibold text-[#1a1a1a]">Reason to Compound*</label>
+                            <div className="rounded-[9px] bg-[#f6f9f7] p-3">
+                              <label className="mb-1.5 flex items-center text-[12px] font-semibold text-[#1a1a1a]">Reason to Compound* <PrescriptionFieldStatus value={prescriptionDetails[item.id]?.reason ?? ""} /></label>
                               <select
                                 value={prescriptionDetails[item.id]?.reason ?? ""}
                                 onChange={event => updatePrescriptionDetail(item.id, "reason", event.target.value)}
-                                className="h-10 w-full rounded-[7px] border border-[#d8dfdc] bg-white py-0 pl-3 pr-8 text-[13px] font-medium text-[#6f7782] outline-none transition-colors focus:border-[#183229]"
+                                className={`${prescriptionFieldClass(prescriptionDetails[item.id]?.reason ?? "")} pr-8`}
                               >
                                 <option value="" disabled>Select reason below or type out your own</option>
                                 <option>This compounded Tirzepatide / Pyridoxine (B6) formulation incorporates pyridoxine to complement dual GIP/GLP-1 therapy.</option>
@@ -3941,7 +3963,7 @@ function MultiPatientCartPage({
                               </select>
                             </div>
                           </div>
-                          <div className="mt-4">
+                          <div className="mt-4 rounded-[9px] bg-[#f6f9f7] p-3">
                             <label className="mb-1.5 block text-[12px] font-semibold text-[#1a1a1a]">Prescription Note (Optional)</label>
                             <textarea
                               placeholder="Enter Prescription Note"
@@ -3995,7 +4017,6 @@ function MultiPatientCartPage({
                     )}
                     </div>}
                   </div>
-                )}
                     </>
                   );
                 })()}
@@ -4011,7 +4032,7 @@ function MultiPatientCartPage({
                 const shipmentCount = multiPatientShipping ? 1 : Math.max(1, pharmacyPatientCount);
                 const pharmacyShippingTotal = cartData.shipping[selectedShipping].price * shipmentCount;
                 return (
-                  <div className="rounded-b-[12px] border-x border-b border-[#e8e3df] bg-[#fbfaf8] px-5 py-4">
+                  <div className="rounded-b-[16px] border-x border-b border-[#e8e3df] bg-[#fffaf6] px-5 py-4">
                     <div className="flex flex-wrap items-center justify-between gap-2">
                       <h3 className="text-[13px] font-semibold text-[#1a1a1a]">Shipping method</h3>
                       <span className="text-[13px] font-semibold text-[#183229]">${pharmacyShippingTotal.toFixed(2)}</span>
@@ -4048,7 +4069,7 @@ function MultiPatientCartPage({
         </div>
 
         {/* Right — checkout summary */}
-        <aside className="rounded-[12px] border border-[#e8e3df] bg-white overflow-hidden xl:sticky xl:top-4">
+        <aside className="self-start overflow-hidden rounded-[12px] border border-[#e8e3df] bg-white xl:sticky xl:top-6 xl:max-h-[calc(100vh-3rem)] xl:overflow-y-auto">
           <div className="border-b border-[#eee8e3] bg-[#fbfaf8] px-5 py-4">
             <p className="text-[15px] font-semibold text-[#1a1a1a]">Order Total</p>
             <p className="mt-0.5 text-[12px] text-[#6f7782]">{prescriptionCount} prescriptions across {cartData.patients.length} patients</p>
@@ -4748,12 +4769,12 @@ export default function App() {
     <AppLoadingContext.Provider value={{ runWithAppLoader }}>
       <CartSummaryContext.Provider value={{ cartItemCount, cartPreviewItems, addCartItems, updateCartItemQty, removeCartItem, clearCartItems }}>
         <ProductFavoritesContext.Provider value={{ favoriteProductIds, setFavoriteProductIds, favoriteProducts }}>
-          <div className="flex min-h-screen bg-[#fffbf8] font-['Inter',sans-serif]">
+          <div className="flex h-screen overflow-hidden bg-[#fffbf8] font-['Inter',sans-serif]">
             {/* Sidebar Navigation */}
             <Sidebar active={page} onNavigate={setPage} cartPage={cartPage} />
 
             {/* Main content area */}
-            <main className="flex-1 min-w-0 p-6 overflow-auto">
+            <main className="h-screen min-w-0 flex-1 overflow-y-auto p-6">
               <div className="bg-card rounded-[10px] min-h-full p-7 shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
                 {renderPage()}
               </div>
