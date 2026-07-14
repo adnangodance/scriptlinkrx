@@ -1,3 +1,31 @@
 @import './fonts.css';
 @import './tailwind.css';
 @import './theme.css';
+
+@keyframes chat-welcome-in {
+  0% {
+    opacity: 0;
+    transform: translateY(18px) scale(0.94);
+    transform-origin: bottom right;
+  }
+  65% {
+    opacity: 1;
+    transform: translateY(-3px) scale(1.01);
+    transform-origin: bottom right;
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    transform-origin: bottom right;
+  }
+}
+
+.chat-welcome-in {
+  animation: chat-welcome-in 420ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .chat-welcome-in {
+    animation: none;
+  }
+}

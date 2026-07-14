@@ -4768,6 +4768,9 @@ export default function App() {
   const [chatOpen, setChatOpen] = useState(false);
   const [chatMenuOpen, setChatMenuOpen] = useState(false);
   const [chatMuted, setChatMuted] = useState(false);
+  const [showChatTutorial, setShowChatTutorial] = useState(
+    () => window.localStorage.getItem("scriptlinkrx-chat-tutorial-seen") !== "true",
+  );
   const [chatInput, setChatInput] = useState("");
   const [alexTyping, setAlexTyping] = useState(false);
   const chatEndRef = useRef<HTMLDivElement>(null);
@@ -4860,6 +4863,11 @@ export default function App() {
       }]);
       setAlexTyping(false);
     }, 900);
+  }
+
+  function dismissChatTutorial() {
+    setShowChatTutorial(false);
+    window.localStorage.setItem("scriptlinkrx-chat-tutorial-seen", "true");
   }
   const cartItemCount = cartPreviewItems.reduce((count, item) => count + (item.qty ?? 1), 0);
 
@@ -4958,7 +4966,16 @@ export default function App() {
   }
 
   if (!isAuthenticated) {
-    return <LoginPage onLogin={() => { setIsAuthenticated(true); setChatOpen(true); }} />;
+    return <LoginPage onLogin={() => {
+      setIsAuthenticated(true);
+      setChatMessages([]);
+      setChatOpen(true);
+      setAlexTyping(true);
+      window.setTimeout(() => {
+        setChatMessages(current => [...current, { id: Date.now(), sender: "alex", text: "Hi! I’m Alex. How can I help with your pharmacy or product order today?" }]);
+        setAlexTyping(false);
+      }, 1100);
+    }} />;
   }
 
   return (
@@ -4978,7 +4995,7 @@ export default function App() {
 
             {/* Chat popup */}
             {chatOpen && (
-              <div className="fixed bottom-[76px] right-5 z-50 flex h-[430px] w-[385px] flex-col overflow-hidden rounded-[21px] bg-white shadow-[0_20px_55px_rgba(5,60,35,0.24)]">
+              <div className="chat-welcome-in fixed bottom-[76px] right-5 z-50 flex h-[430px] w-[385px] flex-col overflow-hidden rounded-[21px] bg-white shadow-[0_20px_55px_rgba(5,60,35,0.24)]">
                 <div className="flex h-[101px] items-center bg-[#004b2d] px-[35px] pb-[15px] pt-[14px] text-white">
                   <div className="flex size-[34px] items-center justify-center overflow-hidden rounded-full bg-[#f0b33a] text-[18px]">👨🏾</div>
                   <div className="ml-[11px]">
@@ -5019,7 +5036,27 @@ export default function App() {
 
             {/* Chat bubble */}
             <div className="fixed bottom-5 right-5 z-50">
-              <button onClick={() => setChatOpen(current => !current)} className="w-11 h-11 bg-[#053c23] rounded-full flex items-center justify-center shadow-lg hover:bg-[#183229] transition-colors" aria-expanded={chatOpen} aria-label={chatOpen ? "Close chat" : "Open chat"}>
+              {showChatTutorial && !chatOpen && (
+                <div className="chat-welcome-in absolute bottom-[60px] right-0 w-[310px] rounded-[18px] bg-[#171717] p-4 text-white shadow-[0_18px_50px_rgba(0,0,0,0.28)]">
+                  <span className="absolute -bottom-2 right-[14px] size-4 rotate-45 bg-[#171717]" aria-hidden="true" />
+                  <div className="relative flex items-start justify-between gap-3">
+                    <div>
+                      <p className="text-[14px] font-semibold">Meet Alex, your assistant</p>
+                      <p className="mt-1 text-[11px] leading-[16px] text-white/65">Ask questions and get help while you work.</p>
+                    </div>
+                    <button onClick={dismissChatTutorial} className="flex size-7 shrink-0 items-center justify-center rounded-full text-white/65 hover:bg-white/10 hover:text-white" aria-label="Dismiss chat tutorial"><X size={14} /></button>
+                  </div>
+                  <div className="relative mt-3 rounded-[13px] bg-[#eaf2bd] p-3 text-[#142218]">
+                    <div className="flex items-center gap-2 text-[11px] font-semibold"><MessageSquare size={13} /> Ask Alex about:</div>
+                    <p className="mt-2 text-[11px] leading-[16px] text-[#435047]">Finding products, placing orders, multi-shipping, prescriptions, delivery, and tracking.</p>
+                  </div>
+                  <button onClick={() => { dismissChatTutorial(); setChatOpen(true); }} className="relative mt-3 h-10 w-full rounded-[10px] bg-[#2f2f2f] text-[12px] font-semibold text-white transition-colors hover:bg-[#3a3a3a]">Try the chat</button>
+                </div>
+              )}
+              <button onClick={() => {
+                if (chatOpen) setChatOpen(false);
+                else { dismissChatTutorial(); setChatOpen(true); }
+              }} className="w-11 h-11 bg-[#053c23] rounded-full flex items-center justify-center shadow-lg hover:bg-[#183229] transition-colors" aria-expanded={chatOpen} aria-label={chatOpen ? "Close chat" : "Open chat"}>
                 <MessageSquare size={16} className="text-[#d8ffa2]" />
               </button>
             </div>
