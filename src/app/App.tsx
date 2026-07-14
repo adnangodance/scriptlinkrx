@@ -4770,6 +4770,7 @@ export default function App() {
   const [chatMuted, setChatMuted] = useState(false);
   const [chatInput, setChatInput] = useState("");
   const [alexTyping, setAlexTyping] = useState(false);
+  const chatEndRef = useRef<HTMLDivElement>(null);
   const [chatMessages, setChatMessages] = useState<Array<{ id: number; sender: "alex" | "user"; text: string }>>([
     { id: 1, sender: "alex", text: "Hi! I’m Alex. How can I help with your pharmacy or product order today?" },
   ]);
@@ -4777,6 +4778,72 @@ export default function App() {
   useEffect(() => {
     window.localStorage.setItem("scriptlinkrx-authenticated", String(isAuthenticated));
   }, [isAuthenticated]);
+
+  useEffect(() => {
+    if (!chatOpen) return;
+    window.requestAnimationFrame(() => {
+      chatEndRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
+    });
+  }, [chatMessages, alexTyping, chatOpen]);
+
+  function getAlexReply(message: string) {
+    const question = message.toLowerCase().replace(/[^a-z0-9\s-]/g, " ");
+    const includesAny = (...terms: string[]) => terms.some((term) => question.includes(term));
+
+    if (includesAny("thank", "thanks", "thx")) {
+      return "You’re welcome! If you need anything else, I can help with products, patients, prescriptions, shipping, or order tracking.";
+    }
+    if (includesAny("hello", "hi ", "hey", "good morning", "good afternoon") || question.trim() === "hi") {
+      return "Hi! How can I help?";
+    }
+    if (includesAny("multi shipping", "multi shiping", "multiple shipping", "multiple shiping", "multi-shipping", "multiple patient", "multi patient")) {
+      if (includesAny("where", "find", "which pharmacy", "which pharmacies")) {
+        return "Open Catalog and check the pharmacy options beside the search bar. Pharmacies that support it have a green “Multi-shipping” badge. Hover over the badge for details; pharmacies without the badge charge shipping per patient.";
+      }
+      return "Multi-shipping lets one supported pharmacy ship prescriptions for several patients with one shipping fee for that pharmacy cart. Look for the green Multi-shipping badge in Catalog.";
+    }
+    if (includesAny("where to find product", "where to find a product", "where can i find product", "where can i find a product", "how can i find product", "find a product", "find product", "search product", "look for product")) {
+      return "Open Catalog from the left menu, then use the search field near the top. You can search by product name and use the pharmacy filter to narrow the results.";
+    }
+    if (includesAny("how to order", "how do i order", "how can i order", "place an order", "order a product", "buy a product", "how to buy")) {
+      return "Open Catalog → choose a product → select its size, strength, and pharmacy → choose one or more patients → select Add to cart. In Cart, complete each prescription, choose shipping, then continue to checkout.";
+    }
+    if (includesAny("best product", "best products", "which product", "recommend product", "recommendation")) {
+      return "There isn’t one best product for every patient. The right option depends on the treatment goal, medical history, and prescriber’s decision. You can browse Catalog and compare formulations and pharmacies, but confirm the clinical choice with the prescriber.";
+    }
+    if (includesAny("shipping", "delivery", "arrive", "how long")) {
+      return "Delivery depends on the pharmacy and shipping method you select. Most orders are processed within one business day, then arrive in about 1–3 business days. Your cart shows the exact method and fee before checkout.";
+    }
+    if (includesAny("tracking", "track", "where is my order", "order status")) {
+      return "Open Orders and select the order to see its live status and tracking. If it says “Tracking Not Ready,” the pharmacy hasn’t created the shipping label yet.";
+    }
+    if (includesAny("semaglutide", "tirzepatide", "pt-141", "bremelanotide", "available", "availability", "injectable")) {
+      return "Availability can vary by product strength, size, and pharmacy. Open the product in Catalog, choose its options, and the available pharmacy choices and prices will update there.";
+    }
+    if (includesAny("price", "cost", "how much", "cheapest")) {
+      return "The price changes with the product configuration and pharmacy. Choose the size and strength on the product page to compare options; the cart will show the final product price plus shipping.";
+    }
+    if (includesAny("prescription", "prescriber", "open rx", " rx ", "doctor")) {
+      return "Prescription details are completed for each patient in the cart. The assigned prescriber and prescription status are also shown in Order Details after the order is created.";
+    }
+    if (includesAny("patient", "address", "add person")) {
+      return "Choose a patient on the product page, or create a new one from the patient menu. You can add several patients, set a quantity for each, and review every patient’s address in the cart.";
+    }
+    if (includesAny("cancel", "refund", "return")) {
+      return "Open the order in Orders and use Request Cancellation. If the pharmacy has already started processing it, create a support ticket so the team can review the available options.";
+    }
+    if (includesAny("support", "human", "agent", "ticket", "someone")) {
+      return "You can open Support Tickets from the left menu. You can also use the three-dot menu here and choose Support tickets to contact the team.";
+    }
+    if (includesAny("pharmacy", "pharmacies")) {
+      return "Catalog lets you filter across all six pharmacies. Each product page shows available pharmacy prices, and pharmacies that combine shipping for multiple patients have a Multi-shipping badge.";
+    }
+    if (includesAny("cart", "checkout", "add to cart")) {
+      return "After choosing a pharmacy and at least one patient, add the product to the cart. Items are grouped by pharmacy, with each patient’s quantity, price, prescription fields, address, and shipping option shown together.";
+    }
+
+    return "I’m not completely sure what you mean yet. Could you tell me whether this is about a product, patient, prescription, pharmacy, shipping, or an existing order?";
+  }
 
   function sendChatMessage(event: FormEvent) {
     event.preventDefault();
@@ -4789,7 +4856,7 @@ export default function App() {
       setChatMessages(current => [...current, {
         id: Date.now() + 1,
         sender: "alex",
-        text: "Thanks for the message. I’m checking that for you now. Orders are usually processed within one business day, and I can help confirm the pharmacy details.",
+        text: getAlexReply(message),
       }]);
       setAlexTyping(false);
     }, 900);
@@ -4891,7 +4958,7 @@ export default function App() {
   }
 
   if (!isAuthenticated) {
-    return <LoginPage onLogin={() => setIsAuthenticated(true)} />;
+    return <LoginPage onLogin={() => { setIsAuthenticated(true); setChatOpen(true); }} />;
   }
 
   return (
@@ -4934,12 +5001,13 @@ export default function App() {
                     {chatMessages.map(message => message.sender === "alex" ? (
                       <div key={message.id} className="flex items-start gap-[12px]">
                         <div className="flex size-[23px] shrink-0 items-center justify-center rounded-full bg-[#f0b33a] text-[11px]">👨🏾</div>
-                        <div className="max-w-[278px] rounded-[20px] bg-[#eaf2bd] px-[15px] py-[13px] text-[13px] leading-[16px] text-[#111]">{message.text}</div>
+                        <div className="w-fit max-w-[278px] rounded-[20px] bg-[#eaf2bd] px-[15px] py-[13px] text-[13px] leading-[16px] text-[#111]">{message.text}</div>
                       </div>
                     ) : (
-                      <div key={message.id} className="ml-auto max-w-[275px] rounded-[20px] bg-black px-[15px] py-[13px] text-[13px] leading-[16px] text-white">{message.text}</div>
+                      <div key={message.id} className="ml-auto w-fit max-w-[275px] rounded-[20px] bg-black px-[15px] py-[13px] text-[13px] leading-[16px] text-white">{message.text}</div>
                     ))}
                     {alexTyping && <div className="flex items-center gap-[12px]"><div className="flex size-[23px] shrink-0 items-center justify-center rounded-full bg-[#f0b33a] text-[11px]">👨🏾</div><div className="flex gap-1 rounded-[16px] bg-[#eaf2bd] px-4 py-3"><span className="size-1.5 animate-pulse rounded-full bg-[#60712d]" /><span className="size-1.5 animate-pulse rounded-full bg-[#60712d] [animation-delay:150ms]" /><span className="size-1.5 animate-pulse rounded-full bg-[#60712d] [animation-delay:300ms]" /></div></div>}
+                    <div ref={chatEndRef} aria-hidden="true" />
                   </div>
                   <form onSubmit={sendChatMessage} className="flex items-center gap-2 border-t border-[#e9ecea] bg-white px-4 py-3">
                     <input value={chatInput} onChange={event => setChatInput(event.target.value)} placeholder="Write a message..." className="h-10 min-w-0 flex-1 rounded-full border border-[#dce2df] bg-[#f7f9f8] px-4 text-[12px] outline-none placeholder:text-[#929b96] focus:border-[#004b2d]" />
