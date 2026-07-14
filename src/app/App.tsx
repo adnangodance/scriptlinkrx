@@ -4771,6 +4771,9 @@ export default function App() {
   const [showChatTutorial, setShowChatTutorial] = useState(
     () => window.localStorage.getItem("scriptlinkrx-chat-tutorial-seen") !== "true",
   );
+  const [showPlatformTour, setShowPlatformTour] = useState(false);
+  const [platformTourStep, setPlatformTourStep] = useState(0);
+  const [platformTourTooltipVisible, setPlatformTourTooltipVisible] = useState(false);
   const [chatInput, setChatInput] = useState("");
   const [alexTyping, setAlexTyping] = useState(false);
   const chatEndRef = useRef<HTMLDivElement>(null);
@@ -4869,6 +4872,25 @@ export default function App() {
     setShowChatTutorial(false);
     window.localStorage.setItem("scriptlinkrx-chat-tutorial-seen", "true");
   }
+
+  function startChatWelcome() {
+    setChatMessages([]);
+    setChatOpen(true);
+    setAlexTyping(true);
+    window.setTimeout(() => {
+      setChatMessages(current => [...current, { id: Date.now(), sender: "alex", text: "Hi! I’m Alex. How can I help with your pharmacy or product order today?" }]);
+      setAlexTyping(false);
+    }, 1100);
+  }
+
+  function finishPlatformTour() {
+    window.localStorage.setItem("scriptlinkrx-platform-tour-seen", "true");
+    setShowPlatformTour(false);
+    setPlatformTourTooltipVisible(false);
+    setPlatformTourStep(0);
+    startChatWelcome();
+  }
+
   const cartItemCount = cartPreviewItems.reduce((count, item) => count + (item.qty ?? 1), 0);
 
   function addCartItems(count = 1, product?: CartPreviewItem) {
@@ -4968,15 +4990,48 @@ export default function App() {
   if (!isAuthenticated) {
     return <LoginPage onLogin={() => {
       setIsAuthenticated(true);
-      setChatMessages([]);
-      setChatOpen(true);
-      setAlexTyping(true);
-      window.setTimeout(() => {
-        setChatMessages(current => [...current, { id: Date.now(), sender: "alex", text: "Hi! I’m Alex. How can I help with your pharmacy or product order today?" }]);
-        setAlexTyping(false);
-      }, 1100);
+      setPlatformTourStep(0);
+      setPage("products");
+      setShowPlatformTour(true);
+      setPlatformTourTooltipVisible(true);
     }} />;
   }
+
+  const platformTourSteps = [
+    {
+      icon: <BookOpen size={23} />,
+      title: "Catalog",
+      description: "Browse and search all available products, then compare configurations, pharmacy prices, and availability.",
+      hint: "This is where every new product order begins.",
+      card: "left-[260px] top-[145px]",
+      arrow: "-left-2 top-7",
+    },
+    {
+      icon: <ClipboardList size={23} />,
+      title: "Orders",
+      description: "Review submitted orders and follow approval, payment, pharmacy processing, tracking, and delivery.",
+      hint: "Open an order to see its full details and patient tracking link.",
+      card: "left-[260px] top-[182px]",
+      arrow: "-left-2 top-7",
+    },
+    {
+      icon: <ShoppingCart size={23} />,
+      title: "Cart",
+      description: "Review products by patient and pharmacy, complete prescription fields, and choose shipping before checkout.",
+      hint: "Continue becomes available when all required information is complete.",
+      card: "left-[260px] top-[219px]",
+      arrow: "-left-2 top-7",
+    },
+    {
+      icon: <Truck size={23} />,
+      title: "Multi-shipping pharmacies",
+      description: "In Catalog, supported pharmacies display a green Multi-shipping badge in the pharmacy filter row.",
+      hint: "It means one shipping fee can cover prescriptions for multiple patients from that pharmacy.",
+      card: "left-[310px] top-[245px]",
+      arrow: "left-10 -top-2",
+    },
+  ];
+  const activeTourStep = platformTourSteps[platformTourStep];
 
   return (
     <AppLoadingContext.Provider value={{ runWithAppLoader }}>
@@ -4992,6 +5047,27 @@ export default function App() {
                 {renderPage()}
               </div>
             </main>
+
+            {showPlatformTour && platformTourTooltipVisible && (
+                <div className={`chat-welcome-in fixed z-[82] w-[330px] rounded-[18px] bg-[#171717] p-5 text-white shadow-[0_22px_65px_rgba(0,0,0,0.32)] ${activeTourStep.card}`}>
+                  <span className={`absolute size-4 rotate-45 bg-[#171717] ${activeTourStep.arrow}`} aria-hidden="true" />
+                  <div className="relative flex items-center justify-between">
+                    <div className="flex size-10 items-center justify-center rounded-[12px] bg-[#dff2a8] text-[#064b2f]">{activeTourStep.icon}</div>
+                    <button onClick={finishPlatformTour} className="rounded-full px-2.5 py-1.5 text-[11px] text-white/55 hover:bg-white/10 hover:text-white">End tips</button>
+                  </div>
+                  <p className="relative mt-4 text-[11px] font-semibold uppercase tracking-[0.12em] text-[#b9d879]">Quick tip</p>
+                  <h2 className="relative mt-1.5 text-[18px] font-semibold leading-[24px]">{activeTourStep.title}</h2>
+                  <p className="relative mt-2 text-[12px] leading-[18px] text-white/70">{activeTourStep.description}</p>
+                  <div className="relative mt-4 rounded-[11px] bg-white/[0.08] px-3 py-2.5 text-[11px] leading-[16px] text-white/65">{activeTourStep.hint}</div>
+                  <div className="relative mt-5 flex items-center gap-2">
+                    <div className="flex flex-1 gap-1.5">{platformTourSteps.map((_, index) => <span key={index} className={`h-1.5 rounded-full transition-all ${index === platformTourStep ? "w-6 bg-[#d8ffa2]" : index < platformTourStep ? "w-2.5 bg-white/40" : "w-2.5 bg-white/20"}`} />)}</div>
+                    <button onClick={() => {
+                      if (platformTourStep === platformTourSteps.length - 1) finishPlatformTour();
+                      else setPlatformTourStep(step => step + 1);
+                    }} className="h-9 rounded-[9px] bg-[#d8ffa2] px-4 text-[11px] font-semibold text-[#123422] hover:bg-[#c9ef96]">{platformTourStep === platformTourSteps.length - 1 ? "Finish" : "Next"}</button>
+                  </div>
+                </div>
+            )}
 
             {/* Chat popup */}
             {chatOpen && (
