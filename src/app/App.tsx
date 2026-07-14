@@ -47,6 +47,7 @@ import {
   Syringe,
   X,
   Loader2,
+  EyeOff,
 } from "lucide-react";
 
 import img430 from "@/imports/ScriptlinkrxDashboard/9b6fa0a3b334659006bcf39e91b4da387a7b4cf0.png";
@@ -474,6 +475,9 @@ function Sidebar({
       </div>
 
       <div className="mt-auto" />
+      <div className="border-t border-[#e8e3df] px-4 py-4">
+        <UserChip onNavigate={onNavigate} />
+      </div>
     </aside>
   );
 }
@@ -682,7 +686,6 @@ function HeaderActions({
         )}
       </div>
 
-      <UserChip onNavigate={onNavigate} />
     </div>
   );
 }
@@ -1217,11 +1220,11 @@ function ProductsPage({
     { label: "Dosage", values: dosages, setValues: setDosages, options: dosageOptions },
   ];
   const selectedCatalogFilterCount = catalogFilters.reduce((count, filter) => count + filter.values.length, 0);
-  const patientType = cartMode;
   const clearCatalogFilters = () => {
     setShippingStates([]);
     setAreasOfTreatment([]);
     setDosages([]);
+    setActivePharmacy("All Pharmacies");
   };
 
   return (
@@ -1229,35 +1232,11 @@ function ProductsPage({
       {/* Page header — matches Figma layout */}
       <div className="flex items-start justify-between mb-0">
         <h1 className="font-['Inter',sans-serif] font-medium text-[32px] text-black leading-none">Products</h1>
-        <HeaderActions onNavigate={onNavigate} cartPage={patientType === "multi" ? "cart-multi" : "cart-single"} favoriteProducts={favoriteProducts} onProductSelect={onProductSelect} />
+        <HeaderActions onNavigate={onNavigate} cartPage="cart-multi" favoriteProducts={favoriteProducts} onProductSelect={onProductSelect} />
       </div>
 
-      {/* Tab + search + filters bar */}
+      {/* Search + filters bar */}
       <div className="flex items-center gap-[14px] mt-6 mb-5">
-        {/* Patient type tabs */}
-        <div className="flex gap-1 bg-[#f6f4f5] p-1 rounded-[8px]">
-          <button
-            onClick={() => { setCartMode("single"); setActivePharmacy("All Pharmacies"); }}
-            className={`px-[16px] py-[6px] rounded-[6px] text-[12px] font-medium transition-all whitespace-nowrap ${
-              patientType === "single" ? "bg-white shadow-sm text-[#1a1a1a]" : "text-[#9d9d9d]"
-            }`}
-          >
-            Single Patient
-          </button>
-          <button
-            onClick={() => setCartMode("multi")}
-            className={`flex items-center gap-1.5 px-[16px] py-[6px] rounded-[6px] text-[12px] font-medium transition-all whitespace-nowrap ${
-              patientType === "multi" ? "bg-white shadow-sm text-[#1a1a1a]" : "text-[#9d9d9d]"
-            }`}
-          >
-            Multi Patients
-            <svg width="12" height="12" viewBox="0 0 12 12" fill="none" className="flex-shrink-0">
-              <circle cx="6" cy="6" r="6" fill="#023F24" />
-              <text x="6" y="9" textAnchor="middle" fill="white" fontSize="7" fontFamily="Inter" fontWeight="600">i</text>
-            </svg>
-          </button>
-        </div>
-
         {/* Search box — from Figma import Group1216401138 */}
         <div className="bg-white border border-[#efefef] rounded-[9px] h-[38px] flex items-center gap-2 px-3 w-[220px] flex-shrink-0">
           {/* Magnifier icon — pce98200 */}
@@ -1390,6 +1369,31 @@ function ProductsPage({
         </div>
       </div>
 
+      <div className="mb-5 flex flex-wrap items-center gap-2">
+        <p className="mr-1 text-[10px] font-semibold uppercase tracking-widest text-[#9d9d9d]">
+          Pharmacies (6)
+        </p>
+        {PHARMACIES_MULTI.map(pharmacy => {
+          const isActive = activePharmacy === pharmacy.name;
+          return (
+            <button
+              key={pharmacy.name}
+              onClick={() => setActivePharmacy(pharmacy.name)}
+              className={`flex items-center gap-2 rounded-full border bg-white px-3 py-1.5 text-[12px] font-medium transition-all ${
+                isActive
+                  ? "border-[#183229] text-[#183229]"
+                  : "border-[#e0e0e0] text-[#1a1a1a] hover:border-[#183229]/40"
+              }`}
+            >
+              {pharmacy.name}
+              <span className={`text-[11px] font-semibold ${isActive ? "text-[#183229]" : "text-[#9d9d9d]"}`}>
+                {pharmacy.count}
+              </span>
+            </button>
+          );
+        })}
+      </div>
+
       {selectedCatalogFilterCount > 0 && (
         <div className="-mt-2 mb-5 flex flex-wrap items-center gap-2">
           {catalogFilters.flatMap(({ label, values, setValues }) => (
@@ -1414,15 +1418,12 @@ function ProductsPage({
         </div>
       )}
 
-      {/* Multi-patient panel */}
-      {patientType === "multi" && <MultiPatientPanel activePharmacy={activePharmacy} onSelect={setActivePharmacy} />}
-
       {/* Popular Products */}
       {(() => {
         const q = search.toLowerCase();
         const filtered = POPULAR_CARDS.filter(c => {
           const matchesSearch = !q || c.name.toLowerCase().includes(q) || c.price.toLowerCase().includes(q);
-          const matchesPharmacy = patientType !== "multi" || activePharmacy === "All Pharmacies" || c.pharmacy === activePharmacy;
+          const matchesPharmacy = activePharmacy === "All Pharmacies" || c.pharmacy === activePharmacy;
           return matchesSearch && matchesPharmacy && matchesCatalogFilters(c);
         });
         if (filtered.length === 0) return null;
@@ -1441,7 +1442,7 @@ function ProductsPage({
         const q = search.toLowerCase();
         const filtered = ALL_CARDS.filter(c => {
           const matchesSearch = !q || c.name.toLowerCase().includes(q) || c.price.toLowerCase().includes(q);
-          const matchesPharmacy = patientType !== "multi" || activePharmacy === "All Pharmacies" || c.pharmacy === activePharmacy;
+          const matchesPharmacy = activePharmacy === "All Pharmacies" || c.pharmacy === activePharmacy;
           return matchesSearch && matchesPharmacy && matchesCatalogFilters(c);
         });
         return (
@@ -1482,10 +1483,10 @@ function OptionPill({
   return (
     <button
       onClick={onClick}
-      className={`h-9 rounded-[7px] border px-3 text-[12px] font-semibold transition-colors ${
+      className={`h-11 rounded-[7px] border px-5 text-[12px] font-medium transition-colors ${
         selected
-          ? "border-[#183229] bg-[#eef5f1] text-[#183229]"
-          : "border-[#d8dfdc] bg-white text-[#4e5753] hover:border-[#183229]/40"
+          ? "border-[1.9px] border-[#111] bg-white text-[#111]"
+          : "border-[#c8c8c8] bg-white text-[#333] hover:border-[#111]/50"
       }`}
     >
       {label}
@@ -1507,16 +1508,18 @@ function ProductDetailPage({
   product: CardDef;
 }) {
   const defaultSize = product.dosage === "Gel" ? "30g Tube" : product.dosage === "Capsule" ? "30 Capsules" : "1 (5mL) Vial";
-  const defaultStrength = product.price.includes("mg") ? product.price : product.dosage === "Gel" ? "0.025% / 4% / 0.5%" : "2.4mg/1.2mg/mL";
+  const defaultStrength = product.price.includes("mg") ? product.price : product.dosage === "Gel" ? "0.025%" : "5mg/mL";
   const [size, setSize] = useState(defaultSize);
   const [strength, setStrength] = useState(defaultStrength);
-  const [injType, setInjType] = useState(product.dosage === "Injection" ? "Subcutaneous" : product.dosage);
+  const [injType, setInjType] = useState(product.dosage === "Injection" ? "Intramuscular" : product.dosage);
   const [pharmacy, setPharmacy] = useState(product.pharmacy);
   const [qty, setQty] = useState(1);
   const [suppliesOpen, setSuppliesOpen] = useState(false);
   const [patientPickerOpen, setPatientPickerOpen] = useState(false);
   const [patientSearch, setPatientSearch] = useState("");
   const [selectedPatientIds, setSelectedPatientIds] = useState<Set<number>>(new Set());
+  const [patientQuantities, setPatientQuantities] = useState<Record<number, number>>({});
+  const [expandedPatientIds, setExpandedPatientIds] = useState<Set<number>>(new Set());
   const [activeInfoTab, setActiveInfoTab] = useState<"overview" | "formula" | "dosage" | "safety">("overview");
   const configurationCardRef = useRef<HTMLDivElement>(null);
   const [productCardHeight, setProductCardHeight] = useState(825);
@@ -1526,10 +1529,12 @@ function ProductDetailPage({
   useEffect(() => {
     setSize(defaultSize);
     setStrength(defaultStrength);
-    setInjType(product.dosage === "Injection" ? "Subcutaneous" : product.dosage);
+    setInjType(product.dosage === "Injection" ? "Intramuscular" : product.dosage);
     setPharmacy(product.pharmacy);
     setQty(1);
     setSelectedPatientIds(new Set());
+    setPatientQuantities({});
+    setExpandedPatientIds(new Set());
   }, [defaultSize, defaultStrength, product.dosage, product.id, product.pharmacy]);
 
   useLayoutEffect(() => {
@@ -1538,16 +1543,14 @@ function ProductDetailPage({
     }
   }, [cartMode]);
 
-  const basePrice = Number.parseFloat(product.price.replace(/[^0-9.]/g, "")) || 125.43;
+  const baseProductPrice = Number.parseFloat(product.price.replace(/[^0-9.]/g, "")) || 35.88;
   const pharmacies = [
-    { name: product.pharmacy, turnaround: "1-2 business days", price: basePrice },
-    { name: "Rush Pharmacy FL", turnaround: "1-2 business days", price: basePrice + 20 },
-    { name: "Precision Compounding Pharmacy", turnaround: "2-3 business days", price: basePrice + 12.64 },
-  ].filter((option, index, list) => list.findIndex(item => item.name === option.name) === index);
+    { name: product.pharmacy, turnaround: "1-2 business days", price: baseProductPrice },
+    { name: product.pharmacy === "Rush Pharmacy FL" ? "Optimal Balance Pharmacy" : "Rush Pharmacy FL", turnaround: "1-2 business days", price: baseProductPrice + 20 },
+  ];
   const selectedPharmacy = pharmacies.find(option => option.name === pharmacy) ?? pharmacies[0];
-  const patientMultiplier = cartMode === "multi" ? Math.max(selectedPatientIds.size, 1) : 1;
-  const total = selectedPharmacy.price * qty * patientMultiplier;
   const selectedPatientCount = selectedPatientIds.size;
+  const selectedItemCount = [...selectedPatientIds].reduce((sum, id) => sum + (patientQuantities[id] ?? 1), 0);
   const isMultiPatientOrder = cartMode === "multi" && selectedPatientIds.size > 1;
   const patientMatches = PATIENTS
     .map((patient, id) => ({ patient, id }))
@@ -1560,15 +1563,41 @@ function ProductDetailPage({
   function togglePatient(id: number) {
     setSelectedPatientIds(current => {
       const next = new Set(current);
+      if (next.has(id)) {
+        next.delete(id);
+        setPatientQuantities(quantities => {
+          const updated = { ...quantities };
+          delete updated[id];
+          return updated;
+        });
+      } else {
+        next.add(id);
+        setPatientQuantities(quantities => ({ ...quantities, [id]: quantities[id] ?? 1 }));
+      }
+      return next;
+    });
+  }
+
+  function updatePatientQuantity(id: number, change: number) {
+    setPatientQuantities(current => ({
+      ...current,
+      [id]: Math.max(1, (current[id] ?? 1) + change),
+    }));
+  }
+
+  function togglePatientDetails(id: number) {
+    setExpandedPatientIds(current => {
+      const next = new Set(current);
       next.has(id) ? next.delete(id) : next.add(id);
       return next;
     });
   }
 
   function addToCart() {
-    if (cartMode === "multi" && selectedPatientCount === 0) return;
-    setCartMode(cartMode);
-    const itemCount = cartMode === "multi" ? Math.max(selectedPatientIds.size, 1) : qty;
+    if (selectedPatientCount === 0) return;
+    const nextCartMode: CartMode = selectedPatientCount > 1 ? "multi" : "single";
+    setCartMode(nextCartMode);
+    const itemCount = Math.max(selectedItemCount, 1);
     runWithAppLoader(() => {
       addCartItems(itemCount, {
         id: product.id,
@@ -1577,240 +1606,169 @@ function ProductDetailPage({
         img: product.img,
         qty: itemCount,
       });
-      if (cartMode === "multi") {
-        onSaveMultiCartPatients([...selectedPatientIds]);
-      }
+      onSaveMultiCartPatients([...selectedPatientIds]);
     });
   }
 
   return (
     <>
-      <Header title="Products" breadcrumb={["Catalog", product.name]} onNavigate={onNavigate} />
-
-      <div className="mb-4 flex flex-wrap items-center gap-3">
-        <button onClick={() => onNavigate("products")} className="inline-flex h-9 items-center gap-1.5 rounded-[7px] border border-[#d8dfdc] bg-white px-3 text-[12px] font-semibold text-[#183229] hover:bg-[#f8faf9]">
-          <ChevronLeft size={15} /> Back to catalog
-        </button>
+      <div className="pl-[15px]">
+      <div className="-mt-4 mb-[39px]">
+        <h1 className="text-[32px] font-medium leading-tight text-[#111]">Products</h1>
+        <p className="mt-2 text-[11px] font-normal text-[#4b4b4b]">
+          <button onClick={() => onNavigate("products")} className="text-[11px] font-normal hover:underline">Home</button>, <button onClick={() => onNavigate("products")} className="text-[11px] font-normal hover:underline">Catalog</button>, <span className="text-[11px] font-normal">{product.name}</span>
+        </p>
       </div>
-
-      <div className="grid items-start gap-6 xl:grid-cols-[minmax(300px,0.78fr)_minmax(520px,1.22fr)]">
-        <div
-          className="flex min-w-0 flex-col overflow-hidden rounded-[12px] border border-[#e8e3df] bg-white xl:h-[var(--detail-card-height)] xl:self-start"
-          style={{ "--detail-card-height": `${productCardHeight}px` } as React.CSSProperties}
-        >
-          <div className="flex h-[480px] shrink-0 items-center justify-center overflow-hidden bg-[#fbfaf8] p-12 xl:h-auto xl:min-h-0 xl:flex-1">
-            <img src={product.img} alt={product.name} className="h-full max-h-[520px] w-full object-contain mix-blend-multiply" />
+      <div className="grid max-w-[1073px] items-start gap-10 xl:grid-cols-[minmax(0,1.244fr)_minmax(0,1fr)]">
+        <div className="min-w-0">
+          <div className="flex h-[600px] items-center justify-center overflow-hidden rounded-[18px] border border-[#e4e4e4] bg-[#f8f8f8] p-16">
+            <img src={product.img} alt={product.name} className="h-full max-h-[410px] w-full object-contain mix-blend-multiply" />
           </div>
-
-          <div className="border-t border-[#eee8e3] px-5 py-4">
-            <div className="grid grid-cols-3 gap-3">
-              {[
-                { label: "Beyond use", value: "90 days unopened", icon: Clock },
-                { label: "Storage", value: "Refrigerated", icon: Package },
-                { label: "Preparation", value: "Sterile", icon: Shield },
-              ].map(({ label, value, icon: Icon }) => (
-                <div key={label} className="min-w-0">
-                  <Icon size={15} className="text-[#183229]" />
-                  <p className="mt-2 text-[10px] font-semibold uppercase tracking-[0.1em] text-[#8c8c8c]">{label}</p>
-                  <p className="mt-0.5 text-[12px] font-semibold text-[#1a1a1a]">{value}</p>
-                </div>
-              ))}
-            </div>
+          <div className="mt-7 flex flex-wrap gap-2">
+            {["Sterile", "Refrigerated", "Controlled Substance", "Protect from Light"].map(tag => (
+              <span key={tag} className="rounded-full border border-[#dedede] bg-white px-3.5 py-1.5 text-[12px] font-medium text-[#777] shadow-sm">{tag}</span>
+            ))}
           </div>
-
         </div>
 
-        <div ref={configurationCardRef} className="min-w-0 rounded-[12px] border border-[#e8e3df] bg-white">
-          <div className="border-b border-[#eee8e3] px-5 py-5 sm:px-6">
-            <div className="flex flex-wrap items-start justify-between gap-4">
-              <div className="min-w-0">
-                <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[#708078]">{product.areaOfTreatment}</p>
-                <h1 className="mt-1 text-[25px] font-semibold leading-tight text-[#1a1a1a]">{product.name}</h1>
-                <p className="mt-2 max-w-[620px] text-[13px] leading-relaxed text-[#6f7782]">Configure this {product.dosage.toLowerCase()} prescription, choose pharmacy options, and assign patients when needed.</p>
-              </div>
-              <div className="text-right">
-                <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-[#8c8c8c]">From</p>
-                <p className="mt-1 text-[24px] font-bold text-[#183229]">${selectedPharmacy.price.toFixed(2)}</p>
-              </div>
-            </div>
-            <div className="mt-4 flex flex-wrap gap-2">
-              {["Prescription required", product.dosage, product.shippingState].map(tag => (
-                <span key={tag} className="rounded-[6px] border border-[#d8dfdc] bg-[#fbfaf8] px-2 py-1 text-[10px] font-semibold text-[#52645c]">{tag}</span>
-              ))}
+        <div ref={configurationCardRef} className="-mt-[23px] min-w-0">
+          <h1 className="text-[30px] font-medium leading-tight text-[#111]">{product.name}</h1>
+          <p className="mt-1.5 max-w-[500px] text-[13px] leading-[1.45] text-[#8a8a8a]">A compounded {product.dosage.toLowerCase()} developed for personalized {product.areaOfTreatment.toLowerCase()} treatment and patient care.</p>
+          <p className="mt-5 text-[25px] font-medium text-[#111]">${baseProductPrice.toFixed(2)}</p>
+
+          <div className="mt-2 border-t border-[#ededed] pt-2">
+            <p className="mb-2 text-[12px] font-medium text-[#111]">Size</p>
+            <div className="flex flex-wrap gap-2">
+              {(product.dosage === "Gel" ? ["15g Tube", "30g Tube", "60g Tube"] : product.dosage === "Capsule" ? ["30 Capsules", "60 Capsules", "90 Capsules"] : ["1 (5mL) Vial", "1 (10mL) Vial", "1 (30mL) Vial"]).map(option => <OptionPill key={option} label={option} selected={size === option} onClick={() => setSize(option)} />)}
             </div>
           </div>
 
-          <div className="space-y-5 px-5 py-5 sm:px-6">
-            <div>
-              <h2 className="text-[14px] font-semibold text-[#1a1a1a]">Configure product</h2>
-              <div className="mt-4 grid gap-5 md:grid-cols-2">
-                <div>
-                  <p className="mb-2 text-[11px] font-semibold uppercase tracking-[0.1em] text-[#667085]">Size</p>
-                  <div className="flex flex-wrap gap-2">
-                    {[defaultSize, "1 (2mL) Vial", "1 (5mL) Vial", "2 (5mL) Vials", "1 (10mL) Vial", "30g Tube", "30 Capsules"].filter((option, index, list) => list.indexOf(option) === index).map(option => <OptionPill key={option} label={option} selected={size === option} onClick={() => setSize(option)} />)}
-                  </div>
-                </div>
-                <div>
-                  <p className="mb-2 text-[11px] font-semibold uppercase tracking-[0.1em] text-[#667085]">Strength</p>
-                  <div className="flex flex-wrap gap-2">
-                    {[defaultStrength, "1.2mg/0.6mg/mL", "2.4mg/1.2mg/mL", "4mg/2mg/mL"].filter((option, index, list) => list.indexOf(option) === index).map(option => <OptionPill key={option} label={option} selected={strength === option} onClick={() => setStrength(option)} />)}
-                  </div>
-                </div>
-              </div>
-              <div className="mt-5">
-                <p className="mb-2 text-[11px] font-semibold uppercase tracking-[0.1em] text-[#667085]">Administration route</p>
-                <div className="flex flex-wrap gap-2">
-                  {["Subcutaneous", product.dosage].filter((option, index, list) => list.indexOf(option) === index).map(option => <OptionPill key={option} label={option} selected={injType === option} onClick={() => setInjType(option)} />)}
-                </div>
-              </div>
+          <div className="mt-3 border-t border-[#ededed] pt-2">
+            <p className="mb-2 text-[12px] font-medium text-[#111]">Strength</p>
+            <div className="flex flex-wrap gap-2">
+              {[defaultStrength, product.dosage === "Gel" ? "0.05%" : "1mg/mL"].filter((option, index, list) => list.indexOf(option) === index).map(option => <OptionPill key={option} label={option} selected={strength === option} onClick={() => setStrength(option)} />)}
             </div>
+          </div>
 
-            <div className="border-t border-[#eee8e3] pt-5">
-              <div className="flex items-center justify-between gap-3">
-                <div>
-                  <h2 className="text-[14px] font-semibold text-[#1a1a1a]">Select pharmacy</h2>
-                  <p className="mt-0.5 text-[11px] text-[#6f7782]">Price and processing time vary by pharmacy.</p>
+          <div className="mt-3 border-t border-[#ededed] pt-2">
+            <p className="mb-2 text-[12px] font-medium text-[#111]">{product.dosage === "Injection" ? "Injection Type" : "Form"}</p>
+            <div className="flex flex-wrap gap-2">
+              {(product.dosage === "Injection" ? ["Subcutaneous", "Intramuscular"] : [product.dosage]).map(option => <OptionPill key={option} label={option} selected={injType === option} onClick={() => setInjType(option)} />)}
+            </div>
+          </div>
+
+          <div className="mt-3 border-t border-[#ededed] pt-2">
+            <p className="mb-2 text-[12px] font-medium text-[#111]">Pharmacy</p>
+            <div className="space-y-2">
+              {pharmacies.slice(0, 2).map(option => {
+                const selected = pharmacy === option.name;
+                return (
+                  <button key={option.name} onClick={() => setPharmacy(option.name)} className={`grid w-full grid-cols-[minmax(0,1fr)_90px] items-center rounded-[8px] border px-3 py-3 text-left transition-colors ${selected ? "border-[1.9px] border-[#202c27] bg-[#fcfdfc]" : "border-[#bdbdbd] bg-white hover:border-[#555]"}`}>
+                    <span className="min-w-0">
+                      <span className="block truncate text-[12px] font-medium text-[#111]">{option.name}</span>
+                      <span className="mt-0.5 block text-[9px] text-[#777]">Beyond use 90 days</span>
+                    </span>
+                    <span className="text-right">
+                      <span className="block text-[12px] font-medium text-[#111]">${option.price.toFixed(2)}</span>
+                      <span className="block text-[8px] leading-tight text-[#777]">1-2 Days<br />Processing</span>
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          <div className="relative mt-6">
+            <button onClick={() => setPatientPickerOpen(current => !current)} className="flex h-11 w-full items-center justify-center rounded-full border border-[#111] bg-white text-[12px] font-medium text-[#111] hover:bg-[#fafafa]">
+              Choose Patient
+            </button>
+            {patientPickerOpen && (
+              <div className="absolute inset-x-0 top-12 z-30 overflow-hidden rounded-[10px] border border-[#d8dfdc] bg-white shadow-xl">
+                <div className="flex h-10 items-center gap-2 border-b border-[#e8e3df] px-3">
+                  <Search size={14} className="text-[#7b8580]" />
+                  <input autoFocus value={patientSearch} onChange={event => setPatientSearch(event.target.value)} placeholder="Search patients" className="min-w-0 flex-1 bg-transparent text-[12px] outline-none" />
                 </div>
-                <Truck size={17} className="text-[#183229]" />
+                <div className="max-h-[220px] overflow-y-auto p-1.5">
+                  {patientMatches.map(({ patient, id }) => {
+                    const selected = selectedPatientIds.has(id);
+                    return (
+                      <button key={id} onClick={() => { togglePatient(id); setPatientPickerOpen(false); }} className={`w-full rounded-[7px] px-3 py-2.5 text-left transition-colors ${selected ? "bg-[#f3f5f4]" : "hover:bg-[#f8f7f5]"}`}>
+                        <span className="flex items-center gap-2">
+                          <span className={`block text-[12px] font-semibold ${selected ? "text-[#8a9390]" : "text-[#1a1a1a]"}`}>{patient.firstName} {patient.lastName}</span>
+                          {selected && <span className="rounded-full bg-[#dff8fb] px-2 py-0.5 text-[8px] font-bold uppercase tracking-[0.04em] text-[#0095a8]">In cart</span>}
+                        </span>
+                        <span className={`mt-0.5 block text-[10px] ${selected ? "text-[#9ba3a0]" : "text-[#777]"}`}>{patient.birthDate} · {patient.gender}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+                <div className="border-t border-[#e8e3df] p-2">
+                  <button onClick={() => onNavigate("users")} className="flex h-9 w-full items-center justify-center gap-1.5 rounded-[7px] border border-dashed border-[#b7c2bd] bg-[#fafcfb] text-[11px] font-semibold text-[#183229] transition-colors hover:border-[#183229] hover:bg-[#eef5f1]">
+                    <Plus size={13} /> Create new patient
+                  </button>
+                </div>
               </div>
-              <div className="mt-3 grid gap-2">
-                {pharmacies.map(option => {
-                  const selected = pharmacy === option.name;
+            )}
+          </div>
+
+          {selectedPatientCount > 0 && (
+            <div className="mt-3 overflow-hidden rounded-[11px] border border-[#dfe5e2] bg-white shadow-[0_2px_8px_rgba(24,50,41,0.05)]">
+              <div className="flex items-center justify-between border-b border-[#dfe5e2] bg-[#f1f5f3] px-3.5 py-2.5">
+                <div>
+                  <p className="text-[11px] font-semibold text-[#1a1a1a]">Selected patients</p>
+                  <p className="mt-0.5 text-[9px] text-[#7a837f]">Set the quantity for each prescription.</p>
+                </div>
+                <span className="rounded-full bg-[#183229] px-2 py-1 text-[9px] font-semibold text-white">{selectedItemCount} item{selectedItemCount === 1 ? "" : "s"}</span>
+              </div>
+              <div className="divide-y divide-[#e8ebe9]">
+                {[...selectedPatientIds].map(id => {
+                  const patient = PATIENTS[id];
+                  const patientQty = patientQuantities[id] ?? 1;
+                  const isExpanded = expandedPatientIds.has(id);
+                  const patientAddress = [patient.address1, patient.address2, `${patient.city}, ${patient.state} ${patient.zip}`].filter(Boolean).join(", ");
                   return (
-                    <button key={option.name} onClick={() => setPharmacy(option.name)} className={`grid grid-cols-[20px_minmax(0,1fr)_auto] items-center gap-3 rounded-[8px] border px-3 py-3 text-left transition-colors ${selected ? "border-[#183229] bg-[#f2f7f4]" : "border-[#e8e3df] hover:border-[#183229]/35"}`}>
-                      <span className={`flex size-4 items-center justify-center rounded-full border ${selected ? "border-[#183229]" : "border-[#aeb7b2]"}`}>
-                        {selected && <span className="size-2 rounded-full bg-[#183229]" />}
-                      </span>
-                      <span className="min-w-0">
-                        <span className="block truncate text-[12px] font-semibold text-[#1a1a1a]">{option.name}</span>
-                        <span className="mt-0.5 block text-[10px] text-[#6f7782]">{option.turnaround}</span>
-                      </span>
-                      <span className="text-[13px] font-bold text-[#1a1a1a]">${option.price.toFixed(2)}</span>
-                    </button>
+                    <div key={id} className="bg-white px-3.5 py-3 transition-colors hover:bg-[#fcfdfc]">
+                      <div className="grid grid-cols-[minmax(0,1fr)_104px_28px] items-center gap-3">
+                        <button onClick={() => togglePatientDetails(id)} className="flex min-w-0 items-center gap-2 text-left" aria-expanded={isExpanded}>
+                          <span className="min-w-0">
+                            <span className="block truncate text-[11px] font-semibold text-[#171917]">{patient.firstName} {patient.lastName}</span>
+                            <span className="mt-0.5 block truncate text-[9px] text-[#7a837f]">DOB {patient.birthDate}</span>
+                          </span>
+                          <ChevronDown size={13} className={`shrink-0 text-[#777] transition-transform ${isExpanded ? "rotate-180" : ""}`} />
+                        </button>
+                        <div className="flex h-9 items-center justify-between rounded-[9px] border border-[#dedede] bg-white px-1">
+                          <button onClick={() => updatePatientQuantity(id, -1)} disabled={patientQty === 1} className="flex size-7 items-center justify-center rounded-[7px] text-[#68736d] transition-colors hover:bg-[#eeeeee] disabled:opacity-35" aria-label={`Decrease quantity for ${patient.firstName}`}><Minus size={13} /></button>
+                          <span className="min-w-5 text-center text-[12px] font-semibold text-[#1a1a1a]">{patientQty}</span>
+                          <button onClick={() => updatePatientQuantity(id, 1)} className="flex size-7 items-center justify-center rounded-[7px] text-[#111] transition-colors hover:bg-[#eeeeee]" aria-label={`Increase quantity for ${patient.firstName}`}><Plus size={13} /></button>
+                        </div>
+                        <button onClick={() => togglePatient(id)} className="flex size-7 items-center justify-center rounded-[7px] text-[#a35b56] transition-colors hover:bg-[#f4e7e6]" aria-label={`Remove ${patient.firstName} ${patient.lastName}`}><Trash2 size={14} /></button>
+                      </div>
+                      {isExpanded && (
+                        <div className="mt-2 rounded-[8px] border border-[#e4e8e6] bg-[#f7f9f8] px-3 py-2.5 text-[10px] leading-relaxed text-[#666]">
+                          <div className="flex items-start gap-2"><MapPin size={12} className="mt-0.5 shrink-0 text-[#333]" /><span>{patientAddress}</span></div>
+                          <div className="mt-1.5 flex items-center gap-2"><Phone size={12} className="shrink-0 text-[#333]" /><span>{patient.primaryPhone}</span></div>
+                        </div>
+                      )}
+                    </div>
                   );
                 })}
               </div>
             </div>
+          )}
 
-            {cartMode === "multi" && (
-              <div className="border-t border-[#eee8e3] pt-5">
-                <div className="flex items-center justify-between gap-3">
-                  <div>
-                    <h2 className="text-[14px] font-semibold text-[#1a1a1a]">Patients</h2>
-                    <p className="mt-0.5 text-[11px] text-[#6f7782]">{selectedPatientCount} selected</p>
-                  </div>
-                  <Users size={17} className="text-[#183229]" />
-                </div>
+          <button onClick={addToCart} disabled={selectedPatientCount === 0} className="mt-2 flex h-11 w-full items-center justify-center gap-2 rounded-full bg-[#111] text-[12px] font-medium text-white transition-colors hover:bg-[#28312d] disabled:cursor-not-allowed disabled:bg-[#b8b8b8]">
+            Add {selectedItemCount > 1 ? `${selectedItemCount} items` : "to cart"} <ShoppingCart size={14} strokeWidth={1.5} />
+          </button>
 
-                <button
-                  onClick={() => setPatientPickerOpen(current => !current)}
-                  className="mt-3 flex h-10 w-full items-center justify-between rounded-[7px] border border-[#d8dfdc] bg-white px-3 text-left text-[12px] font-medium text-[#4e5753]"
-                  aria-expanded={patientPickerOpen}
-                >
-                  <span>{selectedPatientCount ? `${selectedPatientCount} ${selectedPatientCount === 1 ? "patient" : "patients"} selected` : "Select patients"}</span>
-                  <ChevronDown size={15} className={`transition-transform ${patientPickerOpen ? "rotate-180" : ""}`} />
-                </button>
-
-                {patientPickerOpen && (
-                  <div className="mt-2 overflow-hidden rounded-[8px] border border-[#d8dfdc] bg-white">
-                    <div className="flex h-10 items-center gap-2 border-b border-[#e8e3df] px-3">
-                      <Search size={14} className="text-[#7b8580]" />
-                      <input
-                        autoFocus
-                        value={patientSearch}
-                        onChange={event => setPatientSearch(event.target.value)}
-                        placeholder="Search patients"
-                        className="min-w-0 flex-1 bg-transparent text-[12px] outline-none placeholder:text-[#9da4ae]"
-                      />
-                    </div>
-                    <div className="max-h-[250px] overflow-y-auto p-1.5">
-                      {patientMatches.map(({ patient, id }) => {
-                        const selected = selectedPatientIds.has(id);
-                        return (
-                          <button
-                            key={`${patient.firstName}-${patient.lastName}-${id}`}
-                            onClick={() => togglePatient(id)}
-                            aria-pressed={selected}
-                            className={`grid w-full grid-cols-[18px_minmax(0,1fr)] items-start gap-2 rounded-[6px] px-2.5 py-2 text-left ${selected ? "bg-[#eef5f1]" : "hover:bg-[#f8f7f5]"}`}
-                          >
-                            <span className={`mt-0.5 flex size-4 items-center justify-center rounded-[4px] border ${selected ? "border-[#183229] bg-[#183229]" : "border-[#aeb7b2] bg-white"}`}>
-                              {selected && <CheckCircle2 size={11} className="text-white" />}
-                            </span>
-                            <span className="min-w-0">
-                              <span className="block text-[12px] font-semibold text-[#1a1a1a]">{patient.firstName} {patient.lastName}</span>
-                              <span className="mt-0.5 block text-[10px] text-[#6f7782]">{patient.birthDate} · {patient.primaryPhone}</span>
-                            </span>
-                          </button>
-                        );
-                      })}
-                      {patientMatches.length === 0 && <p className="px-3 py-5 text-center text-[11px] text-[#8c95a1]">No patients found</p>}
-                    </div>
-                    <div className="border-t border-[#e8e3df] p-2">
-                      <button onClick={() => onNavigate("users")} className="flex h-8 w-full items-center justify-center gap-1.5 rounded-[6px] text-[11px] font-semibold text-[#183229] hover:bg-[#eef5f1]">
-                        <Plus size={13} /> Create patient
-                      </button>
-                    </div>
-                  </div>
-                )}
-
-                {selectedPatientCount > 0 && (
-                  <div className="mt-3 flex flex-wrap gap-2">
-                    {[...selectedPatientIds].map(id => {
-                      const patient = PATIENTS[id];
-                      return (
-                        <button key={id} onClick={() => togglePatient(id)} className="inline-flex h-7 items-center gap-1.5 rounded-[6px] bg-[#eef5f1] px-2 text-[10px] font-semibold text-[#183229]" aria-label={`Remove ${patient.firstName} ${patient.lastName}`}>
-                          {patient.firstName} {patient.lastName} <X size={11} />
-                        </button>
-                      );
-                    })}
-                  </div>
-                )}
-              </div>
-            )}
-
-            <div className="border-t border-[#eee8e3] pt-4">
-              <button onClick={() => setSuppliesOpen(current => !current)} className="flex w-full items-center justify-between text-left">
-                <span>
-                  <span className="block text-[13px] font-semibold text-[#1a1a1a]">Supplies included</span>
-                  <span className="mt-0.5 block text-[11px] text-[#6f7782]">Suitable administration supplies are included at no cost.</span>
-                </span>
-                <ChevronDown size={16} className={`shrink-0 text-[#183229] transition-transform ${suppliesOpen ? "rotate-180" : ""}`} />
-              </button>
-              {suppliesOpen && (
-                <div className="mt-3 grid gap-2 rounded-[8px] bg-[#f6f4f5] p-3 sm:grid-cols-2">
-                  {["BD 27G X 1/2 Needle", "Alcohol preparation pads"].map(supply => (
-                    <div key={supply} className="flex items-center gap-2 text-[11px] font-medium text-[#4e5753]"><CheckCircle2 size={13} className="text-[#183229]" />{supply}</div>
-                  ))}
-                </div>
-              )}
-            </div>
-          </div>
-
-          <div className="border-t border-[#eee8e3] bg-[#fbfaf8] px-5 py-4 sm:px-6">
-            <div className="flex flex-wrap items-center gap-3">
-              <div className="inline-flex h-10 overflow-hidden rounded-[7px] border border-[#d8dfdc] bg-white">
-                <button onClick={() => setQty(Math.max(1, qty - 1))} className="flex w-10 items-center justify-center border-r border-[#e1e5e3] text-[#183229]" aria-label="Decrease quantity"><Minus size={14} /></button>
-                <span className="flex w-11 items-center justify-center text-[13px] font-semibold text-[#1a1a1a]">{qty}</span>
-                <button onClick={() => setQty(qty + 1)} className="flex w-10 items-center justify-center border-l border-[#e1e5e3] text-[#183229]" aria-label="Increase quantity"><Plus size={14} /></button>
-              </div>
-              <div className="min-w-[90px]">
-                <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-[#8c8c8c]">Total</p>
-                <p className="text-[16px] font-bold text-[#1a1a1a]">${total.toFixed(2)}</p>
-                {cartMode === "multi" && selectedPatientCount > 0 && <p className="text-[9px] text-[#7b8580]">{selectedPatientCount} {selectedPatientCount === 1 ? "patient" : "patients"}</p>}
-              </div>
-              <button
-                onClick={addToCart}
-                disabled={cartMode === "multi" && selectedPatientCount === 0}
-                className="ml-auto inline-flex h-10 min-w-[190px] items-center justify-center gap-2 rounded-[7px] bg-[#183229] px-5 text-[12px] font-semibold text-white hover:bg-[#244438] disabled:cursor-not-allowed disabled:bg-[#aeb7b2]"
-              >
-                <ShoppingCart size={15} /> {selectedPatientCount === 1 ? "Add prescription to cart" : isMultiPatientOrder ? `Add ${selectedPatientCount} prescriptions to cart` : "Add to cart"}
-              </button>
-            </div>
+          <div className="mt-3 flex h-12 items-center rounded-[9px] bg-[#f7f7f7] px-4">
+            <MapPin size={18} strokeWidth={1.6} className="mr-2 text-[#111]" />
+            <span className="text-[9px] leading-tight text-[#777]">Delivered to<br /><strong className="text-[11px] font-semibold text-[#111]">Florida</strong></span>
+            <button className="ml-auto text-[10px] font-medium text-[#333] hover:underline">Change Location</button>
           </div>
         </div>
       </div>
 
-      <section className="mt-6 overflow-hidden rounded-[12px] border border-[#e8e3df] bg-white">
+      <section className="mt-8 max-w-[1073px] overflow-hidden rounded-[12px] border border-[#e8e3df] bg-white">
         <div className="overflow-x-auto border-b border-[#e8e3df] px-5 sm:px-6">
           <div className="flex min-w-max gap-7" role="tablist" aria-label="Product information">
             {[
@@ -1836,17 +1794,17 @@ function ProductDetailPage({
           {activeInfoTab === "overview" && (
             <div className="max-w-[1050px]">
               <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[#708078]">Product reference</p>
-              <h2 className="mt-1 text-[20px] font-semibold text-[#1a1a1a]">Tesamorelin / Ipamorelin Injection</h2>
+              <h2 className="mt-1 text-[20px] font-semibold text-[#1a1a1a]">{product.name}</h2>
               <div className="mt-4 space-y-3 text-[13px] leading-6 text-[#4f5a55]">
-                <p>Tesamorelin / Ipamorelin is an advanced synergistic peptide therapy designed to optimize endogenous growth hormone production and improve metabolic health. Tesamorelin targets the reduction of visceral adipose tissue, while Ipamorelin provides a selective signal to the pituitary gland to increase the strength of the growth hormone pulse.</p>
-                <p>This combination supports modern longevity and body composition protocols. By activating separate GHRH and ghrelin receptor pathways, it supports fat loss, preservation of lean muscle tissue, systemic vitality, sleep quality, and physical recovery while preserving the body’s natural regulatory feedback loops.</p>
+                <p>{product.name} is a compounded {product.dosage.toLowerCase()} option used in personalized {product.areaOfTreatment.toLowerCase()} protocols. Available configurations may vary by strength, size, administration route, and dispensing pharmacy.</p>
+                <p>The selected pharmacy prepares the medication according to the configuration and patient information supplied with the prescription.</p>
               </div>
               <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
                 {[
-                  ["Item", "Tesamorelin / Ipamorelin"],
-                  ["Strength", "2.4mg / 1.2mg / mL"],
-                  ["Form", "Injection"],
-                  ["Quantity", "5 mL vial"],
+                  ["Item", product.name],
+                  ["Strength", strength],
+                  ["Form", product.dosage],
+                  ["Quantity", size],
                 ].map(([label, value]) => (
                   <div key={label} className="rounded-[8px] border border-[#e8e3df] bg-[#fbfaf8] p-3">
                     <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-[#8c8c8c]">{label}</p>
@@ -1862,9 +1820,9 @@ function ProductDetailPage({
               <h2 className="text-[20px] font-semibold text-[#1a1a1a]">Ingredient breakdown & benefits</h2>
               <div className="mt-5 grid gap-3 lg:grid-cols-3">
                 {[
-                  { title: "Tesamorelin Acetate", text: "A stabilized GHRH analogue that supports reduction of deep abdominal fat and improved lipid profiles." },
-                  { title: "Ipamorelin", text: "A selective growth hormone secretagogue that supports the timing and amplitude of growth hormone release without increasing hunger, cortisol, or prolactin." },
-                  { title: "Metabolic Synergy", text: "The dual-action approach supports a more robust hormonal response than single-peptide therapies, maximizing fat oxidation and tissue repair." },
+                  { title: product.name, text: `Configured as ${strength} in a ${size} ${product.dosage.toLowerCase()} format.` },
+                  { title: "Treatment area", text: `Prepared for personalized ${product.areaOfTreatment.toLowerCase()} protocols under prescriber direction.` },
+                  { title: "Pharmacy preparation", text: `Dispensed by ${selectedPharmacy.name} using the selected product configuration.` },
                 ].map(item => (
                   <article key={item.title} className="rounded-[8px] border border-[#e8e3df] p-4">
                     <div className="flex size-8 items-center justify-center rounded-[7px] bg-[#eef5f1] text-[#183229]"><Leaf size={15} /></div>
@@ -1879,16 +1837,15 @@ function ProductDetailPage({
           {activeInfoTab === "dosage" && (
             <div className="max-w-[1050px]">
               <h2 className="text-[20px] font-semibold text-[#1a1a1a]">Typical dosage and administration</h2>
-              <p className="mt-2 text-[12px] leading-5 text-[#626d68]">Dosing is administered by subcutaneous injection, ideally at bedtime. To maximize the growth hormone pulse, avoid eating for at least two hours before administration.</p>
+              <p className="mt-2 text-[12px] leading-5 text-[#626d68]">Administration and dosing instructions are determined by the prescriber for the selected {product.dosage.toLowerCase()} configuration.</p>
               <div className="mt-5 overflow-x-auto rounded-[8px] border border-[#e8e3df]">
                 <table className="w-full min-w-[720px] text-left text-[12px]">
                   <thead className="bg-[#f6f4f2] text-[10px] uppercase tracking-[0.08em] text-[#667085]">
                     <tr><th className="px-4 py-3">Goal</th><th className="px-4 py-3">Frequency</th><th className="px-4 py-3">Route</th><th className="px-4 py-3">Notes</th></tr>
                   </thead>
                   <tbody className="divide-y divide-[#e8e3df] text-[#39433f]">
-                    <tr><td className="px-4 py-3 font-semibold">Visceral Fat Loss</td><td className="px-4 py-3">Once daily</td><td className="px-4 py-3">Subcutaneous</td><td className="px-4 py-3">1.2mg/0.6mg standard dose</td></tr>
-                    <tr><td className="px-4 py-3 font-semibold">Pulsatile Protocol</td><td className="px-4 py-3">5x weekly</td><td className="px-4 py-3">Subcutaneous</td><td className="px-4 py-3">5 days on / 2 days off</td></tr>
-                    <tr><td className="px-4 py-3 font-semibold">Intensive Support</td><td className="px-4 py-3">Once daily</td><td className="px-4 py-3">Subcutaneous</td><td className="px-4 py-3">2.4mg/1.2mg dose</td></tr>
+                    <tr><td className="px-4 py-3 font-semibold">Standard protocol</td><td className="px-4 py-3">As prescribed</td><td className="px-4 py-3">{injType}</td><td className="px-4 py-3">{strength}</td></tr>
+                    <tr><td className="px-4 py-3 font-semibold">Product form</td><td className="px-4 py-3">Patient specific</td><td className="px-4 py-3">{product.dosage}</td><td className="px-4 py-3">{size}</td></tr>
                   </tbody>
                 </table>
               </div>
@@ -1921,6 +1878,7 @@ function ProductDetailPage({
           )}
         </div>
       </section>
+      </div>
     </>
   );
 }
@@ -2056,6 +2014,10 @@ const ORDERS = [
     total: "$548.52",
     patientNames: ["Zeee Rabushaj", "Altin Selimi"],
     patient: { name: "Zeee Rabushaj", gender: "M", address: "95 Windermere Drive, Westchester County, NY 10710", phone: "(646)-389-7766" },
+    patients: [
+      { name: "Zeee Rabushaj", gender: "M", address: "95 Windermere Drive, Westchester County, NY 10710", phone: "(646)-389-7766" },
+      { name: "Altin Selimi", gender: "M", address: "95 Windermere Drive, Yonkers, NY 10710", phone: "(646)-617-9881" },
+    ],
     clinic: { name: "ScriptLinkRx Demo", address: "2823 Middletown Road Line 2, Bronx, NY 10461", phone: "(646)-617-9881" },
     items: [
       { name: "Tirzepatide/Pyridoxine (B6)", description: "1 (0.5mL) Vial | 20mg/25mg/mL", pharmacy: "1st Choice Compounding Pharmacy", tracking: "Tracking Not Ready", qty: 1, authRefills: 1, refillsLeft: 0, daysSupply: 1, price: "$125.43", image: imgPT141 },
@@ -2192,6 +2154,7 @@ function OrdersPage({ onNavigate }: { onNavigate: (p: Page) => void }) {
     <>
       <Header title="Orders" onNavigate={onNavigate} />
 
+      <div className="max-w-[1300px]">
       <div className="mb-5 flex flex-col gap-3">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
@@ -2260,12 +2223,6 @@ function OrdersPage({ onNavigate }: { onNavigate: (p: Page) => void }) {
                   <span className="inline-flex items-center rounded-full bg-[#667085] px-2.5 py-1 text-[11px] font-bold text-white">
                     {order.status.toUpperCase()}
                   </span>
-                  <span className="rounded-full border border-[#d8dfdc] bg-white px-2.5 py-1 text-[10px] font-semibold text-[#183229]">
-                    {order.patientNames.length > 1 ? `${order.patientNames.length} patients` : "Single patient"}
-                  </span>
-                  <span className="rounded-full border border-[#d8dfdc] bg-white px-2.5 py-1 text-[10px] font-semibold text-[#183229]">
-                    {order.items.length > 1 ? `${order.items.length} products` : "1 product"}
-                  </span>
                 </div>
                 <div className="text-right">
                   <p className="text-[15px] font-bold text-[#183229]">{order.total}</p>
@@ -2276,20 +2233,20 @@ function OrdersPage({ onNavigate }: { onNavigate: (p: Page) => void }) {
               <div className="grid gap-5 px-5 py-4 lg:grid-cols-[1.1fr_1.1fr_1.6fr]">
                 <div>
                   <p className="mb-2 text-[10px] font-semibold uppercase tracking-[0.12em] text-[#8c95a1]">Patient</p>
-                  <p className="text-[13px] font-semibold text-[#1a1a1a]">
-                    {order.patientNames.length > 1 ? "Multiple patients" : `${order.patient.name} (${order.patient.gender})`}
-                  </p>
-                  {order.patientNames.length > 1 && (
-                    <p className="mt-1 text-[12px] font-medium text-[#183229]">{order.patientNames.join(", ")}</p>
-                  )}
-                  <p className="mt-1 text-[12px] leading-relaxed text-[#6f7782]">{order.patient.address}</p>
-                  <p className="mt-1 text-[12px] text-[#6f7782]">{order.patient.phone}</p>
+                  <div className="space-y-2">
+                    {("patients" in order ? order.patients : [order.patient]).map(patient => (
+                      <div key={patient.name} className="rounded-[8px] border border-[#eee8e3] bg-[#fbfaf8] px-3 py-2.5">
+                        <p className="text-[12px] font-semibold text-[#1a1a1a]">{patient.name} <span className="font-normal text-[#8c95a1]">({patient.gender})</span></p>
+                        <p className="mt-1 text-[11px] leading-relaxed text-[#6f7782]">{patient.address}</p>
+                        <p className="mt-1 text-[11px] text-[#6f7782]">{patient.phone}</p>
+                      </div>
+                    ))}
+                  </div>
                 </div>
 
                 <div>
                   <p className="mb-2 text-[10px] font-semibold uppercase tracking-[0.12em] text-[#8c95a1]">Clinic</p>
-                  <p className="text-[13px] font-semibold text-[#1a1a1a]">{order.clinic.name}</p>
-                  <p className="mt-1 text-[12px] leading-relaxed text-[#6f7782]">{order.clinic.address}</p>
+                  <p className="text-[12px] leading-relaxed text-[#6f7782]">{order.clinic.address}</p>
                   <p className="mt-1 text-[12px] text-[#6f7782]">{order.clinic.phone}</p>
                 </div>
 
@@ -2334,6 +2291,7 @@ function OrdersPage({ onNavigate }: { onNavigate: (p: Page) => void }) {
           ))}
         </div>
       )}
+      </div>
     </>
   );
 
@@ -3717,51 +3675,39 @@ function MultiPatientCartPage({
   return (
     <>
       <Header title="Cart" onNavigate={onNavigate} />
-      <CartModeToolbar cartMode={cartMode} setCartMode={setCartMode} onNavigate={onNavigate} />
 
+      <div className="max-w-[1300px]">
       <div className="mb-5 flex flex-col gap-3">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
-            <p className="text-[12px] font-semibold uppercase tracking-[0.12em] text-[#9d9d9d]">Multi-patient cart</p>
+            <p className="text-[12px] font-semibold uppercase tracking-[0.12em] text-[#9d9d9d]">Patient cart</p>
             <p className="text-[20px] font-semibold text-[#1a1a1a]">{cartData.pharmacy}</p>
-          </div>
-          <div className="flex flex-wrap items-center gap-2 rounded-[8px] border border-[#d8dfdc] bg-white px-3 py-2">
-            {[
-              ["1", "Cart", true],
-              ["2", "Prescription details", true],
-              ["3", "Preview", false],
-            ].map(([step, label, active]) => (
-              <div key={label} className="flex items-center gap-1.5">
-                <span className={`flex size-5 items-center justify-center rounded-full text-[10px] font-bold ${active ? "bg-[#183229] text-white" : "bg-[#f8faf9] text-[#6f7782] ring-1 ring-[#d8dfdc]"}`}>{step}</span>
-                <span className={`text-[11px] font-semibold ${active ? "text-[#183229]" : "text-[#6f7782]"}`}>{label}</span>
-              </div>
-            ))}
           </div>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 xl:grid-cols-[minmax(0,1fr)_360px] gap-5 items-start">
+      <div className="grid grid-cols-1 items-start gap-5 xl:grid-cols-[minmax(0,1fr)_320px]">
         {/* Left — cart items */}
         <div className="min-w-0 rounded-[12px] border border-[#e8e3df] bg-white overflow-hidden">
-          <div className="grid grid-cols-[minmax(0,1fr)_280px_120px_116px_120px_48px] items-center border-b border-[#eee8e3] bg-[#fbfaf8] px-5 py-3 max-lg:hidden">
-            {["Product", "Patient", "Price", "Qty", "Total", ""].map(h => (
-              <span key={h} className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[#8c8c8c]">{h}</span>
+          <div className="grid grid-cols-[minmax(220px,1fr)_220px_90px_106px_100px_36px] items-center gap-3 border-b border-[#eee8e3] bg-[#fbfaf8] px-4 py-3 max-lg:hidden">
+            {["Product", "Patient", "Price", "Qty", "Total", ""].map((h, index) => (
+              <span key={`${h}-${index}`} className={`text-[10px] font-semibold uppercase tracking-[0.12em] text-[#8c8c8c] ${index >= 2 && index <= 4 ? "text-center" : ""}`}>{h}</span>
             ))}
           </div>
 
           <div className="divide-y divide-[#eee8e3]">
             {cartRowsWithNumbers.map(({ patient, item, prescriptionNumber }) => (
-              <div key={item.id} className="px-5 py-4 transition-colors hover:bg-[#fffbf8]">
+              <div key={item.id} className="px-4 py-4 transition-colors hover:bg-[#fffbf8]">
                 {(() => {
                   const includedSupplies = patient.items.filter(supply => supply.kind === "supply" && !removed.has(supply.id));
                   return (
                     <>
-                <div className="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1fr)_280px_120px_116px_120px_48px] lg:items-start">
+                <div className="grid grid-cols-1 gap-3 lg:grid-cols-[minmax(220px,1fr)_220px_90px_106px_100px_36px] lg:items-start">
                   <div className="flex min-w-0 gap-3">
                     <CartItemImage item={item} />
                     <div className="min-w-0">
                       <div className="flex flex-wrap items-center gap-1.5">
-                        <p className="text-[16px] font-semibold leading-tight text-[#1a1a1a]">{item.name}</p>
+                        <p className="text-[14px] font-semibold leading-tight text-[#1a1a1a]">{item.name}</p>
                       </div>
                       <p className="mt-1 text-[13px] text-[#6f7782]">{item.detail}</p>
                       <p className="mt-3 text-[11px] font-semibold text-[#8c95a1]">Prescription #{prescriptionNumber}</p>
@@ -3775,7 +3721,7 @@ function MultiPatientCartPage({
                       </span>
                       <span className="text-[11px] font-semibold uppercase tracking-[0.1em] text-[#52645c]">{patient.name}</span>
                     </div>
-                    <div className="rounded-[8px] border border-[#eee8e3] bg-[#fffbf8] px-3 py-2.5 text-[11px] font-medium leading-relaxed text-[#6f7782]">
+                    <div className="rounded-[8px] border border-[#eee8e3] bg-[#fffbf8] px-2.5 py-2 text-[10px] font-medium leading-relaxed text-[#6f7782]">
                       <div className="flex items-center gap-1.5">
                         <Phone size={12} strokeWidth={1.8} className="shrink-0 text-[#183229]" />
                         <span>{patient.phone}</span>
@@ -3787,12 +3733,12 @@ function MultiPatientCartPage({
                     </div>
                   </div>
 
-                  <div className="flex items-center justify-between gap-3 lg:flex lg:h-5 lg:justify-center">
+                  <div className="flex items-center justify-between gap-3 lg:flex lg:h-8 lg:justify-center">
                     <span className="text-[11px] font-semibold uppercase tracking-[0.1em] text-[#8c8c8c] lg:hidden">Price</span>
                     <span className="text-[14px] font-semibold text-[#1a1a1a]">{item.price === 0 ? "Free" : `$${item.price.toFixed(2)}`}</span>
                   </div>
 
-                  <div className="flex items-center justify-between gap-3 lg:block lg:text-center">
+                  <div className="flex items-center justify-between gap-3 lg:flex lg:h-8 lg:justify-center lg:text-center">
                     <span className="text-[11px] font-semibold uppercase tracking-[0.1em] text-[#8c8c8c] lg:hidden">Qty</span>
                     <div className="inline-flex h-8 overflow-hidden rounded-[7px] border border-[#d8dfdc] bg-white lg:mx-auto">
                       <button
@@ -3814,14 +3760,14 @@ function MultiPatientCartPage({
                     </div>
                   </div>
 
-                  <div className="flex items-center justify-between gap-3 lg:flex lg:h-5 lg:justify-center">
+                  <div className="flex items-center justify-between gap-3 lg:flex lg:h-8 lg:justify-center">
                     <span className="text-[11px] font-semibold uppercase tracking-[0.1em] text-[#8c8c8c] lg:hidden">Total</span>
                     <span className="text-[14px] font-bold text-[#1a1a1a]">{item.price === 0 ? "Free" : `$${(item.price * (quantities[item.id] ?? 1)).toFixed(2)}`}</span>
                   </div>
 
                   <button
                     onClick={() => setRemoved(prev => new Set([...prev, item.id]))}
-                    className="flex size-8 items-center justify-center rounded-[7px] bg-[#f6f4f5] text-[#183229] transition-colors hover:bg-[#fbeaea] hover:text-[#d92d20]"
+                    className="flex size-8 items-center justify-center rounded-[7px] text-[#8c95a1] transition-colors hover:bg-[#fbeaea] hover:text-[#d92d20]"
                     aria-label={`Remove ${item.name}`}
                   >
                     <Trash2 size={15} />
@@ -3830,9 +3776,9 @@ function MultiPatientCartPage({
 
                 {includedSupplies.length > 0 && (
                   <div className="mt-4">
-                        <div className="rounded-[10px] border border-[#e8e3df] bg-white p-4">
+                        <div className="rounded-[10px] border border-[#e8e3df] bg-[#fcfcfb] p-3.5">
                           <div className="flex flex-wrap items-center justify-between gap-2">
-                            <h3 className="text-[17px] font-semibold text-[#1a1a1a]">Prescription for {item.name}</h3>
+                            <h3 className="text-[14px] font-semibold text-[#1a1a1a]">Prescription details</h3>
                             <span className="rounded-full bg-[#f2f7f4] px-2.5 py-1 text-[11px] font-semibold text-[#52645c]">{patient.name}</span>
                           </div>
                           <div className="mt-3">
@@ -4076,6 +4022,7 @@ function MultiPatientCartPage({
           </div>
         </aside>
       </div>
+      </div>
 
       {previewOpen && (
         <div className="fixed inset-0 z-50 flex justify-end bg-[#1a1a1a]/35 backdrop-blur-[2px]">
@@ -4085,8 +4032,8 @@ function MultiPatientCartPage({
               <XCircle size={18} />
             </button>
             <p className="text-[12px] font-semibold uppercase tracking-[0.12em] text-[#667085]">Preview</p>
-            <h2 className="mt-1 text-[22px] font-semibold text-[#1a1a1a]">Multi-patient order</h2>
-            <p className="mt-1 text-[12px] text-[#6f7782]">One shipment for {cartData.patients.length} patients from {cartData.pharmacy}.</p>
+            <h2 className="mt-1 text-[22px] font-semibold text-[#1a1a1a]">Patient order</h2>
+            <p className="mt-1 text-[12px] text-[#6f7782]">One shipment for {cartData.patients.length} {cartData.patients.length === 1 ? "patient" : "patients"} from {cartData.pharmacy}.</p>
 
             <section className="mt-6">
               <h3 className="border-b border-[#eee8e3] pb-3 text-[15px] font-semibold text-[#1a1a1a]">Prescriptions</h3>
@@ -4504,9 +4451,68 @@ function CheckoutPrescriptionPage({ onNavigate }: { onNavigate: (p: Page) => voi
   );
 }
 
+function LoginPage({ onLogin }: { onLogin: () => void }) {
+  function submitLogin(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    onLogin();
+  }
+
+  return (
+    <main className="relative min-h-screen overflow-hidden bg-white font-['Inter',sans-serif] text-[#1a1a1a]">
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-[520px] bg-[radial-gradient(circle_at_50%_0%,rgba(197,216,83,0.28),rgba(217,251,244,0.26)_32%,rgba(255,255,255,0)_72%)]" />
+      <div className="relative mx-auto flex min-h-screen w-full max-w-[620px] flex-col items-center px-6 pt-7">
+        <div className="flex items-center gap-2.5">
+          <img src={scriptlinkrxLogo} alt="ScriptLinkRx" className="h-[30px] w-9 object-contain" />
+          <span className="font-['Poppins',sans-serif] text-[18px] font-semibold uppercase tracking-wide text-[#183229]">
+            S<span className="lowercase">CRIPTLINKrx</span>
+          </span>
+        </div>
+
+        <section className="mt-[110px] w-full max-w-[430px] text-center">
+          <h1 className="font-['Georgia',serif] text-[48px] font-semibold leading-none tracking-[-0.02em] text-[#1a1a1a]">
+            Welcome back
+          </h1>
+          <p className="mt-5 text-[15px] text-[#1a1a1a]">Let’s get you logged in.</p>
+
+          <form onSubmit={submitLogin} className="mt-12">
+            <input
+              type="email"
+              defaultValue="demo@scriptlinkrx.com"
+              className="h-[52px] w-full rounded-[8px] border border-[#1a1a1a] bg-white px-4 text-[13px] font-medium text-[#1a1a1a] outline-none placeholder:text-[#6f7782] focus:border-[#183229]"
+              placeholder="Email"
+            />
+            <button type="submit" className="mt-3 flex h-[46px] w-full items-center justify-center rounded-[999px] bg-[#1a1a1a] text-[13px] font-semibold text-white transition-colors hover:bg-[#183229]">
+              Continue to log in
+            </button>
+          </form>
+
+          <div className="my-8 grid grid-cols-[1fr_auto_1fr] items-center gap-3">
+            <span className="h-px bg-[#1a1a1a]/45" />
+            <span className="text-[12px] text-[#6f7782]">Or other log-in options</span>
+            <span className="h-px bg-[#1a1a1a]/45" />
+          </div>
+
+          <button
+            onClick={onLogin}
+            className="flex h-[48px] w-full items-center justify-center gap-5 rounded-[999px] border border-[#cfd6d2] bg-white text-[14px] font-semibold text-[#1a1a1a] transition-colors hover:border-[#183229]/50 hover:bg-[#fbfaf8]"
+          >
+            <span className="text-[22px] font-bold leading-none text-[#4285f4]">G</span>
+            Sign in with Google
+          </button>
+
+          <button type="button" className="mt-8 text-[12px] font-semibold text-[#1a1a1a] underline underline-offset-4 hover:text-[#183229]">
+            Forgot password?
+          </button>
+        </section>
+      </div>
+    </main>
+  );
+}
+
 // ─── App Shell ────────────────────────────────────────────────────────────────
 
 export default function App() {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [page, setPage] = useState<Page>(DEFAULT_PAGE);
   const [cartMode, setCartMode] = useState<CartMode>("single");
   const [multiCartPatientIds, setMultiCartPatientIds] = useState<number[]>([]);
@@ -4518,7 +4524,7 @@ export default function App() {
     () => [...POPULAR_CARDS, ...ALL_CARDS].filter((card) => favoriteProductIds.has(card.id)),
     [favoriteProductIds],
   );
-  const cartPage: Page = cartMode === "multi" ? "cart-multi" : "cart-single";
+  const cartPage: Page = "cart-multi";
   const [cartPreviewItems, setCartPreviewItems] = useState<CartPreviewItem[]>([]);
   const [appLoading, setAppLoading] = useState(false);
   const cartItemCount = cartPreviewItems.reduce((count, item) => count + (item.qty ?? 1), 0);
@@ -4591,7 +4597,7 @@ export default function App() {
       case "settings":
         return <SettingsPage onNavigate={setPage} />;
       case "cart-single":
-        return <SinglePatientCartPage onNavigate={setPage} cartMode={cartMode} setCartMode={setCartMode} />;
+        return <MultiPatientCartPage onNavigate={setPage} cartMode={cartMode} setCartMode={setCartMode} selectedPatientIds={multiCartPatientIds} />;
       case "cart-multi":
         return <MultiPatientCartPage onNavigate={setPage} cartMode={cartMode} setCartMode={setCartMode} selectedPatientIds={multiCartPatientIds} />;
       case "checkout-prescription":
@@ -4606,6 +4612,10 @@ export default function App() {
           />
         );
     }
+  }
+
+  if (!isAuthenticated) {
+    return <LoginPage onLogin={() => setIsAuthenticated(true)} />;
   }
 
   return (
