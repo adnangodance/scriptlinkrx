@@ -8,7 +8,6 @@ import {
   MessageSquare,
   Settings,
   RefreshCw,
-  HelpCircle,
   Search,
   Heart,
   Bell,
@@ -48,6 +47,7 @@ import {
   X,
   Loader2,
   EyeOff,
+  LogOut,
 } from "lucide-react";
 
 import img430 from "@/imports/ScriptlinkrxDashboard/9b6fa0a3b334659006bcf39e91b4da387a7b4cf0.png";
@@ -75,6 +75,7 @@ type Page =
   | "product-detail"
   | "pharmacies"
   | "orders"
+  | "order-detail"
   | "support"
   | "users"
   | "settings"
@@ -273,7 +274,7 @@ const INITIAL_MAIN: MenuItem[] = [
   { icon: MessageSquare, label: "Support Tickets", page: "support" },
   { icon: Settings, label: "Settings", page: "settings" },
   { icon: RefreshCw, label: "Hard Refresh", page: "dashboard" },
-  { icon: HelpCircle, label: "Help", page: "support" },
+  { icon: LayoutDashboard, label: "Dashboard", page: "dashboard" },
 ];
 
 function NavItem({
@@ -376,10 +377,12 @@ function Sidebar({
   active,
   onNavigate,
   cartPage,
+  onLogout,
 }: {
   active: Page;
   onNavigate: (p: Page) => void;
   cartPage: Page;
+  onLogout: () => void;
 }) {
   const [favorites, setFavorites] = useState<MenuItem[]>(INITIAL_FAVORITES);
   const [mainMenu, setMainMenu] = useState<MenuItem[]>(INITIAL_MAIN);
@@ -470,7 +473,7 @@ function Sidebar({
         <p className="text-[11px] text-[#1a1a1a] opacity-40 font-medium mb-2.5">Favorites</p>
         <div className="flex flex-col gap-1">
           {favorites.map((item) => (
-            <NavItem key={item.label} item={item} isPinned={true} isActive={item.page === "cart-multi" ? active === cartPage : active === item.page} section="fav" {...navItemProps} />
+            <NavItem key={item.label} item={item} isPinned={true} isActive={item.page === "cart-multi" ? active === cartPage : item.page === "orders" ? active === "orders" || active === "order-detail" : active === item.page} section="fav" {...navItemProps} />
           ))}
         </div>
       </div>
@@ -480,7 +483,7 @@ function Sidebar({
         <p className="text-[11px] text-[#1a1a1a] opacity-40 font-medium mb-2.5">Main Menu</p>
         <div className="flex flex-col gap-1">
           {mainMenu.map((item) => {
-            const isActive = active === item.page && item.label !== "Hard Refresh" && item.label !== "Help";
+            const isActive = active === item.page && item.label !== "Hard Refresh";
             return <NavItem key={item.label} item={item} isPinned={false} isActive={isActive} section="main" {...navItemProps} />;
           })}
         </div>
@@ -488,7 +491,7 @@ function Sidebar({
 
       <div className="mt-auto" />
       <div className="border-t border-[#e8e3df] px-4 py-4">
-        <UserChip onNavigate={onNavigate} />
+        <UserChip onNavigate={onNavigate} onLogout={onLogout} />
       </div>
     </aside>
   );
@@ -496,20 +499,41 @@ function Sidebar({
 
 // ─── Header ──────────────────────────────────────────────────────────────────
 
-function UserChip({ onNavigate }: { onNavigate: (p: Page) => void }) {
+function UserChip({ onNavigate, onLogout }: { onNavigate: (p: Page) => void; onLogout: () => void }) {
+  const [menuOpen, setMenuOpen] = useState(false);
   return (
-    <button
-      onClick={() => onNavigate("dashboard")}
-      className="flex h-9 items-center gap-2 rounded-[19px] bg-[#f6f4f5] px-3 py-2 transition-colors hover:bg-[#eee9e5]"
-      aria-label="Open dashboard"
-    >
+    <div className="relative">
+      {menuOpen && <button className="fixed inset-0 z-30 cursor-default" onClick={() => setMenuOpen(false)} aria-label="Close account menu" />}
+      {menuOpen && (
+        <div className="absolute bottom-[calc(100%+10px)] left-0 z-40 w-[214px] overflow-hidden rounded-[10px] border border-[#dddeda] bg-white shadow-[0_12px_35px_rgba(24,50,41,0.16)]">
+          <div className="border-b border-[#eceeea] px-3.5 py-3">
+            <p className="text-[12px] font-semibold text-[#1a1a1a]">Zee</p>
+            <p className="mt-0.5 text-[10px] text-[#7a837f]">Account menu</p>
+          </div>
+          <div className="p-1.5">
+            <button onClick={() => { onNavigate("dashboard"); setMenuOpen(false); }} className="flex h-9 w-full items-center gap-2 rounded-[7px] px-2.5 text-[12px] font-medium text-[#1a1a1a] hover:bg-[#f4f6f5]">
+              <LayoutDashboard size={15} /> Dashboard
+            </button>
+            <button onClick={onLogout} className="flex h-9 w-full items-center gap-2 rounded-[7px] px-2.5 text-[12px] font-semibold text-[#1a1a1a] hover:bg-[#f4f6f5]">
+              <LogOut size={15} /> Log out
+            </button>
+          </div>
+        </div>
+      )}
+      <button
+        onClick={() => setMenuOpen(current => !current)}
+        className="flex h-9 items-center gap-2 rounded-[19px] bg-[#f6f4f5] px-3 py-2 transition-colors hover:bg-[#eee9e5]"
+        aria-expanded={menuOpen}
+        aria-label="Open account menu"
+      >
       <div className="relative flex size-5 items-center justify-center rounded-full bg-[#bab5fb]">
         <span className="text-[10px] font-semibold text-[#7547ff]">Z</span>
         <span className="absolute -right-0.5 -top-0.5 size-2.5 rounded-full border border-[#f6f4f5] bg-[#ff8287]" />
       </div>
       <span className="text-[13px] font-medium text-[#1a1a1a]">Hi, Zee</span>
       <img src={userVerifiedIcon} alt="" className="size-3" />
-    </button>
+      </button>
+    </div>
   );
 }
 
@@ -738,7 +762,6 @@ function Header({
           </p>
         )}
       </div>
-      <HeaderActions onNavigate={onNavigate} cartPage={cartPage} favoriteProducts={favoriteProducts} onProductSelect={onProductSelect} />
     </div>
   );
 }
@@ -1244,7 +1267,6 @@ function ProductsPage({
       {/* Page header — matches Figma layout */}
       <div className="flex items-start justify-between mb-0">
         <h1 className="font-['Inter',sans-serif] font-medium text-[32px] text-black leading-none">Products</h1>
-        <HeaderActions onNavigate={onNavigate} cartPage="cart-multi" favoriteProducts={favoriteProducts} onProductSelect={onProductSelect} />
       </div>
 
       {/* Search + filters bar */}
@@ -2146,7 +2168,7 @@ function CopyButton({ text }: { text: string }) {
   );
 }
 
-function OrdersPage({ onNavigate }: { onNavigate: (p: Page) => void }) {
+function OrdersPage({ onNavigate, onOrderSelect }: { onNavigate: (p: Page) => void; onOrderSelect: (order: typeof ORDERS[number]) => void }) {
   const [filter, setFilter] = useState("All");
   const [search, setSearch] = useState("");
   const [selectedOrderId, setSelectedOrderId] = useState(ORDERS[0]?.id ?? "");
@@ -2258,7 +2280,7 @@ function OrdersPage({ onNavigate }: { onNavigate: (p: Page) => void }) {
       ) : (
         <div className="grid gap-4">
           {filtered.map((order) => (
-            <section key={order.id} className="overflow-hidden rounded-[13px] border border-[#e5ddd5] bg-white">
+            <section key={order.id} onClick={() => onOrderSelect(order)} className="cursor-pointer overflow-hidden rounded-[13px] border border-[#e5ddd5] bg-white transition-shadow hover:shadow-md">
               <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[#eee8e3] bg-[#fffcf8] px-5 py-4">
                 <div className="flex flex-wrap items-center gap-3">
                   <span className="text-[14px] font-bold text-[#1a1a1a]">{order.id}</span>
@@ -2315,7 +2337,7 @@ function OrdersPage({ onNavigate }: { onNavigate: (p: Page) => void }) {
                     );
                   })}
                   {order.items.length > 2 && (
-                    <button onClick={() => setExpandedItems(prev => ({ ...prev, [order.id]: !prev[order.id] }))} className="mx-auto mt-2 flex w-fit items-center gap-1 py-1 text-[12px] font-semibold text-[#183229]">
+                    <button onClick={(event) => { event.stopPropagation(); setExpandedItems(prev => ({ ...prev, [order.id]: !prev[order.id] })); }} className="mx-auto mt-2 flex w-fit items-center gap-1 py-1 text-[12px] font-semibold text-[#183229]">
                       <ChevronDown size={14} strokeWidth={2} className={`transition-transform ${expandedItems[order.id] ? "rotate-180" : ""}`} />
                       {expandedItems[order.id] ? "Show less" : `Show more ${order.items.length - 2} Prescriptions`}
                     </button>
@@ -2329,6 +2351,50 @@ function OrdersPage({ onNavigate }: { onNavigate: (p: Page) => void }) {
     </>
   );
 
+}
+
+function OrderDetailPage({ order, onNavigate }: { order: typeof ORDERS[number]; onNavigate: (page: Page) => void }) {
+  const variant = 2;
+  const [trackingLinkCopied, setTrackingLinkCopied] = useState(false);
+  const [prescriberAssigned, setPrescriberAssigned] = useState(true);
+  const [detailSideTab, setDetailSideTab] = useState<"status" | "receipt">("status");
+  const patients = "patients" in order ? order.patients : [order.patient];
+  const patientTrackingLink = `https://scriptlinkrx.com/track/${order.id.replace('#','')}`;
+  const shell = variant === 1 ? "rounded-[14px] border border-[#e6e1dd] bg-white" : variant === 2 ? "rounded-[10px] border border-[#dfe5e2] bg-white shadow-sm" : variant === 3 ? "rounded-[18px] bg-[#faf7f4] shadow-[0_8px_28px_rgba(24,50,41,0.08)]" : variant === 4 ? "rounded-[12px] border-l-4 border-l-[#183229] border-y border-r border-[#e5e1dd] bg-white" : "rounded-[16px] border border-[#dce5e1] bg-[#f7faf8]";
+  const section = variant === 3 ? "rounded-[14px] border border-[#ebe4df] bg-white p-5" : variant === 5 ? "rounded-[12px] border border-[#dce5e1] bg-white p-5" : "rounded-[10px] border border-[#e8e3df] bg-white p-5";
+  return (
+    <>
+      <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
+        <button onClick={() => onNavigate("orders")} className="flex items-center gap-2 text-[22px] font-semibold text-[#1a1a1a]"><ChevronLeft size={22} /> Orders</button>
+        <div className="flex flex-wrap gap-2"><button className="inline-flex items-center gap-1.5 rounded-[7px] bg-[#00b43a] px-3 py-2 text-[11px] font-semibold text-white"><Download size={13} /> Download receipt</button><button onClick={() => onNavigate("support")} className="inline-flex items-center gap-1.5 rounded-[7px] bg-[#1a1a1a] px-3 py-2 text-[11px] font-semibold text-white"><Plus size={13} /> Create ticket</button><button className="inline-flex items-center gap-1.5 rounded-[7px] bg-[#df542f] px-3 py-2 text-[11px] font-semibold text-white"><XCircle size={13} /> Request cancellation</button></div>
+      </div>
+      <div className="grid items-start gap-5 xl:grid-cols-[minmax(0,1fr)_330px]">
+        <div className="space-y-4">
+          <section className={`${shell} overflow-hidden`}>
+            <div className={`grid gap-4 border-b border-[#ece7e3] px-5 py-4 sm:grid-cols-3 lg:grid-cols-6 ${variant === 3 ? "bg-[#183229] text-white" : "bg-[#fffcf8]"}`}>
+              {[['Order timestamp', order.timestamp], ['Order ID', order.id], ['Status', order.status], ['Ship to', order.shipMethod], ['Payment', order.payMethod], ['Final total', order.total]].map(([label,value]) => <div key={label}><p className={`text-[9px] font-semibold uppercase tracking-wider ${variant === 3 ? "text-white/60" : "text-[#8c95a1]"}`}>{label}</p>{label === 'Status' ? <span className="mt-1 inline-flex rounded-full bg-[#667085] px-2 py-1 text-[9px] font-bold text-white">{value.toUpperCase()}</span> : label === 'Ship to' ? <span className="mt-1 inline-flex items-center gap-1 rounded-full bg-[#11d4d8] px-2 py-1 text-[9px] font-bold text-[#062b2c]">{value}<Building2 size={10} /></span> : label === 'Payment' ? <span className="mt-1 inline-flex items-center gap-1 rounded-full bg-[#a7e9b8] px-2 py-1 text-[9px] font-bold text-[#183229]">{value}<User size={10} /><span className={`rounded-full px-1 py-0.5 text-[8px] text-white ${order.payStatus === 'PAID' ? 'bg-[#00b43a]' : 'bg-[#ff4f8b]'}`}>{order.payStatus}</span></span> : <p className="mt-1 text-[12px] font-semibold">{value}</p>}</div>)}
+            </div>
+            <div className={`grid gap-5 p-5 ${variant === 2 ? "md:grid-cols-1" : "md:grid-cols-[1.2fr_0.8fr]"}`}>
+              <div><p className="mb-2 text-[10px] font-semibold uppercase tracking-wider text-[#8c95a1]">Patients</p><div className="space-y-2">{patients.map(patient => <div key={patient.name} className="rounded-[9px] bg-[#f6f8f7] p-3"><p className="text-[12px] font-semibold">{patient.name} <span className="font-normal text-[#8c95a1]">({patient.gender})</span></p><p className="mt-1 text-[11px] text-[#667085]">{patient.phone}</p><p className="mt-1 text-[11px] text-[#667085]">{patient.address}</p></div>)}</div></div>
+              <div><p className="mb-2 text-[10px] font-semibold uppercase tracking-wider text-[#8c95a1]">Prescriber</p><div className="rounded-[9px] bg-[#f6f8f7] p-3">{prescriberAssigned ? <><p className="text-[12px] font-semibold">Dr. Maya Chen</p><p className="mt-1 text-[10px] leading-relaxed text-[#667085]">2823 Middletown Road<br />Bronx, NY 10461<br />(646) 617-9881<br />NPI: 1234523452</p><span className="mt-2 inline-flex items-center gap-1 rounded-full bg-[#e7f5ec] px-2 py-1 text-[9px] font-bold text-[#2f704c]"><CheckCircle2 size={10} /> Assigned</span></> : <><p className="text-[11px] text-[#667085]">No prescriber has approved this order yet.</p><button onClick={() => setPrescriberAssigned(true)} className="mt-2 inline-flex items-center gap-1 rounded-[6px] border border-[#b9c7c0] bg-white px-2 py-1.5 text-[10px] font-semibold text-[#183229]"><User size={11} /> Assign prescriber</button></>}</div></div>
+            </div>
+          </section>
+          <section className={shell}>
+            <div className="flex items-center justify-between border-b border-[#ece7e3] px-5 py-4"><div><p className="text-[14px] font-semibold">{order.items[0].pharmacy}</p><p className="mt-1 text-[11px] text-[#8c95a1]">Licensed compounding pharmacy</p></div><p className="text-[17px] font-bold text-[#183229]">{order.total}</p></div>
+            <div className="grid gap-3 border-b border-[#ece7e3] bg-[#fbfcfb] px-5 py-3 sm:grid-cols-3"><div><p className="text-[9px] font-semibold uppercase text-[#8c95a1]">Shipping method</p><p className="mt-1 text-[11px] font-semibold">FedEx Overnight Refrigerated</p></div><div><p className="text-[9px] font-semibold uppercase text-[#8c95a1]">Est. delivery</p><p className="mt-1 text-[11px] font-semibold">Pending</p></div><div><p className="text-[9px] font-semibold uppercase text-[#8c95a1]">Tracking</p><p className="mt-1 text-[11px] text-[#8c95a1]">Tracking Not Ready</p></div></div>
+            <div className="divide-y divide-[#ece7e3]">{order.items.map((item,index) => <div key={item.name}><div className="flex flex-wrap items-center gap-2 bg-[#f6f8f7] px-5 py-2 text-[10px] text-[#52645c]"><User size={12} className="text-[#00a63a]" /><span className="font-semibold text-[#1a1a1a]">{patients[index]?.name ?? patients[0].name}</span><span>|</span><span>{patients[index]?.phone ?? patients[0].phone}</span><span>|</span><span>{patients[index]?.address ?? patients[0].address}</span></div><div className={`grid gap-4 px-5 py-4 ${variant === 4 ? "md:grid-cols-[160px_minmax(0,1fr)_90px]" : "md:grid-cols-[minmax(0,1fr)_90px]"}`}>{variant === 4 && <div className="text-[11px] text-[#667085]">Days {item.daysSupply}<br />Refills {item.authRefills}</div>}<div className="flex gap-3"><div className="flex size-12 shrink-0 items-center justify-center overflow-hidden rounded-[8px] border border-[#e8e3df] bg-white"><img src={item.image} alt="" className="size-12 object-contain mix-blend-multiply" /></div><div><p className="text-[12px] font-semibold">{item.name}</p><p className="mt-1 text-[11px] text-[#667085]">{item.description}</p><span className="mt-2 inline-flex rounded-full bg-[#fff0c7] px-2 py-0.5 text-[9px] font-semibold text-[#865500]">Open Rx</span><p className="mt-2 text-[10px] text-[#1a1a1a]"><strong>Sig:</strong> Use as directed by prescriber.</p><p className="mt-1 text-[10px] text-[#1a1a1a]"><strong>Reason:</strong> Patient requires a customized compounded formulation.</p><p className="mt-2 text-[10px] text-[#8c95a1]">Qty {item.qty} · Days {item.daysSupply} · Refills {item.authRefills}</p></div></div><p className="text-right text-[12px] font-bold">{item.price}</p></div><div className="flex items-center gap-3 px-5 pb-4"><div className="flex size-10 items-center justify-center rounded-[8px] border border-[#e8e3df] bg-[#fafafa]"><Syringe size={15} className="text-[#8c95a1]" /></div><div><p className="text-[11px] font-semibold">Supplies pack — suitable needles, syringe and alcohol pads</p><p className="mt-0.5 text-[10px] text-[#8c95a1]">Suitable amount for the prescribed dosage</p></div></div></div>)}</div>
+          </section>
+        </div>
+        <aside className="sticky top-6 space-y-4">
+          <div className="grid grid-cols-2 rounded-[12px] bg-white p-1 shadow-sm"><button onClick={() => setDetailSideTab("status")} className={`h-9 rounded-[9px] text-[11px] font-semibold ${detailSideTab === "status" ? "bg-[#183229] text-white" : "text-[#667085]"}`}>Order status</button><button onClick={() => setDetailSideTab("receipt")} className={`h-9 rounded-[9px] text-[11px] font-semibold ${detailSideTab === "receipt" ? "bg-[#183229] text-white" : "text-[#667085]"}`}>Receipt</button></div>
+          {detailSideTab === "status" ? <>
+          <section className={section}><h2 className="text-[18px] font-semibold">Order status</h2><div className="mt-5 space-y-0">{['Order created','In progress','Shipped','Delivered'].map((step,index) => <div key={step} className="flex gap-3"><div className="flex flex-col items-center"><span className={`flex size-8 items-center justify-center rounded-full ${index === 0 ? 'bg-[#183229] text-white' : 'bg-[#edf0ee] text-[#8c95a1]'}`}>{index === 0 ? <Package size={14}/> : <CheckCircle2 size={14}/>}</span>{index < 3 && <span className="h-9 w-px bg-[#dfe5e2]" />}</div><div className="pt-1"><p className="text-[12px] font-semibold">{step}</p>{index === 0 && <p className="mt-1 text-[10px] text-[#b42318]">Payment {order.payStatus.toLowerCase()}</p>}</div></div>)}</div><div className="mt-5 flex items-center gap-3 rounded-[10px] bg-[#f1f3f2] px-3.5 py-3"><span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-white text-[#183229]"><Bell size={14} /></span><div><p className="text-[12px] font-semibold text-[#1a1a1a]">Live updates</p><p className="mt-0.5 text-[10px] text-[#667085]">We’ll keep you informed as this order progresses.</p></div></div></section>
+          <section className={section}><h3 className="text-[14px] font-semibold">Share with patient</h3><p className="mt-1 text-[11px] text-[#667085]">Send this link so the patient can track the order.</p><div className="mt-3 flex items-center gap-2 rounded-[8px] border border-[#dfe5e2] bg-[#f8faf9] px-3 py-2"><span className="min-w-0 flex-1 truncate text-[10px] text-[#52645c]">{patientTrackingLink}</span><button onClick={() => navigator.clipboard.writeText(patientTrackingLink).then(() => { setTrackingLinkCopied(true); window.setTimeout(() => setTrackingLinkCopied(false), 1600); })} className="flex shrink-0 items-center gap-1 rounded-[6px] bg-white px-2 py-1 text-[10px] font-semibold text-[#183229] shadow-sm">{trackingLinkCopied ? <CheckCircle2 size={12} /> : <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><rect x="3.5" y="3.5" width="7" height="7" rx="1.2" stroke="currentColor"/><path d="M1.5 8V1.5H8" stroke="currentColor" strokeLinecap="round"/></svg>}{trackingLinkCopied ? 'Copied' : 'Copy'}</button></div></section>
+          </> : <section className={section}><h2 className="text-[18px] font-semibold">Receipt</h2><p className="mt-1 text-[11px] text-[#667085]">Order {order.id}</p><div className="mt-5 space-y-3">{order.items.map(item => <div key={item.name} className="flex justify-between gap-3 text-[11px]"><span className="text-[#667085]">{item.name}</span><span className="font-semibold">{item.price}</span></div>)}</div><div className="mt-5 border-t border-[#e8e3df] pt-4"><div className="flex justify-between text-[12px]"><span>Shipping</span><span className="font-semibold">Included</span></div><div className="mt-3 flex justify-between text-[15px] font-bold"><span>Total</span><span className="text-[#183229]">{order.total}</span></div></div><button className="mt-5 flex h-10 w-full items-center justify-center gap-2 rounded-[8px] bg-[#183229] text-[11px] font-semibold text-white"><Download size={13} /> Download receipt</button></section>}
+        </aside>
+      </div>
+    </>
+  );
 }
 
 // ─── Pharmacies ───────────────────────────────────────────────────────────────
@@ -4682,12 +4748,13 @@ function LoginPage({ onLogin }: { onLogin: () => void }) {
 // ─── App Shell ────────────────────────────────────────────────────────────────
 
 export default function App() {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(() => window.localStorage.getItem("scriptlinkrx-authenticated") === "true");
   const [page, setPage] = useState<Page>(DEFAULT_PAGE);
   const [cartMode, setCartMode] = useState<CartMode>("single");
   const [multiCartPatientIds, setMultiCartPatientIds] = useState<number[]>([]);
   const [patientCartEntries, setPatientCartEntries] = useState<PatientCartEntry[]>([]);
   const [selectedProduct, setSelectedProduct] = useState<CardDef>(POPULAR_CARDS[0]);
+  const [selectedOrder, setSelectedOrder] = useState<typeof ORDERS[number]>(ORDERS[0]);
   const [favoriteProductIds, setFavoriteProductIds] = useState<Set<number>>(
     () => new Set([...POPULAR_CARDS, ...ALL_CARDS].filter((card) => card.heartVariant === "green").map((card) => card.id)),
   );
@@ -4698,6 +4765,35 @@ export default function App() {
   const cartPage: Page = "cart-multi";
   const [cartPreviewItems, setCartPreviewItems] = useState<CartPreviewItem[]>([]);
   const [appLoading, setAppLoading] = useState(false);
+  const [chatOpen, setChatOpen] = useState(false);
+  const [chatMenuOpen, setChatMenuOpen] = useState(false);
+  const [chatMuted, setChatMuted] = useState(false);
+  const [chatInput, setChatInput] = useState("");
+  const [alexTyping, setAlexTyping] = useState(false);
+  const [chatMessages, setChatMessages] = useState<Array<{ id: number; sender: "alex" | "user"; text: string }>>([
+    { id: 1, sender: "alex", text: "Hi! I’m Alex. How can I help with your pharmacy or product order today?" },
+  ]);
+
+  useEffect(() => {
+    window.localStorage.setItem("scriptlinkrx-authenticated", String(isAuthenticated));
+  }, [isAuthenticated]);
+
+  function sendChatMessage(event: FormEvent) {
+    event.preventDefault();
+    const message = chatInput.trim();
+    if (!message) return;
+    setChatMessages(current => [...current, { id: Date.now(), sender: "user", text: message }]);
+    setChatInput("");
+    setAlexTyping(true);
+    window.setTimeout(() => {
+      setChatMessages(current => [...current, {
+        id: Date.now() + 1,
+        sender: "alex",
+        text: "Thanks for the message. I’m checking that for you now. Orders are usually processed within one business day, and I can help confirm the pharmacy details.",
+      }]);
+      setAlexTyping(false);
+    }, 900);
+  }
   const cartItemCount = cartPreviewItems.reduce((count, item) => count + (item.qty ?? 1), 0);
 
   function addCartItems(count = 1, product?: CartPreviewItem) {
@@ -4767,7 +4863,9 @@ export default function App() {
       case "pharmacies":
         return <PharmaciesPage onNavigate={setPage} />;
       case "orders":
-        return <OrdersPage onNavigate={setPage} />;
+        return <OrdersPage onNavigate={setPage} onOrderSelect={(order) => { setSelectedOrder(order); setPage("order-detail"); }} />;
+      case "order-detail":
+        return <OrderDetailPage order={selectedOrder} onNavigate={setPage} />;
       case "support":
         return <SupportPage onNavigate={setPage} />;
       case "users":
@@ -4802,7 +4900,7 @@ export default function App() {
         <ProductFavoritesContext.Provider value={{ favoriteProductIds, setFavoriteProductIds, favoriteProducts }}>
           <div className="flex h-screen overflow-hidden bg-[#fffbf8] font-['Inter',sans-serif]">
             {/* Sidebar Navigation */}
-            <Sidebar active={page} onNavigate={setPage} cartPage={cartPage} />
+            <Sidebar active={page} onNavigate={setPage} cartPage={cartPage} onLogout={() => setIsAuthenticated(false)} />
 
             {/* Main content area */}
             <main className="h-screen min-w-0 flex-1 overflow-y-auto p-6">
@@ -4811,9 +4909,49 @@ export default function App() {
               </div>
             </main>
 
+            {/* Chat popup */}
+            {chatOpen && (
+              <div className="fixed bottom-[76px] right-5 z-50 flex h-[430px] w-[385px] flex-col overflow-hidden rounded-[21px] bg-white shadow-[0_20px_55px_rgba(5,60,35,0.24)]">
+                <div className="flex h-[101px] items-center bg-[#004b2d] px-[35px] pb-[15px] pt-[14px] text-white">
+                  <div className="flex size-[34px] items-center justify-center overflow-hidden rounded-full bg-[#f0b33a] text-[18px]">👨🏾</div>
+                  <div className="ml-[11px]">
+                    <p className="text-[14px] font-medium leading-tight">Alex Rivera</p>
+                    <p className="mt-[2px] text-[12px] leading-tight text-white/70">Online</p>
+                  </div>
+                  <button onClick={() => setChatMenuOpen(current => !current)} className="ml-auto flex size-8 items-center justify-center text-[24px] leading-none text-white" aria-expanded={chatMenuOpen} aria-label="Chat options">⋮</button>
+                </div>
+                {chatMenuOpen && (
+                  <div className="absolute right-4 top-[62px] z-20 w-[205px] overflow-hidden rounded-[10px] border border-[#dfe5e2] bg-white p-1.5 shadow-[0_12px_32px_rgba(0,0,0,0.18)]">
+                    <button onClick={() => { setChatMuted(current => !current); setChatMenuOpen(false); }} className="flex h-9 w-full items-center gap-2 rounded-[7px] px-2.5 text-left text-[11px] font-medium text-[#1a1a1a] hover:bg-[#f3f6f4]"><Bell size={14} /> {chatMuted ? "Unmute notifications" : "Mute notifications"}</button>
+                    <button onClick={() => { setChatMessages([{ id: Date.now(), sender: "alex", text: "Hi! I’m Alex. How can I help with your pharmacy or product order today?" }]); setChatInput(""); setAlexTyping(false); setChatMenuOpen(false); }} className="flex h-9 w-full items-center gap-2 rounded-[7px] px-2.5 text-left text-[11px] font-medium text-[#1a1a1a] hover:bg-[#f3f6f4]"><RefreshCw size={14} /> New conversation</button>
+                    <button onClick={() => { setPage("support"); setChatOpen(false); setChatMenuOpen(false); }} className="flex h-9 w-full items-center gap-2 rounded-[7px] px-2.5 text-left text-[11px] font-medium text-[#1a1a1a] hover:bg-[#f3f6f4]"><MessageSquare size={14} /> Support tickets</button>
+                    <div className="my-1 h-px bg-[#e8ece9]" />
+                    <button onClick={() => { setChatOpen(false); setChatMenuOpen(false); }} className="flex h-9 w-full items-center gap-2 rounded-[7px] px-2.5 text-left text-[11px] font-medium text-[#1a1a1a] hover:bg-[#f3f6f4]"><X size={14} /> Close chat</button>
+                  </div>
+                )}
+                <div className="relative -mt-[15px] flex min-h-0 flex-1 flex-col rounded-t-[21px] bg-white">
+                  <div className="flex-1 space-y-4 overflow-y-auto px-[19px] pb-4 pt-[31px]">
+                    {chatMessages.map(message => message.sender === "alex" ? (
+                      <div key={message.id} className="flex items-start gap-[12px]">
+                        <div className="flex size-[23px] shrink-0 items-center justify-center rounded-full bg-[#f0b33a] text-[11px]">👨🏾</div>
+                        <div className="max-w-[278px] rounded-[20px] bg-[#eaf2bd] px-[15px] py-[13px] text-[13px] leading-[16px] text-[#111]">{message.text}</div>
+                      </div>
+                    ) : (
+                      <div key={message.id} className="ml-auto max-w-[275px] rounded-[20px] bg-black px-[15px] py-[13px] text-[13px] leading-[16px] text-white">{message.text}</div>
+                    ))}
+                    {alexTyping && <div className="flex items-center gap-[12px]"><div className="flex size-[23px] shrink-0 items-center justify-center rounded-full bg-[#f0b33a] text-[11px]">👨🏾</div><div className="flex gap-1 rounded-[16px] bg-[#eaf2bd] px-4 py-3"><span className="size-1.5 animate-pulse rounded-full bg-[#60712d]" /><span className="size-1.5 animate-pulse rounded-full bg-[#60712d] [animation-delay:150ms]" /><span className="size-1.5 animate-pulse rounded-full bg-[#60712d] [animation-delay:300ms]" /></div></div>}
+                  </div>
+                  <form onSubmit={sendChatMessage} className="flex items-center gap-2 border-t border-[#e9ecea] bg-white px-4 py-3">
+                    <input value={chatInput} onChange={event => setChatInput(event.target.value)} placeholder="Write a message..." className="h-10 min-w-0 flex-1 rounded-full border border-[#dce2df] bg-[#f7f9f8] px-4 text-[12px] outline-none placeholder:text-[#929b96] focus:border-[#004b2d]" />
+                    <button type="submit" disabled={!chatInput.trim()} className="flex size-10 shrink-0 items-center justify-center rounded-full bg-[#004b2d] text-white transition-colors hover:bg-[#063c27] disabled:cursor-not-allowed disabled:bg-[#b8c4be]" aria-label="Send message"><ArrowUpRight size={16} /></button>
+                  </form>
+                </div>
+              </div>
+            )}
+
             {/* Chat bubble */}
             <div className="fixed bottom-5 right-5 z-50">
-              <button className="w-11 h-11 bg-[#053c23] rounded-full flex items-center justify-center shadow-lg hover:bg-[#183229] transition-colors">
+              <button onClick={() => setChatOpen(current => !current)} className="w-11 h-11 bg-[#053c23] rounded-full flex items-center justify-center shadow-lg hover:bg-[#183229] transition-colors" aria-expanded={chatOpen} aria-label={chatOpen ? "Close chat" : "Open chat"}>
                 <MessageSquare size={16} className="text-[#d8ffa2]" />
               </button>
             </div>
