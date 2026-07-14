@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useRef, useEffect, useLayoutEffect, useMemo, type Dispatch, type FormEvent, type SetStateAction } from "react";
+import { Fragment, createContext, useContext, useState, useRef, useEffect, useLayoutEffect, useMemo, type Dispatch, type FormEvent, type SetStateAction } from "react";
 import {
   LayoutDashboard,
   BookOpen,
@@ -121,6 +121,18 @@ type CartPreviewItem = {
   price: string;
   img: string;
   qty?: number;
+};
+
+type PatientCartEntry = {
+  id: number;
+  patientId: number;
+  product: CardDef;
+  qty: number;
+  pharmacy: string;
+  size: string;
+  strength: string;
+  injectionType: string;
+  unitPrice: number;
 };
 
 const CartSummaryContext = createContext<CartSummaryContextValue | null>(null);
@@ -1498,13 +1510,13 @@ function ProductDetailPage({
   onNavigate,
   cartMode,
   setCartMode,
-  onSaveMultiCartPatients,
+  onAddToPatientCart,
   product,
 }: {
   onNavigate: (p: Page) => void;
   cartMode: CartMode;
   setCartMode: (mode: CartMode) => void;
-  onSaveMultiCartPatients: (patientIds: number[]) => void;
+  onAddToPatientCart: (entries: PatientCartEntry[]) => void;
   product: CardDef;
 }) {
   const defaultSize = product.dosage === "Gel" ? "30g Tube" : product.dosage === "Capsule" ? "30 Capsules" : "1 (5mL) Vial";
@@ -1606,7 +1618,17 @@ function ProductDetailPage({
         img: product.img,
         qty: itemCount,
       });
-      onSaveMultiCartPatients([...selectedPatientIds]);
+      onAddToPatientCart([...selectedPatientIds].map((patientId, index) => ({
+        id: Date.now() + index,
+        patientId,
+        product,
+        qty: patientQuantities[patientId] ?? 1,
+        pharmacy: selectedPharmacy.name,
+        size,
+        strength,
+        injectionType: injType,
+        unitPrice: selectedPharmacy.price,
+      })));
     });
   }
 
@@ -3544,7 +3566,32 @@ const MULTI_CART_DATA = {
   ],
 };
 
-type MultiCartItem = (typeof MULTI_CART_DATA.patients)[number]["items"][number];
+// Shipping capability is configured per pharmacy. Pharmacies without multi-patient
+// shipping create one shipment (and one shipping charge) for each patient.
+const PHARMACY_MULTI_PATIENT_SHIPPING: Record<string, boolean> = {
+  "1st Choice Compounding Pharmacy": true,
+  "Optimal Balance Pharmacy": true,
+  "DCA Pharmacy": false,
+  "Thesis Pharmacy": true,
+  "Rush Pharmacy TX": false,
+  "Spring Creek Pharmacy": false,
+};
+
+function supportsMultiPatientShipping(pharmacy: string) {
+  return PHARMACY_MULTI_PATIENT_SHIPPING[pharmacy] ?? false;
+}
+
+type MultiCartItem = {
+  id: number;
+  name: string;
+  detail: string;
+  qty: number;
+  price: number;
+  badge: string | null;
+  kind: "vial" | "supply";
+  image?: string;
+  pharmacy?: string;
+};
 
 function CartItemImage({ item }: { item: MultiCartItem }) {
   if (item.kind === "supply") {
@@ -3559,7 +3606,7 @@ function CartItemImage({ item }: { item: MultiCartItem }) {
 
   return (
     <div className="w-12 h-12 rounded-[8px] bg-gradient-to-b from-[#f7efe9] to-[#ece5b6]/45 border border-[#eee] flex items-center justify-center overflow-hidden shrink-0">
-      <img src={imgPT141} alt="" className="h-14 w-14 object-contain mix-blend-multiply" />
+      <img src={item.image ?? imgPT141} alt="" className="h-14 w-14 object-contain mix-blend-multiply" />
     </div>
   );
 }
@@ -3569,13 +3616,44 @@ function MultiPatientCartPage({
   cartMode,
   setCartMode,
   selectedPatientIds,
+  cartEntries,
 }: {
   onNavigate: (p: Page) => void;
   cartMode: CartMode;
   setCartMode: (mode: CartMode) => void;
   selectedPatientIds: number[];
+  cartEntries: PatientCartEntry[];
 }) {
-  const cartData = useMemo(() => selectedPatientIds.length > 0
+  const cartData = useMemo(() => cartEntries.length > 0
+    ? {
+        ...MULTI_CART_DATA,
+        pharmacy: [...new Set(cartEntries.map(entry => entry.pharmacy))].length === 1 ? cartEntries[0].pharmacy : "Multiple Pharmacies",
+        patients: [...new Set(cartEntries.map(entry => entry.patientId))].map(patientId => {
+          const patient = PATIENTS[patientId] ?? PATIENTS[0];
+          const entries = cartEntries.filter(entry => entry.patientId === patientId);
+          const addressLines = [patient.address1, patient.address2, `${patient.city}, ${patient.state} ${patient.zip}`].filter(Boolean);
+          return {
+            name: `${patient.firstName} ${patient.lastName}`,
+            dob: patient.birthDate,
+            phone: patient.primaryPhone,
+            email: `${patient.firstName}.${patient.lastName}`.replace(/[^a-z0-9.]/gi, "").toLowerCase() + "@example.com",
+            identification: `${patient.state}:23444244343 (State-Issued ID)`,
+            address: addressLines.join("\n"),
+            items: entries.map(entry => ({
+              id: entry.id,
+              name: entry.product.name,
+              detail: `${entry.strength} | ${entry.size}`,
+              qty: entry.qty,
+              price: entry.unitPrice,
+              badge: null,
+              kind: "vial" as const,
+              image: entry.product.img,
+              pharmacy: entry.pharmacy,
+            })),
+          };
+        }),
+      }
+    : selectedPatientIds.length > 0
     ? {
         ...MULTI_CART_DATA,
         patients: selectedPatientIds.map((patientId, index) => {
@@ -3600,13 +3678,13 @@ function MultiPatientCartPage({
           };
         }),
       }
-    : MULTI_CART_DATA, [selectedPatientIds]);
+    : MULTI_CART_DATA, [cartEntries, selectedPatientIds]);
   const [quantities, setQuantities] = useState<Record<number, number>>(() => {
     const init: Record<number, number> = {};
     cartData.patients.forEach(p => p.items.forEach(i => { init[i.id] = i.qty; }));
     return init;
   });
-  const [selectedShipping, setSelectedShipping] = useState(0);
+  const [selectedShippingByPharmacy, setSelectedShippingByPharmacy] = useState<Record<string, number>>({});
   const [removed, setRemoved] = useState<Set<number>>(new Set());
   const [showAllSummaryItems, setShowAllSummaryItems] = useState(false);
   const [expandedSupplies, setExpandedSupplies] = useState<Set<number>>(new Set([1]));
@@ -3625,7 +3703,17 @@ function MultiPatientCartPage({
     });
   }, [cartData]);
 
-  const shipping = cartData.shipping[selectedShipping].price;
+  const pharmacyNames = [...new Set(cartData.patients.flatMap(patient =>
+    patient.items.filter(item => item.kind !== "supply").map(item => item.pharmacy ?? cartData.pharmacy)
+  ))];
+  const shipping = pharmacyNames.reduce((sum, pharmacy) => {
+    const shippingIndex = selectedShippingByPharmacy[pharmacy] ?? 0;
+    const patientCount = new Set(cartData.patients
+      .filter(patient => patient.items.some(item => item.kind !== "supply" && !removed.has(item.id) && (item.pharmacy ?? cartData.pharmacy) === pharmacy))
+      .map(patient => patient.name)).size;
+    const shipmentCount = supportsMultiPatientShipping(pharmacy) ? 1 : Math.max(1, patientCount);
+    return sum + cartData.shipping[shippingIndex].price * shipmentCount;
+  }, 0);
   const subtotal = cartData.patients.flatMap(p => p.items)
     .filter(i => !removed.has(i.id))
     .reduce((sum, i) => sum + i.price * (quantities[i.id] ?? 1), 0);
@@ -3665,7 +3753,9 @@ function MultiPatientCartPage({
       .filter(item => item.kind !== "supply")
       .map(item => ({ patient, item }))
   ).filter(({ item }) => !removed.has(item.id));
-  const cartRowsWithNumbers = cartRows.map((row, index) => ({ ...row, prescriptionNumber: index + 1 }));
+  const cartRowsWithNumbers = [...cartRows]
+    .sort((a, b) => (a.item.pharmacy ?? cartData.pharmacy).localeCompare(b.item.pharmacy ?? cartData.pharmacy))
+    .map((row, index) => ({ ...row, prescriptionNumber: index + 1 }));
   const prescriptionCount = cartData.patients.length;
   const prescriptionsComplete = cartRows.every(({ item }) => {
     const details = prescriptionDetails[item.id];
@@ -3681,23 +3771,24 @@ function MultiPatientCartPage({
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
             <p className="text-[12px] font-semibold uppercase tracking-[0.12em] text-[#9d9d9d]">Patient cart</p>
-            <p className="text-[20px] font-semibold text-[#1a1a1a]">{cartData.pharmacy}</p>
+            <p className="text-[20px] font-semibold text-[#1a1a1a]">Your prescriptions</p>
+            <p className="mt-1 text-[12px] text-[#6f7782]">Grouped by pharmacy, with every patient kept in the same cart layout.</p>
           </div>
         </div>
       </div>
 
       <div className="grid grid-cols-1 items-start gap-5 xl:grid-cols-[minmax(0,1fr)_320px]">
         {/* Left — cart items */}
-        <div className="min-w-0 rounded-[12px] border border-[#e8e3df] bg-white overflow-hidden">
-          <div className="grid grid-cols-[minmax(220px,1fr)_220px_90px_106px_100px_36px] items-center gap-3 border-b border-[#eee8e3] bg-[#fbfaf8] px-4 py-3 max-lg:hidden">
-            {["Product", "Patient", "Price", "Qty", "Total", ""].map((h, index) => (
-              <span key={`${h}-${index}`} className={`text-[10px] font-semibold uppercase tracking-[0.12em] text-[#8c8c8c] ${index >= 2 && index <= 4 ? "text-center" : ""}`}>{h}</span>
-            ))}
-          </div>
-
-          <div className="divide-y divide-[#eee8e3]">
-            {cartRowsWithNumbers.map(({ patient, item, prescriptionNumber }) => (
-              <div key={item.id} className="px-4 py-4 transition-colors hover:bg-[#fffbf8]">
+        <div className="min-w-0">
+          <div>
+            {cartRowsWithNumbers.map(({ patient, item, prescriptionNumber }, rowIndex) => (
+              <Fragment key={item.id}>
+              {(rowIndex === 0 || (cartRowsWithNumbers[rowIndex - 1].item.pharmacy ?? cartData.pharmacy) !== (item.pharmacy ?? cartData.pharmacy)) && (
+                <div className={`${rowIndex === 0 ? "" : "mt-5"} rounded-t-[12px] border border-[#dedbd8] bg-[#ecebea] px-5 py-3`}>
+                  <h2 className="text-[15px] font-semibold text-[#1a1a1a]">{item.pharmacy ?? cartData.pharmacy} Cart</h2>
+                </div>
+              )}
+              <div className="border-x border-b border-[#e8e3df] bg-white px-4 py-4 transition-colors hover:bg-[#fffbf8]">
                 {(() => {
                   const includedSupplies = patient.items.filter(supply => supply.kind === "supply" && !removed.has(supply.id));
                   return (
@@ -3774,7 +3865,7 @@ function MultiPatientCartPage({
                   </button>
                 </div>
 
-                {includedSupplies.length > 0 && (
+                {(
                   <div className="mt-4">
                         <div className="rounded-[10px] border border-[#e8e3df] bg-[#fcfcfb] p-3.5">
                           <div className="flex flex-wrap items-center justify-between gap-2">
@@ -3784,7 +3875,7 @@ function MultiPatientCartPage({
                           <div className="mt-3">
                             <label className="mb-1.5 block text-[12px] font-semibold text-[#1a1a1a]">Drug Name + Strength</label>
                             <input
-                              defaultValue="Tirzepatide/Pyridoxine (B6) 20mg/25mg/mL"
+                              value={`${item.name} ${item.detail.split("|")[0].trim()}`}
                               readOnly
                               className="h-10 w-full cursor-not-allowed rounded-[7px] border border-[#d8dfdc] bg-white px-3 text-[13px] font-medium text-[#6f7782] outline-none"
                             />
@@ -3793,7 +3884,7 @@ function MultiPatientCartPage({
                             <div>
                               <label className="mb-1.5 block text-[12px] font-semibold text-[#1a1a1a]">Qty Size</label>
                               <input
-                                defaultValue="1 (0.5mL) Vial"
+                                value={item.detail.split("|")[1]?.trim() ?? item.detail}
                                 readOnly
                                 className="h-10 w-full cursor-not-allowed rounded-[7px] border border-[#d8dfdc] bg-white px-3 text-[13px] font-medium text-[#6f7782] outline-none"
                               />
@@ -3856,7 +3947,7 @@ function MultiPatientCartPage({
                             />
                           </div>
                         </div>
-                    <div className="mt-3">
+                    {includedSupplies.length > 0 && <div className="mt-3">
                       <button
                         onClick={() => toggleSupplies(item.id)}
                         className="inline-flex items-center gap-1.5 text-[12px] font-semibold text-[#1a1a1a] transition-colors hover:text-[#183229]"
@@ -3900,40 +3991,57 @@ function MultiPatientCartPage({
                         ))}
                         </div>
                     )}
-                    </div>
+                    </div>}
                   </div>
                 )}
                     </>
                   );
                 })()}
               </div>
+              {(rowIndex === cartRowsWithNumbers.length - 1 ||
+                (cartRowsWithNumbers[rowIndex + 1].item.pharmacy ?? cartData.pharmacy) !== (item.pharmacy ?? cartData.pharmacy)) && (() => {
+                const pharmacy = item.pharmacy ?? cartData.pharmacy;
+                const selectedShipping = selectedShippingByPharmacy[pharmacy] ?? 0;
+                const multiPatientShipping = supportsMultiPatientShipping(pharmacy);
+                const pharmacyPatientCount = new Set(cartRowsWithNumbers
+                  .filter(row => (row.item.pharmacy ?? cartData.pharmacy) === pharmacy)
+                  .map(row => row.patient.name)).size;
+                const shipmentCount = multiPatientShipping ? 1 : Math.max(1, pharmacyPatientCount);
+                const pharmacyShippingTotal = cartData.shipping[selectedShipping].price * shipmentCount;
+                return (
+                  <div className="rounded-b-[12px] border-x border-b border-[#e8e3df] bg-[#fbfaf8] px-5 py-4">
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                      <h3 className="text-[13px] font-semibold text-[#1a1a1a]">Shipping method</h3>
+                      <span className="text-[13px] font-semibold text-[#183229]">${pharmacyShippingTotal.toFixed(2)}</span>
+                    </div>
+                    <div className={`mt-2 rounded-[7px] px-3 py-2 text-[11px] font-medium ${multiPatientShipping ? "bg-[#edf5f0] text-[#315a47]" : "bg-[#fff3e6] text-[#8a4b08]"}`}>
+                      {multiPatientShipping
+                        ? `Multi-patient shipping supported — one shipping fee covers all ${pharmacyPatientCount} ${pharmacyPatientCount === 1 ? "patient" : "patients"} in this cart.`
+                        : `Multi-patient shipping is not supported — shipping is charged separately for each patient (${shipmentCount} shipping ${shipmentCount === 1 ? "fee" : "fees"}).`}
+                    </div>
+                    <div className="mt-3 flex flex-wrap gap-2">
+                      {cartData.shipping.map((shippingOption, shippingIndex) => (
+                        <button
+                          key={`${pharmacy}-${shippingOption.label}`}
+                          onClick={() => setSelectedShippingByPharmacy(current => ({ ...current, [pharmacy]: shippingIndex }))}
+                          className={`flex h-9 items-center gap-2 rounded-[7px] border px-3 text-left text-[11px] font-medium transition-colors ${
+                            selectedShipping === shippingIndex
+                              ? "border-[#183229] bg-white text-[#1a1a1a]"
+                              : "border-[#e3dfdc] bg-white/70 text-[#59615d] hover:bg-white"
+                          }`}
+                        >
+                          <span className={`flex size-4 items-center justify-center rounded-full ${selectedShipping === shippingIndex ? "bg-[#e7efe9]" : "bg-[#efedeb]"}`}>
+                            {selectedShipping === shippingIndex && <span className="size-2 rounded-full bg-[#183229]" />}
+                          </span>
+                          <span>{shippingOption.label} · ${shippingOption.price.toFixed(2)}{!multiPatientShipping && shipmentCount > 1 ? ` × ${shipmentCount} patients` : ""}</span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                );
+              })()}
+              </Fragment>
             ))}
-          </div>
-
-          <div className="border-t border-[#eee8e3] bg-white px-5 py-5">
-            <h3 className="text-[16px] font-semibold text-[#1a1a1a]">Shipping method</h3>
-            <div className="mt-4 rounded-[10px] bg-[#f6f4f5] p-2">
-              <div className="flex flex-wrap gap-2">
-                {cartData.shipping.map((s, idx) => (
-                  <button
-                    key={s.label}
-                    onClick={() => setSelectedShipping(idx)}
-                    className={`flex h-10 items-center gap-2 rounded-[7px] px-3 text-left text-[12px] font-medium transition-colors ${
-                      selectedShipping === idx
-                        ? "bg-white text-[#1a1a1a]"
-                        : "bg-white/65 text-[#1a1a1a] hover:bg-white"
-                    }`}
-                  >
-                    <span className={`flex size-4 items-center justify-center rounded-full ${
-                      selectedShipping === idx ? "bg-[#e7efe9]" : "bg-[#f0eeee]"
-                    }`}>
-                      {selectedShipping === idx && <span className="size-2 rounded-full bg-[#183229]" />}
-                    </span>
-                    <span>${s.price.toFixed(2)} {s.label}</span>
-                  </button>
-                ))}
-              </div>
-            </div>
           </div>
         </div>
 
@@ -3994,8 +4102,16 @@ function MultiPatientCartPage({
             {/* Shipping option */}
             <div className="border-t border-[#eee8e3] pt-4">
               <p className="mb-2 text-[11px] font-semibold uppercase tracking-[0.12em] text-[#667085]">Shipping Option</p>
-              <div className="rounded-[8px] bg-[#f2f7f4] px-3 py-2 text-[12px] font-medium text-[#1a1a1a]">
-                {cartData.shipping[selectedShipping].label}: <span className="font-semibold">${shipping.toFixed(2)}</span>
+              <div className="space-y-1.5 rounded-[8px] bg-[#f2f7f4] px-3 py-2 text-[11px] font-medium text-[#1a1a1a]">
+                {pharmacyNames.map(pharmacy => {
+                  const shippingIndex = selectedShippingByPharmacy[pharmacy] ?? 0;
+                  const option = cartData.shipping[shippingIndex];
+                  const patientCount = new Set(cartRows
+                    .filter(({ item }) => (item.pharmacy ?? cartData.pharmacy) === pharmacy)
+                    .map(({ patient }) => patient.name)).size;
+                  const shipmentCount = supportsMultiPatientShipping(pharmacy) ? 1 : Math.max(1, patientCount);
+                  return <div key={pharmacy} className="flex justify-between gap-3"><span className="truncate">{pharmacy}{shipmentCount > 1 ? ` (${shipmentCount} shipments)` : ""}</span><span className="shrink-0 font-semibold">${(option.price * shipmentCount).toFixed(2)}</span></div>;
+                })}
               </div>
             </div>
 
@@ -4516,6 +4632,7 @@ export default function App() {
   const [page, setPage] = useState<Page>(DEFAULT_PAGE);
   const [cartMode, setCartMode] = useState<CartMode>("single");
   const [multiCartPatientIds, setMultiCartPatientIds] = useState<number[]>([]);
+  const [patientCartEntries, setPatientCartEntries] = useState<PatientCartEntry[]>([]);
   const [selectedProduct, setSelectedProduct] = useState<CardDef>(POPULAR_CARDS[0]);
   const [favoriteProductIds, setFavoriteProductIds] = useState<Set<number>>(
     () => new Set([...POPULAR_CARDS, ...ALL_CARDS].filter((card) => card.heartVariant === "green").map((card) => card.id)),
@@ -4558,6 +4675,13 @@ export default function App() {
 
   function clearCartItems() {
     setCartPreviewItems([]);
+    setPatientCartEntries([]);
+    setMultiCartPatientIds([]);
+  }
+
+  function addToPatientCart(entries: PatientCartEntry[]) {
+    setPatientCartEntries(current => [...current, ...entries]);
+    setMultiCartPatientIds(current => [...new Set([...current, ...entries.map(entry => entry.patientId)])]);
   }
 
   function runWithAppLoader(action: () => void) {
@@ -4585,7 +4709,7 @@ export default function App() {
       case "favorites":
         return <FavoritesPage onNavigate={setPage} cartPage={cartPage} onProductSelect={setSelectedProduct} />;
       case "product-detail":
-        return <ProductDetailPage onNavigate={setPage} cartMode={cartMode} setCartMode={setCartMode} onSaveMultiCartPatients={setMultiCartPatientIds} product={selectedProduct} />;
+        return <ProductDetailPage onNavigate={setPage} cartMode={cartMode} setCartMode={setCartMode} onAddToPatientCart={addToPatientCart} product={selectedProduct} />;
       case "pharmacies":
         return <PharmaciesPage onNavigate={setPage} />;
       case "orders":
@@ -4597,9 +4721,9 @@ export default function App() {
       case "settings":
         return <SettingsPage onNavigate={setPage} />;
       case "cart-single":
-        return <MultiPatientCartPage onNavigate={setPage} cartMode={cartMode} setCartMode={setCartMode} selectedPatientIds={multiCartPatientIds} />;
+        return <MultiPatientCartPage onNavigate={setPage} cartMode={cartMode} setCartMode={setCartMode} selectedPatientIds={multiCartPatientIds} cartEntries={patientCartEntries} />;
       case "cart-multi":
-        return <MultiPatientCartPage onNavigate={setPage} cartMode={cartMode} setCartMode={setCartMode} selectedPatientIds={multiCartPatientIds} />;
+        return <MultiPatientCartPage onNavigate={setPage} cartMode={cartMode} setCartMode={setCartMode} selectedPatientIds={multiCartPatientIds} cartEntries={patientCartEntries} />;
       case "checkout-prescription":
         return <CheckoutPrescriptionPage onNavigate={setPage} />;
       default:
