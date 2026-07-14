@@ -2236,6 +2236,7 @@ function OrdersPage({ onNavigate }: { onNavigate: (p: Page) => void }) {
             );
           })}
         </div>
+
       </div>
 
       {filtered.length === 0 ? (
@@ -2247,8 +2248,8 @@ function OrdersPage({ onNavigate }: { onNavigate: (p: Page) => void }) {
       ) : (
         <div className="grid gap-4">
           {filtered.map((order) => (
-            <section key={order.id} className="overflow-hidden rounded-[12px] border border-[#e8e3df] bg-white">
-              <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[#eee8e3] bg-[#fbfaf8] px-5 py-4">
+            <section key={order.id} className="overflow-hidden rounded-[13px] border border-[#e5ddd5] bg-white">
+              <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[#eee8e3] bg-[#fffcf8] px-5 py-4">
                 <div className="flex flex-wrap items-center gap-3">
                   <span className="text-[14px] font-bold text-[#1a1a1a]">{order.id}</span>
                   <span className="inline-flex items-center gap-1 rounded-full bg-[#a7e9b8] px-2.5 py-1 text-[11px] font-bold text-[#183229]">
@@ -2274,56 +2275,42 @@ function OrdersPage({ onNavigate }: { onNavigate: (p: Page) => void }) {
                 </div>
               </div>
 
-              <div className="grid gap-5 px-5 py-4 lg:grid-cols-[0.9fr_1.6fr]">
-                <div>
-                  <p className="mb-2 text-[10px] font-semibold uppercase tracking-[0.12em] text-[#8c95a1]">Patient</p>
-                  <div className="space-y-2">
-                    {("patients" in order ? order.patients : [order.patient]).map(patient => (
-                      <div key={patient.name} className="rounded-[8px] border border-[#eee8e3] bg-[#fbfaf8] px-3 py-2.5">
-                        <p className="text-[12px] font-semibold text-[#1a1a1a]">{patient.name} <span className="font-normal text-[#8c95a1]">({patient.gender})</span></p>
-                        <p className="mt-1 text-[11px] text-[#6f7782]">{patient.phone}</p>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                <div>
-                  <p className="mb-2 text-[10px] font-semibold uppercase tracking-[0.12em] text-[#8c95a1]">Prescriptions</p>
-                  <div className="flex flex-col gap-2">
-                    {(expandedItems[order.id] ? order.items : order.items.slice(0, 2)).map((item, index) => (
-                      <div key={item.name} className="flex items-start justify-between gap-3 rounded-[8px] border border-[#eee8e3] bg-[#fbfaf8] px-3 py-2">
-                        <div className="flex min-w-0 gap-3">
-                          <div className="flex size-12 shrink-0 items-center justify-center overflow-hidden rounded-[8px] border border-[#eee8e3] bg-white">
-                            <img src={item.image} alt="" className="h-12 w-12 object-contain mix-blend-multiply" />
-                          </div>
-                          <div className="min-w-0">
-                            <p className="text-[12px] font-semibold text-[#1a1a1a]">{item.name}</p>
-                            <p className="mt-0.5 text-[11px] text-[#6f7782]">{item.description}</p>
-                            <p className="mt-1 text-[10px] text-[#8c95a1]">{item.pharmacy} · {item.tracking}</p>
-                            <p className="mt-1 text-[10px] text-[#8c95a1]">
-                              Qty {quantities[`${order.id}-${index}`] ?? item.qty} · Auth refills {item.authRefills} · Refills left {item.refillsLeft} · Days {item.daysSupply}
-                            </p>
-                          </div>
+              <div className="px-7 py-3">
+                  {(expandedItems[order.id] ? order.items : order.items.slice(0, 2)).map((item, index) => {
+                    const orderPatients = "patients" in order ? order.patients : [order.patient];
+                    const patient = orderPatients[index] ?? orderPatients[orderPatients.length - 1];
+                    return (
+                      <div key={`${patient.name}-${item.name}`} className={`grid min-h-[126px] grid-cols-1 py-4 lg:grid-cols-[0.78fr_1.32fr] ${index === (expandedItems[order.id] ? order.items.length : Math.min(2, order.items.length)) - 1 ? "" : "border-b border-[#e8e5e2]"}`}>
+                        <div className="px-3">
+                          <p className="text-[12px] font-semibold text-[#1a1a1a]">{patient.name} <span className="font-normal text-[#8c95a1]">({patient.gender})</span></p>
+                          <p className="mt-1 text-[11px] text-[#6f7782]">{patient.phone}</p>
+                          <p className="mt-1 text-[11px] leading-relaxed text-[#6f7782]">{patient.address}</p>
                         </div>
-                        <span className="text-[12px] font-bold text-[#1a1a1a]">{item.price}</span>
+                        <div className="flex items-start justify-between gap-3 px-3">
+                          <div className="flex min-w-0 gap-3">
+                            <div className="flex size-12 shrink-0 items-center justify-center overflow-hidden rounded-[8px] border border-[#eee8e3] bg-white">
+                              <img src={item.image} alt="" className="h-12 w-12 object-contain mix-blend-multiply" />
+                            </div>
+                            <div className="min-w-0">
+                              <p className="text-[12px] font-semibold text-[#1a1a1a]">{item.name}</p>
+                              <p className="mt-0.5 text-[11px] text-[#6f7782]">{item.description}</p>
+                              <p className="mt-1 text-[10px] text-[#8c95a1]">{item.pharmacy}</p>
+                              <span className={`mt-1.5 inline-flex rounded-full px-2 py-0.5 text-[9px] font-semibold ${item.tracking === "Tracking Not Ready" ? "bg-[#f1f2f1] text-[#667085]" : "bg-[#e8f5ed] text-[#24613f]"}`}>{item.tracking}</span>
+                              <p className="mt-1 text-[10px] text-[#8c95a1]">Qty {quantities[`${order.id}-${index}`] ?? item.qty} · Auth refills {item.authRefills} · Refills left {item.refillsLeft} · Days {item.daysSupply}</p>
+                            </div>
+                          </div>
+                          <span className="text-[12px] font-bold text-[#1a1a1a]">{item.price}</span>
+                        </div>
                       </div>
-                    ))}
-                    {order.items.length > 2 && (
-                      <button
-                        onClick={() => setExpandedItems(prev => ({ ...prev, [order.id]: !prev[order.id] }))}
-                        className="flex w-fit items-center gap-1 text-[12px] font-semibold text-[#183229] transition-colors hover:text-[#244438]"
-                      >
-                        <ChevronDown
-                          size={14}
-                          strokeWidth={2}
-                          className={`transition-transform ${expandedItems[order.id] ? "rotate-180" : ""}`}
-                        />
-                        {expandedItems[order.id] ? "Show less" : `Show more ${order.items.length - 2} Prescriptions`}
-                      </button>
-                    )}
-                  </div>
+                    );
+                  })}
+                  {order.items.length > 2 && (
+                    <button onClick={() => setExpandedItems(prev => ({ ...prev, [order.id]: !prev[order.id] }))} className="mx-auto mt-2 flex w-fit items-center gap-1 py-1 text-[12px] font-semibold text-[#183229]">
+                      <ChevronDown size={14} strokeWidth={2} className={`transition-transform ${expandedItems[order.id] ? "rotate-180" : ""}`} />
+                      {expandedItems[order.id] ? "Show less" : `Show more ${order.items.length - 2} Prescriptions`}
+                    </button>
+                  )}
                 </div>
-              </div>
             </section>
           ))}
         </div>
