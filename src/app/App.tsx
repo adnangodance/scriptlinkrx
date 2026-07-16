@@ -524,16 +524,21 @@ function UserChip({ onNavigate, onLogout }: { onNavigate: (p: Page) => void; onL
       )}
       <button
         onClick={() => setMenuOpen(current => !current)}
-        className="flex h-9 items-center gap-2 rounded-[19px] bg-[#f6f4f5] px-3 py-2 transition-colors hover:bg-[#eee9e5]"
+        className="flex items-center gap-2.5 rounded-[26px] bg-[#f6f4f5] px-3.5 py-2.5 transition-colors hover:bg-[#eee9e5]"
         aria-expanded={menuOpen}
         aria-label="Open account menu"
       >
-      <div className="relative flex size-5 items-center justify-center rounded-full bg-[#bab5fb]">
-        <span className="text-[10px] font-semibold text-[#7547ff]">Z</span>
-        <span className="absolute -right-0.5 -top-0.5 size-2.5 rounded-full border border-[#f6f4f5] bg-[#ff8287]" />
-      </div>
-      <span className="text-[13px] font-medium text-[#1a1a1a]">Hi, Zee</span>
-      <img src={userVerifiedIcon} alt="" className="size-3" />
+        <div className="relative flex size-8 items-center justify-center rounded-full bg-[#b6a7ff]">
+          <span className="text-[14px] font-medium text-[#6947ef]">Z</span>
+          <span className="absolute -right-0.5 -top-1 size-3.5 rounded-full border-2 border-[#f6f4f5] bg-[#ff7e86]" />
+        </div>
+        <div className="text-left leading-tight">
+          <div className="flex items-center gap-2">
+            <span className="text-[14px] font-medium text-[#151515]">Hi, Zee</span>
+            <img src={userVerifiedIcon} alt="Verified" className="size-3.5" />
+          </div>
+          <span className="mt-0.5 block text-[11px] text-[#777]">Verified User</span>
+        </div>
       </button>
     </div>
   );
@@ -1563,6 +1568,8 @@ function ProductDetailPage({
   const [suppliesOpen, setSuppliesOpen] = useState(false);
   const [patientPickerOpen, setPatientPickerOpen] = useState(false);
   const [patientSearch, setPatientSearch] = useState("");
+  const [paymentChoice, setPaymentChoice] = useState<"patient" | "clinic" | "card">("patient");
+  const [shippingChoice, setShippingChoice] = useState<"patient" | "clinic">("clinic");
   const [selectedPatientIds, setSelectedPatientIds] = useState<Set<number>>(new Set());
   const [patientQuantities, setPatientQuantities] = useState<Record<number, number>>({});
   const [expandedPatientIds, setExpandedPatientIds] = useState<Set<number>>(new Set());
@@ -1579,6 +1586,8 @@ function ProductDetailPage({
     setInjType(product.dosage === "Injection" ? "Intramuscular" : product.dosage);
     setPharmacy(product.pharmacy);
     setQty(1);
+    setPaymentChoice("patient");
+    setShippingChoice("clinic");
     setSelectedPatientIds(new Set());
     setPatientQuantities({});
     setExpandedPatientIds(new Set());
@@ -1611,6 +1620,10 @@ function ProductDetailPage({
   function togglePatient(id: number) {
     setAddedItemCount(null);
     setSelectedPatientIds(current => {
+      if (shippingChoice === "patient" && !current.has(id)) {
+        setPatientQuantities({ [id]: 1 });
+        return new Set([id]);
+      }
       const next = new Set(current);
       if (next.has(id)) {
         next.delete(id);
@@ -1625,6 +1638,17 @@ function ProductDetailPage({
       }
       return next;
     });
+  }
+
+  function selectShippingChoice(choice: "patient" | "clinic") {
+    setShippingChoice(choice);
+    setAddedItemCount(null);
+    if (choice === "patient" && selectedPatientIds.size > 1) {
+      const firstPatientId = [...selectedPatientIds][0];
+      setSelectedPatientIds(new Set([firstPatientId]));
+      setPatientQuantities(current => ({ [firstPatientId]: current[firstPatientId] ?? 1 }));
+      setExpandedPatientIds(current => new Set(current.has(firstPatientId) ? [firstPatientId] : []));
+    }
   }
 
   function updatePatientQuantity(id: number, change: number) {
@@ -1749,9 +1773,39 @@ function ProductDetailPage({
             </div>
           </div>
 
+          <div className="mt-4 border-t border-[#ededed] pt-4">
+            <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[#718096]">Payment</p>
+            <p className="mt-1 text-[12px] text-[#252525]">Select the payment method for the prescription</p>
+            <div className="mt-3 flex flex-wrap gap-2">
+              <button onClick={() => setPaymentChoice("patient")} className={`inline-flex h-9 items-center gap-2 rounded-full border px-3 text-[11px] font-semibold transition-colors ${paymentChoice === "patient" ? "border-2 border-[#202020] bg-[#f6f4f5] text-[#202020]" : "border-[#d8dedd] bg-white text-[#6f7782]"}`}>
+                Pay by Patient <User size={13} />
+              </button>
+              <button onClick={() => setPaymentChoice("clinic")} className={`inline-flex h-9 items-center gap-2 rounded-full border px-3 text-[11px] font-semibold transition-colors ${paymentChoice === "clinic" ? "border-2 border-[#202020] bg-[#f6f4f5] text-[#202020]" : "border-[#d8dedd] bg-white text-[#6f7782]"}`}>
+                Pay by Clinic <Building2 size={13} />
+              </button>
+              <button disabled className="inline-flex h-9 cursor-not-allowed items-center gap-1.5 rounded-full border border-[#d8dedd] bg-white px-3 text-[11px] font-semibold text-[#9a9fa5] opacity-70">
+                <Plus size={13} /> Credit Card
+              </button>
+            </div>
+          </div>
+
+          <div className="mt-4 border-t border-[#ededed] pt-4">
+            <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[#718096]">Shipping</p>
+            <p className="mt-1 text-[12px] text-[#252525]">Choose where to ship the prescription</p>
+            <div className="mt-3 flex flex-wrap gap-2">
+              <button disabled={selectedPatientCount > 1} onClick={() => selectShippingChoice("patient")} className={`inline-flex h-9 items-center gap-2 rounded-full border px-3 text-[11px] font-semibold transition-colors ${selectedPatientCount > 1 ? "cursor-not-allowed border-[#e0e2e1] bg-[#f7f7f6] text-[#a7aaa8] opacity-70" : shippingChoice === "patient" ? "border-2 border-[#202020] bg-[#f6f4f5] text-[#202020]" : "border-[#d8dedd] bg-white text-[#6f7782]"}`}>
+                Ship to Patient <User size={13} />
+              </button>
+              <button onClick={() => selectShippingChoice("clinic")} className={`inline-flex h-9 items-center gap-2 rounded-full border px-3 text-[11px] font-semibold transition-colors ${shippingChoice === "clinic" ? "border-2 border-[#202020] bg-[#f6f4f5] text-[#202020]" : "border-[#d8dedd] bg-white text-[#6f7782]"}`}>
+                Ship to Clinic <Building2 size={13} />
+              </button>
+            </div>
+            <p className="mt-2 text-[10px] text-[#7a837f]">{shippingChoice === "clinic" ? "You can select multiple patients for one clinic shipment." : "You can select one patient for this shipment."}</p>
+          </div>
+
           <div className="relative mt-6">
             <button onClick={() => setPatientPickerOpen(current => !current)} className="flex h-11 w-full items-center justify-center rounded-full border border-[#111] bg-white text-[12px] font-medium text-[#111] hover:bg-[#fafafa]">
-              {selectedPatientCount === 0 ? "Choose patient" : "Add another patient"}
+              {selectedPatientCount === 0 ? "Choose patient" : shippingChoice === "clinic" ? "Add another patient" : "Change patient"}
             </button>
             {patientPickerOpen && (
               <div className="absolute inset-x-0 top-12 z-30 overflow-hidden rounded-[10px] border border-[#d8dfdc] bg-white shadow-xl">
@@ -3919,7 +3973,19 @@ function MultiPatientCartPage({
                 <Fragment key={item.id}>
                   {isFirstInPharmacy && (
                     <div className={(rowIndex === 0 ? "" : "mt-7 ") + "rounded-t-[10px] bg-[#fffaf7] px-5 pb-4 pt-5"}>
-                      <h2 className="text-[16px] font-medium text-[#171717]">{pharmacy} Cart</h2>
+                      <div className="flex items-center justify-between gap-4">
+                        <h2 className="text-[16px] font-medium text-[#171717]">{pharmacy} Cart</h2>
+                        <div className="flex flex-wrap items-center justify-end gap-2">
+                          <span className="inline-flex items-center gap-1.5 rounded-full bg-white px-3 py-1.5 text-[10px] font-semibold text-[#303030]">
+                            <CreditCard size={13} />
+                            Pay by patient
+                          </span>
+                          <span className="inline-flex items-center gap-1.5 rounded-full bg-white px-3 py-1.5 text-[10px] font-semibold text-[#303030]">
+                            {pharmacyPatientCount > 1 ? <Building2 size={13} /> : <User size={13} />}
+                            {pharmacyPatientCount > 1 ? "Ship to clinic" : "Ship to patient"}
+                          </span>
+                        </div>
+                      </div>
                     </div>
                   )}
 
@@ -3968,13 +4034,13 @@ function MultiPatientCartPage({
                       {!isExpanded ? (
                         addedPrescriptionIds.has(item.id) ? (
                           <div className="ml-16 flex items-center gap-4">
+                            <button onClick={() => setExpandedPrescriptionIds(current => new Set([...current, item.id]))} className="text-[12px] font-medium text-[#202020] hover:underline hover:underline-offset-4">
+                              Show Details
+                            </button>
                             <span className="inline-flex items-center gap-2 rounded-[8px] bg-[#eaf4ed] px-3 py-2 text-[11px] font-semibold text-[#315f49]">
                               <CheckCircle2 size={14} />
                               Prescription complete
                             </span>
-                            <button onClick={() => setExpandedPrescriptionIds(current => new Set([...current, item.id]))} className="text-[12px] font-medium text-[#202020] hover:underline hover:underline-offset-4">
-                              Show Details
-                            </button>
                           </div>
                         ) : (
                           <button
