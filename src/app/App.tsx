@@ -156,7 +156,7 @@ function useCartSummary() {
 }
 
 type AppLoadingContextValue = {
-  runWithAppLoader: (action: () => void) => void;
+  runWithAppLoader: (action: () => void, delayMs?: number) => void;
 };
 
 const AppLoadingContext = createContext<AppLoadingContextValue | null>(null);
@@ -1774,7 +1774,7 @@ function ProductDetailPage({
           </div>
 
           <div className="mt-4 border-t border-[#ededed] pt-4">
-            <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[#718096]">Payment</p>
+            <p className="text-[12px] font-medium text-[#111]">Payment</p>
             <p className="mt-1 text-[12px] text-[#252525]">Select the payment method for the prescription</p>
             <div className="mt-3 flex flex-wrap gap-2">
               <button onClick={() => setPaymentChoice("patient")} className={`inline-flex h-9 items-center gap-2 rounded-full border px-3 text-[11px] font-semibold transition-colors ${paymentChoice === "patient" ? "border-2 border-[#202020] bg-[#f6f4f5] text-[#202020]" : "border-[#d8dedd] bg-white text-[#6f7782]"}`}>
@@ -1790,7 +1790,7 @@ function ProductDetailPage({
           </div>
 
           <div className="mt-4 border-t border-[#ededed] pt-4">
-            <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[#718096]">Shipping</p>
+            <p className="text-[12px] font-medium text-[#111]">Shipping</p>
             <p className="mt-1 text-[12px] text-[#252525]">Choose where to ship the prescription</p>
             <div className="mt-3 flex flex-wrap gap-2">
               <button disabled={selectedPatientCount > 1} onClick={() => selectShippingChoice("patient")} className={`inline-flex h-9 items-center gap-2 rounded-full border px-3 text-[11px] font-semibold transition-colors ${selectedPatientCount > 1 ? "cursor-not-allowed border-[#e0e2e1] bg-[#f7f7f6] text-[#a7aaa8] opacity-70" : shippingChoice === "patient" ? "border-2 border-[#202020] bg-[#f6f4f5] text-[#202020]" : "border-[#d8dedd] bg-white text-[#6f7782]"}`}>
@@ -3769,6 +3769,7 @@ function MultiPatientCartPage({
   selectedPatientIds: number[];
   cartEntries: PatientCartEntry[];
 }) {
+  const { runWithAppLoader } = useAppLoading();
   const cartData = useMemo(() => cartEntries.length > 0
     ? {
         ...MULTI_CART_DATA,
@@ -3942,7 +3943,7 @@ function MultiPatientCartPage({
 
   function handleCheckout() {
     if (prescriptionsComplete) {
-      setPreviewOpen(true);
+      runWithAppLoader(() => onNavigate("orders"), 1000);
       return;
     }
     setPrescriptionValidationAttempted(true);
@@ -4201,7 +4202,7 @@ function MultiPatientCartPage({
             <p className="mt-4 text-[11px] leading-[18px] text-[#4f4f4f]">Shipping fees are calculated by pharmacy and patient based on the selected method.</p>
 
             <button onClick={handleCheckout} className="mt-5 h-[52px] w-full rounded-full bg-[#111] text-[13px] font-medium text-white transition-opacity hover:opacity-90">
-              Checkout
+              Submit for approval
             </button>
           </aside>
         </div>
@@ -4898,13 +4899,13 @@ export default function App() {
     setMultiCartPatientIds(current => [...new Set([...current, ...entries.map(entry => entry.patientId)])]);
   }
 
-  function runWithAppLoader(action: () => void) {
+  function runWithAppLoader(action: () => void, delayMs = 500) {
     if (appLoading) return;
     setAppLoading(true);
     window.setTimeout(() => {
       action();
       setAppLoading(false);
-    }, 500);
+    }, delayMs);
   }
 
   function renderPage() {
