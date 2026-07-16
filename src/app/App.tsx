@@ -3290,7 +3290,7 @@ function SinglePatientCartPage({
                   {cardPatient && item.kind !== "supply" && (
                     <div className="mt-4 rounded-[10px] border border-[#e8e3df] bg-white p-4">
                       <div className="flex flex-wrap items-center justify-between gap-2">
-                        <h3 className="text-[16px] font-semibold text-[#1a1a1a]">Prescription for {item.name}</h3>
+                        <h3 className="text-[16px] font-semibold text-[#1a1a1a]">Create Prescription</h3>
                         <span className="rounded-full bg-[#f2f7f4] px-2.5 py-1 text-[11px] font-semibold text-[#52645c]">{cardPatient.name}</span>
                       </div>
                       <div className="mt-3">
@@ -4082,7 +4082,7 @@ function MultiPatientCartPage({
                       ) : (
                         <div className="rounded-[6px] bg-[#fffdfb] px-6 py-5">
                           <div className="mb-5 flex items-center justify-between gap-3">
-                            <h3 className="text-[14px] font-medium text-[#202020]">Prescription for {item.name}</h3>
+                            <h3 className="text-[14px] font-medium text-[#202020]">Create Prescription</h3>
                             {rowIndex > 0 && <button onClick={() => setExpandedPrescriptionIds(current => { const next = new Set(current); next.delete(item.id); return next; })} className="text-[11px] text-[#777] underline">Hide Details</button>}
                           </div>
 
