@@ -64,6 +64,8 @@ import img438 from "@/imports/ScriptlinkrxDashboard/105218643749a83b70d0b0c96a7e
 import img439 from "@/imports/ScriptlinkrxDashboard/4594cb4d36df6eeef8a6896fc4f35a79e5091a7d.png";
 import img440 from "@/imports/ScriptlinkrxDashboard/71b3a03610647f4c97f26448ddda3dbc36882006.png";
 import imgPT141 from "@/imports/ScriptlinkrxProductPage/76629cbe854957543c2416420a71b8b9d0316bd3.png";
+import imgAminoQuad from "@/assets/amino-quad.png";
+import imgNadInjection from "@/assets/nad-injection.png";
 import imgProduct452 from "@/imports/ScriptlinkrxProductPage/a7404d4186f9383142485474193c8c2ca1b2259c.png";
 import scriptlinkrxLogo from "@/assets/scriptlinkrx-logo.svg";
 import userVerifiedIcon from "@/assets/user-verified.svg";
@@ -1016,7 +1018,7 @@ function MultiPatientPanel({ activePharmacy, onSelect }: { activePharmacy: strin
               onClick={() => onSelect(ph.name)}
               className={`flex items-center gap-2 px-3 py-1.5 rounded-full border text-[12px] font-medium transition-all ${
                 isActive
-                  ? "border-[#183229] bg-white text-[#183229]"
+                  ? "border-2 border-[#183229] bg-white text-[#183229]"
                   : "border-[#e0e0e0] bg-white text-[#1a1a1a] hover:border-[#183229]/40"
               }`}
             >
@@ -1415,7 +1417,7 @@ function ProductsPage({
               onClick={() => setActivePharmacy(pharmacy.name)}
               className={`flex items-center gap-2 rounded-full border bg-white px-3 py-1.5 text-[12px] font-medium transition-all ${
                 isActive
-                  ? "border-[#183229] text-[#183229]"
+                  ? "border-2 border-[#183229] text-[#183229]"
                   : "border-[#e0e0e0] text-[#1a1a1a] hover:border-[#183229]/40"
               }`}
             >
@@ -1529,7 +1531,7 @@ function OptionPill({
       onClick={onClick}
       className={`h-11 rounded-[7px] border px-5 text-[12px] font-medium transition-colors ${
         selected
-          ? "border-[1.9px] border-[#111] bg-white text-[#111]"
+          ? "border-2 border-[#111] bg-white text-[#111]"
           : "border-[#c8c8c8] bg-white text-[#333] hover:border-[#111]/50"
       }`}
     >
@@ -1732,7 +1734,7 @@ function ProductDetailPage({
               {pharmacies.slice(0, 2).map(option => {
                 const selected = pharmacy === option.name;
                 return (
-                  <button key={option.name} onClick={() => setPharmacy(option.name)} className={`grid w-full grid-cols-[minmax(0,1fr)_90px] items-center rounded-[8px] border px-3 py-3 text-left transition-colors ${selected ? "border-[1.9px] border-[#202c27] bg-[#fcfdfc]" : "border-[#bdbdbd] bg-white hover:border-[#555]"}`}>
+                  <button key={option.name} onClick={() => setPharmacy(option.name)} className={`grid w-full grid-cols-[minmax(0,1fr)_90px] items-center rounded-[8px] border px-3 py-3 text-left transition-colors ${selected ? "border-2 border-[#202c27] bg-[#fcfdfc]" : "border-[#bdbdbd] bg-white hover:border-[#555]"}`}>
                     <span className="min-w-0">
                       <span className="block truncate text-[12px] font-medium text-[#111]">{option.name}</span>
                       <span className="mt-0.5 block text-[9px] text-[#777]">Beyond use 90 days</span>
@@ -3611,7 +3613,7 @@ function SinglePatientCartPage({
 // ─── Multi-Patient Cart ───────────────────────────────────────────────────────
 
 const MULTI_CART_DATA = {
-  pharmacy: "Optimal Balance Pharmacy Cart",
+  pharmacy: "Optimal Balance Pharmacy",
   patients: [
     {
       name: "Altin Selimi",
@@ -3621,7 +3623,7 @@ const MULTI_CART_DATA = {
       identification: "NY:23444244343 (State-Issued ID)",
       address: "2823 Middletown Road\nThe Bronx, NY 10461",
       items: [
-        { id: 1, name: "Tirzepatide/Pyridoxine (B6)", detail: "20mg/25mg/mL | 1 (0.5mL) Vial", qty: 7, price: 125.43, badge: null, kind: "vial" },
+        { id: 1, name: "Tirzepatide/Pyridoxine (B6)", detail: "20mg/25mg/mL | 1 (0.5mL) Vial", qty: 7, price: 125.43, badge: null, kind: "vial", pharmacy: "Optimal Balance Pharmacy" },
         { id: 2, name: "BD 27G X 1/2 Needle Only", detail: "1 Needle", qty: 1, price: 0, badge: "Supplies", kind: "supply" },
       ],
     },
@@ -3633,8 +3635,19 @@ const MULTI_CART_DATA = {
       identification: "NY:98221443819 (State-Issued ID)",
       address: "95 Windermere Drive\nWestchester County, NY 10710",
       items: [
-        { id: 3, name: "Tirzepatide/Pyridoxine (B6)", detail: "20mg/25mg/mL | 1 (0.5mL) Vial", qty: 1, price: 125.43, badge: null, kind: "vial" },
+        { id: 3, name: "Tirzepatide/Pyridoxine (B6)", detail: "20mg/25mg/mL | 1 (0.5mL) Vial", qty: 1, price: 125.43, badge: null, kind: "vial", pharmacy: "Optimal Balance Pharmacy" },
         { id: 4, name: "BD 27G X 1/2 Needle Only", detail: "1 Needle", qty: 1, price: 0, badge: "Supplies", kind: "supply" },
+      ],
+    },
+    {
+      name: "Emily Krause",
+      dob: "08/14/1991",
+      phone: "(646)-389-4455",
+      email: "emily.krause@example.com",
+      identification: "NY:77120549331 (State-Issued ID)",
+      address: "2823 Middletown Road\nBronx, NY 10461",
+      items: [
+        { id: 5, name: "NAD+ Injection", detail: "20mg/25mg/mL | 1 (0.5mL) Vial", qty: 1, price: 84.50, badge: null, kind: "vial", pharmacy: "DCA Pharmacy", image: imgNadInjection },
       ],
     },
   ],
@@ -3683,8 +3696,8 @@ function CartItemImage({ item }: { item: MultiCartItem }) {
   }
 
   return (
-    <div className="w-12 h-12 rounded-[8px] bg-gradient-to-b from-[#f7efe9] to-[#ece5b6]/45 border border-[#eee] flex items-center justify-center overflow-hidden shrink-0">
-      <img src={item.image ?? imgPT141} alt="" className="h-14 w-14 object-contain mix-blend-multiply" />
+    <div className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden bg-white">
+      <img src={item.image ?? imgAminoQuad} alt={item.name} className="h-14 w-14 object-contain mix-blend-multiply" />
     </div>
   );
 }
@@ -3770,6 +3783,12 @@ function MultiPatientCartPage({
   const [paymentMethod, setPaymentMethod] = useState<"patient" | "clinic">("patient");
   const [shipTo, setShipTo] = useState<"patient" | "clinic">("clinic");
   const [prescriptionDetails, setPrescriptionDetails] = useState<Record<number, { days: string; refills: string; directions: string; reason: string }>>({});
+  const [prescriptionValidationAttempted, setPrescriptionValidationAttempted] = useState(false);
+  const [addedPrescriptionIds, setAddedPrescriptionIds] = useState<Set<number>>(new Set());
+  const [expandedPrescriptionIds, setExpandedPrescriptionIds] = useState<Set<number>>(() => {
+    const firstPrescription = cartData.patients.flatMap(patient => patient.items).find(item => item.kind !== "supply");
+    return new Set(firstPrescription ? [firstPrescription.id] : []);
+  });
 
   useEffect(() => {
     setQuantities(prev => {
@@ -3849,396 +3868,278 @@ function MultiPatientCartPage({
       .filter(item => item.kind !== "supply")
       .map(item => ({ patient, item }))
   ).filter(({ item }) => !removed.has(item.id));
-  const cartRowsWithNumbers = [...cartRows]
-    .sort((a, b) => (a.item.pharmacy ?? cartData.pharmacy).localeCompare(b.item.pharmacy ?? cartData.pharmacy))
-    .map((row, index) => ({ ...row, prescriptionNumber: index + 1 }));
+  const cartRowsWithNumbers = cartRows.map((row, index) => ({ ...row, prescriptionNumber: index + 1 }));
   const prescriptionCount = cartData.patients.length;
   const prescriptionsComplete = cartRows.every(({ item }) => {
     const details = prescriptionDetails[item.id];
-    return (details?.days ?? "1") && (details?.refills ?? "1") && (details?.directions ?? "Inject (2.5 mg) subcutaneously once weekly.") && details?.reason;
+    return Boolean(details?.days.trim() && details?.refills.trim() && details?.directions.trim() && details?.reason.trim());
   });
+
+  function isPrescriptionComplete(id: number) {
+    const details = prescriptionDetails[id];
+    return Boolean(details?.days.trim() && details?.refills.trim() && details?.directions.trim() && details?.reason.trim());
+  }
+
+  function requiredFieldClass(value: string | undefined) {
+    return prescriptionValidationAttempted && !value?.trim()
+      ? "border-[#c94f43] bg-[#fff8f7] focus:border-[#c94f43]"
+      : "border-[#EAE8E1] bg-white focus:border-[#183229]";
+  }
+
+  function handleCheckout() {
+    if (prescriptionsComplete) {
+      setPreviewOpen(true);
+      return;
+    }
+    setPrescriptionValidationAttempted(true);
+    setExpandedPrescriptionIds(new Set(cartRows.filter(({ item }) => !isPrescriptionComplete(item.id)).map(({ item }) => item.id)));
+  }
 
   return (
     <>
       <Header title="Cart" onNavigate={onNavigate} />
 
       <div className="max-w-[1300px]">
-      <div className="mb-5 flex flex-col gap-3">
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <div>
-            <p className="text-[12px] font-semibold uppercase tracking-[0.12em] text-[#9d9d9d]">Patient cart</p>
-            <p className="text-[20px] font-semibold text-[#1a1a1a]">Your prescriptions</p>
-            <p className="mt-1 text-[12px] text-[#6f7782]">Grouped by pharmacy, with every patient kept in the same cart layout.</p>
-          </div>
-        </div>
-      </div>
+        <div className="grid grid-cols-1 items-start gap-10 xl:grid-cols-[minmax(0,1fr)_320px]">
+          <section className="min-w-0">
+            {cartRowsWithNumbers.map(({ patient, item }, rowIndex) => {
+              const pharmacy = item.pharmacy ?? cartData.pharmacy;
+              const isFirstInPharmacy = rowIndex === 0 || (cartRowsWithNumbers[rowIndex - 1].item.pharmacy ?? cartData.pharmacy) !== pharmacy;
+              const isLastInPharmacy = rowIndex === cartRowsWithNumbers.length - 1 || (cartRowsWithNumbers[rowIndex + 1].item.pharmacy ?? cartData.pharmacy) !== pharmacy;
+              const includedSupplies = patient.items.filter(supply => supply.kind === "supply" && !removed.has(supply.id));
+              const isExpanded = expandedPrescriptionIds.has(item.id);
+              const details = prescriptionDetails[item.id];
+              const selectedShipping = selectedShippingByPharmacy[pharmacy] ?? 0;
+              const pharmacyPatientCount = new Set(cartRowsWithNumbers.filter(row => (row.item.pharmacy ?? cartData.pharmacy) === pharmacy).map(row => row.patient.name)).size;
+              const multiPatientShipping = supportsMultiPatientShipping(pharmacy);
+              const shipmentCount = multiPatientShipping ? 1 : Math.max(1, pharmacyPatientCount);
+              const pharmacyShippingTotal = cartData.shipping[selectedShipping].price * shipmentCount;
 
-      <div className="grid grid-cols-1 items-start gap-5 xl:grid-cols-[minmax(0,1fr)_320px]">
-        {/* Left — cart items */}
-        <div className="min-w-0">
-          <div>
-            {cartRowsWithNumbers.map(({ patient, item, prescriptionNumber }, rowIndex) => (
-              <Fragment key={item.id}>
-              {(rowIndex === 0 || (cartRowsWithNumbers[rowIndex - 1].item.pharmacy ?? cartData.pharmacy) !== (item.pharmacy ?? cartData.pharmacy)) && (
-                <div className={`${rowIndex === 0 ? "" : "mt-5"} rounded-t-[16px] border border-[#e8e3df] bg-[#fbf6f2] px-5 py-3`}>
-                  <div className="flex items-center justify-between gap-3">
-                    <h2 className="text-[15px] font-semibold text-[#1a1a1a]">{item.pharmacy ?? cartData.pharmacy} Cart</h2>
-                  </div>
-                </div>
-              )}
-              <div className="border-x border-b border-[#e8e3df] bg-white px-5 py-4 transition-colors hover:bg-[#fffbf8]">
-                {(() => {
-                  const includedSupplies = patient.items.filter(supply => supply.kind === "supply" && !removed.has(supply.id));
-                  return (
-                    <>
-                <div className="grid grid-cols-1 gap-3 lg:grid-cols-[minmax(220px,1fr)_220px_90px_106px_100px_36px] lg:items-start">
-                  <div className="flex min-w-0 gap-3">
-                    <CartItemImage item={item} />
-                    <div className="min-w-0">
-                      <div className="flex flex-wrap items-center gap-1.5">
-                        <p className="text-[14px] font-semibold leading-tight text-[#1a1a1a]">{item.name}</p>
+              return (
+                <Fragment key={item.id}>
+                  {isFirstInPharmacy && (
+                    <div className={(rowIndex === 0 ? "" : "mt-7 ") + "rounded-t-[10px] bg-[#fffaf7] px-5 pb-4 pt-5"}>
+                      <h2 className="text-[16px] font-medium text-[#171717]">{pharmacy} Cart</h2>
+                    </div>
+                  )}
+
+                  <article className={"relative border-x-[12px] border-b-[12px] border-[#fffaf7] bg-white px-5 " + (isExpanded ? "pb-5 pt-5" : "py-7")}>
+                    <div className="grid grid-cols-1 gap-5 lg:grid-cols-[minmax(270px,1fr)_210px_112px_90px] lg:items-start">
+                      <div className="flex min-w-0 gap-4">
+                        <CartItemImage item={item} />
+                        <div className="min-w-0">
+                          <p className="text-[14px] font-semibold leading-tight text-[#191919]">{item.name}</p>
+                          <p className="mt-1 text-[13px] text-[#858585]">{item.detail}</p>
+                          {includedSupplies.length > 0 && (
+                            <button onClick={() => toggleSupplies(item.id)} className="mt-2 inline-flex items-center gap-1 text-[12px] text-[#666] underline underline-offset-4">
+                              Included Supplies
+                              <ChevronDown size={13} className={expandedSupplies.has(item.id) ? "rotate-180 transition-transform" : "transition-transform"} />
+                            </button>
+                          )}
+                        </div>
                       </div>
-                      <p className="mt-1 text-[13px] text-[#6f7782]">{item.detail}</p>
-                      <p className="mt-3 text-[11px] font-semibold text-[#8c95a1]">Prescription #{prescriptionNumber}</p>
-                    </div>
-                  </div>
 
-                  <div className="self-start">
-                    <div className="mb-2 flex items-center gap-2">
-                      <span className="flex size-5 items-center justify-center rounded-full bg-[#e7efe9]">
-                        <User size={11} strokeWidth={1.8} className="text-[#183229]" />
-                      </span>
-                      <span className="text-[11px] font-semibold uppercase tracking-[0.1em] text-[#52645c]">{patient.name}</span>
-                    </div>
-                    <div className="rounded-[8px] border border-[#eee8e3] bg-[#fffbf8] px-2.5 py-2 text-[10px] font-medium leading-relaxed text-[#6f7782]">
-                      <div className="flex items-center gap-1.5">
-                        <Phone size={12} strokeWidth={1.8} className="shrink-0 text-[#183229]" />
-                        <span>{patient.phone}</span>
+                      <div className="text-[12px] leading-[18px] text-[#555]">
+                        <p className="text-[14px] font-medium text-[#292929]">{patient.name}</p>
+                        <p className="mt-1 whitespace-pre-line">{patient.address}</p>
+                        <p>{patient.phone}</p>
                       </div>
-                      <div className="mt-1 flex items-start gap-1.5">
-                        <MapPin size={12} strokeWidth={1.8} className="mt-0.5 shrink-0 text-[#183229]" />
-                        <span className="whitespace-pre-line">{patient.address}</span>
+
+                      <div className="inline-flex h-10 w-fit items-center overflow-hidden rounded-full border border-[#e2e2e2] bg-white">
+                        {(quantities[item.id] ?? 1) === 1 ? (
+                          <button onClick={() => setRemoved(current => new Set([...current, item.id]))} className="flex h-10 w-10 items-center justify-center text-[#202020] hover:bg-[#f7f7f7]" aria-label={"Remove " + item.name}><Trash2 size={15} /></button>
+                        ) : (
+                          <button onClick={() => adjust(item.id, -1)} className="flex h-10 w-10 items-center justify-center text-[#202020] hover:bg-[#f7f7f7]" aria-label={"Decrease " + item.name}><Minus size={16} /></button>
+                        )}
+                        <span className="flex h-10 w-8 items-center justify-center text-[13px] font-medium">{quantities[item.id] ?? 1}</span>
+                        <button onClick={() => adjust(item.id, 1)} className="flex h-10 w-10 items-center justify-center text-[#202020] hover:bg-[#f7f7f7]" aria-label={"Increase " + item.name}><Plus size={16} /></button>
                       </div>
+
+                      <p className="pt-2 text-right text-[14px] font-medium text-[#171717]">{item.price === 0 ? "Free" : "$" + (item.price * (quantities[item.id] ?? 1)).toFixed(2)}</p>
                     </div>
-                  </div>
 
-                  <div className="flex items-center justify-between gap-3 lg:flex lg:h-8 lg:justify-center">
-                    <span className="text-[11px] font-semibold uppercase tracking-[0.1em] text-[#8c8c8c] lg:hidden">Price</span>
-                    <span className="text-[14px] font-semibold text-[#1a1a1a]">{item.price === 0 ? "Free" : `$${item.price.toFixed(2)}`}</span>
-                  </div>
+                    {expandedSupplies.has(item.id) && includedSupplies.length > 0 && (
+                      <div className="ml-16 mt-3 space-y-2 border-l border-[#dedede] pl-4">
+                        {includedSupplies.map(supply => <p key={supply.id} className="text-[11px] text-[#777]">{supply.name} · {supply.detail}</p>)}
+                      </div>
+                    )}
 
-                  <div className="flex items-center justify-between gap-3 lg:flex lg:h-8 lg:justify-center lg:text-center">
-                    <span className="text-[11px] font-semibold uppercase tracking-[0.1em] text-[#8c8c8c] lg:hidden">Qty</span>
-                    <div className="inline-flex h-8 overflow-hidden rounded-[7px] border border-[#d8dfdc] bg-white lg:mx-auto">
-                      <button
-                        onClick={() => adjust(item.id, -1)}
-                        className="flex w-8 items-center justify-center border-r border-[#e1e5e3] text-[#183229] transition-colors hover:bg-[#eef5f1] disabled:cursor-not-allowed disabled:text-[#c4cbc8]"
-                        disabled={(quantities[item.id] ?? 1) <= 1}
-                        aria-label={`Decrease ${item.name}`}
-                      >
-                        <Minus size={13} strokeWidth={2} />
-                      </button>
-                      <span className="flex w-9 items-center justify-center text-[13px] font-semibold text-[#1a1a1a]">{quantities[item.id] ?? 1}</span>
-                      <button
-                        onClick={() => adjust(item.id, +1)}
-                        className="flex w-8 items-center justify-center border-l border-[#e1e5e3] text-[#183229] transition-colors hover:bg-[#eef5f1]"
-                        aria-label={`Increase ${item.name}`}
-                      >
-                        <Plus size={13} strokeWidth={2} />
-                      </button>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center justify-between gap-3 lg:flex lg:h-8 lg:justify-center">
-                    <span className="text-[11px] font-semibold uppercase tracking-[0.1em] text-[#8c8c8c] lg:hidden">Total</span>
-                    <span className="text-[14px] font-bold text-[#1a1a1a]">{item.price === 0 ? "Free" : `$${(item.price * (quantities[item.id] ?? 1)).toFixed(2)}`}</span>
-                  </div>
-
-                  <button
-                    onClick={() => setRemoved(prev => new Set([...prev, item.id]))}
-                    className="flex size-8 items-center justify-center rounded-[7px] text-[#8c95a1] transition-colors hover:bg-[#fbeaea] hover:text-[#d92d20]"
-                    aria-label={`Remove ${item.name}`}
-                  >
-                    <Trash2 size={15} />
-                  </button>
-                </div>
-
-                  <div className="mt-4">
-                        <div className="rounded-[14px] border border-[#d9e4de] bg-white p-3.5 shadow-[0_5px_18px_rgba(24,50,41,0.08)]">
-                          <div className="flex flex-wrap items-center justify-between gap-2">
+                    <div className="mt-5">
+                      {!isExpanded ? (
+                        addedPrescriptionIds.has(item.id) ? (
+                          <div className="ml-16 flex items-center gap-4">
+                            <span className="inline-flex items-center gap-2 rounded-[8px] bg-[#eaf4ed] px-3 py-2 text-[11px] font-semibold text-[#315f49]">
+                              <CheckCircle2 size={14} />
+                              Prescription complete
+                            </span>
+                            <button onClick={() => setExpandedPrescriptionIds(current => new Set([...current, item.id]))} className="text-[12px] font-medium text-[#202020] hover:underline hover:underline-offset-4">
+                              Show Details
+                            </button>
+                          </div>
+                        ) : (
+                          <button
+                            onClick={() => setExpandedPrescriptionIds(current => new Set([...current, item.id]))}
+                            className="ml-16 inline-flex items-center gap-2 rounded-[8px] bg-[#f0f0ee] px-3 py-2 text-[11px] font-semibold text-[#202020] transition-colors hover:bg-[#e5e5e2]"
+                          >
+                            <Plus size={14} />
+                            Add a prescription
+                          </button>
+                        )
+                      ) : addedPrescriptionIds.has(item.id) ? (
+                        <div>
+                          <div className="ml-16 flex items-center justify-between gap-3">
+                            <button onClick={() => setExpandedPrescriptionIds(current => { const next = new Set(current); next.delete(item.id); return next; })} className="text-[12px] font-medium text-[#202020] hover:underline hover:underline-offset-4">Hide Details</button>
+                            <button onClick={() => setAddedPrescriptionIds(current => { const next = new Set(current); next.delete(item.id); return next; })} className="inline-flex items-center gap-1.5 pr-3 text-[12px] font-semibold text-[#202020] hover:text-black">
+                              <Edit3 size={14} /> Edit
+                            </button>
+                          </div>
+                          <div className="ml-16 mt-3 grid gap-5 rounded-[7px] bg-[#fffaf7] px-5 py-4 md:grid-cols-[2fr_1.8fr_0.42fr_0.58fr]">
                             <div>
-                              <p className="mb-0.5 text-[9px] font-semibold uppercase tracking-[0.12em] text-[#6f7782]">Prescription</p>
-                              <h3 className="text-[14px] font-semibold text-[#1a1a1a]">Prescription details</h3>
+                              <p className="text-[10px] font-medium text-[#343434]">Directions of Use</p>
+                              <p className="mt-1 text-[11px] leading-[16px] text-[#777]">{details?.directions}</p>
                             </div>
-                            <span className="rounded-full bg-[#f2f7f4] px-2.5 py-1 text-[11px] font-semibold text-[#52645c]">{patient.name}</span>
-                          </div>
-                          <div className="mt-3">
-                            <label className="mb-1.5 block text-[12px] font-semibold text-[#1a1a1a]">Drug Name + Strength</label>
-                            <input
-                              value={`${item.name} ${item.detail.split("|")[0].trim()}`}
-                              readOnly
-                              className="h-10 w-full cursor-not-allowed rounded-[7px] border border-[#d8dfdc] bg-white px-3 text-[13px] font-medium text-[#6f7782] outline-none"
-                            />
-                          </div>
-                          <div className="mt-4 grid gap-4 md:grid-cols-[minmax(0,1fr)_200px_240px]">
-                            <div className="rounded-[9px] bg-[#f6f9f7] p-3">
-                              <label className="mb-1.5 block text-[12px] font-semibold text-[#1a1a1a]">Qty Size</label>
-                              <input
-                                value={item.detail.split("|")[1]?.trim() ?? item.detail}
-                                readOnly
-                                className="h-10 w-full cursor-not-allowed rounded-[7px] border border-[#d8dfdc] bg-white px-3 text-[13px] font-medium text-[#6f7782] outline-none"
-                              />
+                            <div>
+                              <p className="text-[10px] font-medium text-[#343434]">Reason to Compound</p>
+                              <p className="mt-1 text-[11px] leading-[16px] text-[#777]">{details?.reason}</p>
                             </div>
-                            <div className="rounded-[9px] bg-[#f6f9f7] p-3">
-                              <label className="mb-1.5 flex items-center text-[12px] font-semibold text-[#1a1a1a]">Days Supply <PrescriptionFieldStatus value={prescriptionDetails[item.id]?.days ?? "1"} /></label>
-                              <input
-                                type="number"
-                                min="1"
-                                value={prescriptionDetails[item.id]?.days ?? "1"}
-                                onChange={event => updatePrescriptionDetail(item.id, "days", event.target.value)}
-                                className={prescriptionFieldClass(prescriptionDetails[item.id]?.days ?? "1")}
-                              />
+                            <div>
+                              <p className="text-[10px] font-medium text-[#343434]">Days Supply</p>
+                              <p className="mt-1 text-[11px] text-[#777]">{details?.days}</p>
                             </div>
-                            <div className="rounded-[9px] bg-[#f6f9f7] p-3">
-                              <label className="mb-1.5 flex items-center text-[12px] font-semibold text-[#1a1a1a]">Authorized Refills <PrescriptionFieldStatus value={prescriptionDetails[item.id]?.refills ?? "1"} /></label>
-                              <input
-                                type="number"
-                                min="0"
-                                value={prescriptionDetails[item.id]?.refills ?? "1"}
-                                onChange={event => updatePrescriptionDetail(item.id, "refills", event.target.value)}
-                                className={prescriptionFieldClass(prescriptionDetails[item.id]?.refills ?? "1")}
-                              />
+                            <div>
+                              <p className="text-[10px] font-medium text-[#343434]">Authorized Refills</p>
+                              <p className="mt-1 text-[11px] text-[#777]">{details?.refills}</p>
                             </div>
                           </div>
-                          <div className="mt-4 grid gap-4 md:grid-cols-2">
-                            <div className="rounded-[9px] bg-[#f6f9f7] p-3">
-                              <label className="mb-1.5 flex items-center text-[12px] font-semibold text-[#1a1a1a]">Directions of Use <PrescriptionFieldStatus value={prescriptionDetails[item.id]?.directions ?? "Inject (2.5 mg) subcutaneously once weekly."} /></label>
-                              <select
-                                value={prescriptionDetails[item.id]?.directions ?? "Inject (2.5 mg) subcutaneously once weekly."}
-                                onChange={event => updatePrescriptionDetail(item.id, "directions", event.target.value)}
-                                className={`${prescriptionFieldClass(prescriptionDetails[item.id]?.directions ?? "Inject (2.5 mg) subcutaneously once weekly.")} pr-8`}
-                              >
+                        </div>
+                      ) : (
+                        <div className="rounded-[6px] bg-[#fffdfb] px-6 py-5">
+                          <div className="mb-5 flex items-center justify-between gap-3">
+                            <h3 className="text-[14px] font-medium text-[#202020]">Prescription for {item.name}</h3>
+                            {rowIndex > 0 && <button onClick={() => setExpandedPrescriptionIds(current => { const next = new Set(current); next.delete(item.id); return next; })} className="text-[11px] text-[#777] underline">Hide Details</button>}
+                          </div>
+
+                          <div className="grid gap-x-5 gap-y-4 md:grid-cols-[minmax(145px,0.24fr)_minmax(0,1fr)]">
+                            <label className="block">
+                              <span className="mb-1.5 block text-[11px] font-semibold text-[#303030]">Days Supply <span className="text-[#b44b42]">*</span></span>
+                              <input type="number" min="1" placeholder="Enter Days" value={details?.days ?? ""} onChange={event => updatePrescriptionDetail(item.id, "days", event.target.value)} className={"h-[34px] w-full rounded-[10px] border px-3 text-[12px] outline-none " + requiredFieldClass(details?.days)} />
+                            </label>
+
+                            <label className="block">
+                              <span className="mb-1.5 block text-[11px] font-semibold text-[#303030]">Directions of Use <span className="text-[#b44b42]">*</span></span>
+                              <select value={details?.directions ?? ""} onChange={event => updatePrescriptionDetail(item.id, "directions", event.target.value)} className={"h-[34px] w-full rounded-[10px] border px-3 text-[12px] outline-none " + requiredFieldClass(details?.directions)}>
+                                <option value="" disabled>Select directions</option>
                                 <option>Inject (2.5 mg) subcutaneously once weekly.</option>
                                 <option>Inject (5 mg) subcutaneously once weekly.</option>
-                                <option>Inject 0.5mL subcutaneously once weekly as directed.</option>
                                 <option>Use as directed by prescriber</option>
                               </select>
-                            </div>
-                            <div className="rounded-[9px] bg-[#f6f9f7] p-3">
-                              <label className="mb-1.5 flex items-center text-[12px] font-semibold text-[#1a1a1a]">Reason to Compound* <PrescriptionFieldStatus value={prescriptionDetails[item.id]?.reason ?? ""} /></label>
-                              <select
-                                value={prescriptionDetails[item.id]?.reason ?? ""}
-                                onChange={event => updatePrescriptionDetail(item.id, "reason", event.target.value)}
-                                className={`${prescriptionFieldClass(prescriptionDetails[item.id]?.reason ?? "")} pr-8`}
-                              >
+                            </label>
+
+                            <label className="block">
+                              <span className="mb-1.5 block text-[11px] font-semibold text-[#303030]">Authorized Refills <span className="text-[#b44b42]">*</span></span>
+                              <input type="number" min="0" placeholder="Refills" value={details?.refills ?? ""} onChange={event => updatePrescriptionDetail(item.id, "refills", event.target.value)} className={"h-[34px] w-full rounded-[10px] border px-3 text-[12px] outline-none " + requiredFieldClass(details?.refills)} />
+                            </label>
+
+                            <label className="block">
+                              <span className="mb-1.5 block text-[11px] font-semibold text-[#303030]">Reason to Compound <span className="text-[#b44b42]">*</span></span>
+                              <select value={details?.reason ?? ""} onChange={event => updatePrescriptionDetail(item.id, "reason", event.target.value)} className={"h-[34px] w-full rounded-[10px] border px-3 text-[12px] outline-none " + requiredFieldClass(details?.reason)}>
                                 <option value="" disabled>Select reason below or type out your own</option>
-                                <option>This compounded Tirzepatide / Pyridoxine (B6) formulation incorporates pyridoxine to complement dual GIP/GLP-1 therapy.</option>
                                 <option>Patient requires a dosage form not commercially available.</option>
                                 <option>Patient requires excipient avoidance.</option>
                                 <option>Prescriber requested custom strength.</option>
                               </select>
-                            </div>
+                            </label>
                           </div>
-                          <div className="mt-4 rounded-[9px] bg-[#f6f9f7] p-3">
-                            <label className="mb-1.5 block text-[12px] font-semibold text-[#1a1a1a]">Prescription Note (Optional)</label>
-                            <textarea
-                              placeholder="Enter Prescription Note"
-                              className="min-h-[72px] w-full resize-y rounded-[7px] border border-[#d8dfdc] bg-white px-3 py-3 text-[13px] font-medium text-[#6f7782] outline-none transition-colors placeholder:text-[#b9c0bc] focus:border-[#183229]"
-                            />
+
+                          <label className="mt-4 block">
+                            <span className="mb-1.5 block text-[11px] font-semibold text-[#303030]">Prescription Note (Optional)</span>
+                            <textarea placeholder="Enter Prescription Note" className="min-h-[64px] w-full resize-y rounded-[7px] border border-[#dedede] bg-white px-3 py-3 text-[12px] outline-none focus:border-[#183229]" />
+                          </label>
+
+                          <div className="mt-4 flex justify-end gap-2">
+                            <button
+                              onClick={() => setExpandedPrescriptionIds(current => {
+                                const next = new Set(current);
+                                next.delete(item.id);
+                                return next;
+                              })}
+                              className="h-9 rounded-[7px] border border-[#d3d3d0] bg-white px-4 text-[12px] font-semibold text-[#202020] transition-colors hover:bg-[#f3f3f1]"
+                            >
+                              Cancel
+                            </button>
+                            <button
+                              onClick={() => {
+                                if (!isPrescriptionComplete(item.id)) return;
+                                setAddedPrescriptionIds(current => new Set([...current, item.id]));
+                                setExpandedPrescriptionIds(current => {
+                                  const next = new Set(current);
+                                  next.delete(item.id);
+                                  const currentIndex = cartRows.findIndex(row => row.item.id === item.id);
+                                  const nextPrescription = cartRows[currentIndex + 1];
+                                  if (nextPrescription) next.add(nextPrescription.item.id);
+                                  return next;
+                                });
+                              }}
+                              disabled={!isPrescriptionComplete(item.id)}
+                              className="h-9 min-w-[118px] rounded-[7px] bg-[#111] px-4 text-[12px] font-semibold text-white transition-colors hover:bg-black disabled:cursor-not-allowed disabled:bg-[#dfdfdc] disabled:text-[#92928f]"
+                            >
+                              {addedPrescriptionIds.has(item.id) ? "Added to order" : "Add to order"}
+                            </button>
                           </div>
                         </div>
-                    {includedSupplies.length > 0 && <div className="mt-3">
-                      <button
-                        onClick={() => toggleSupplies(item.id)}
-                        className="inline-flex items-center gap-1.5 text-[12px] font-semibold text-[#1a1a1a] transition-colors hover:text-[#183229]"
-                      >
-                        <ChevronDown
-                          size={14}
-                          strokeWidth={2}
-                          className={`transition-transform ${expandedSupplies.has(item.id) ? "" : "-rotate-90"}`}
-                        />
-                        Included Supplies
-                      </button>
-                    {expandedSupplies.has(item.id) && (
-                        <div className="mt-2 rounded-[10px] border border-[#e8e3df] bg-[#fbfaf8]">
-                        {includedSupplies.map(supply => (
-                          <div key={supply.id} className="flex items-center gap-3 px-3 py-2.5">
-                            <CartItemImage item={supply} />
-                            <div className="min-w-0 flex-1">
-                              <p className="text-[12px] font-semibold text-[#1a1a1a]">{supply.name}</p>
-                              <p className="mt-0.5 text-[11px] text-[#6f7782]">{supply.detail}</p>
-                            </div>
-                            <div className="inline-flex h-8 overflow-hidden rounded-[7px] border border-[#d8dfdc] bg-white">
-                              <button
-                                onClick={() => adjust(supply.id, -1)}
-                                className="flex w-8 items-center justify-center border-r border-[#e1e5e3] text-[#183229] transition-colors hover:bg-[#eef5f1] disabled:cursor-not-allowed disabled:text-[#c4cbc8]"
-                                disabled={(quantities[supply.id] ?? 1) <= 1}
-                                aria-label={`Decrease ${supply.name}`}
-                              >
-                                <Minus size={13} strokeWidth={2} />
-                              </button>
-                              <span className="flex w-9 items-center justify-center text-[13px] font-semibold text-[#1a1a1a]">{quantities[supply.id] ?? 1}</span>
-                              <button
-                                onClick={() => adjust(supply.id, +1)}
-                                className="flex w-8 items-center justify-center border-l border-[#e1e5e3] text-[#183229] transition-colors hover:bg-[#eef5f1]"
-                                aria-label={`Increase ${supply.name}`}
-                              >
-                                <Plus size={13} strokeWidth={2} />
-                              </button>
-                            </div>
-                            <span className="text-[12px] font-semibold text-[#1a1a1a]">Included</span>
-                          </div>
-                        ))}
+                      )}
+                    </div>
+                  </article>
+
+                  {isLastInPharmacy && (
+                    <div className="rounded-b-[10px] bg-[#fffaf7] px-5 pb-5 pt-2">
+                      <div className="flex flex-wrap items-center justify-between gap-3">
+                        <p className="max-w-[620px] text-[10px] font-medium leading-[16px] text-[#303030]">
+                          {multiPatientShipping ? "Multi-patient shipping is supported — one shipping fee covers all patients." : "Multi-patient shipping is not supported — shipping is charged separately for each patient (" + shipmentCount + " shipping fees)."}
+                        </p>
+                        <div className="flex items-center gap-3">
+                          <select value={selectedShipping} onChange={event => setSelectedShippingByPharmacy(current => ({ ...current, [pharmacy]: Number(event.target.value) }))} className="h-8 rounded-[6px] border border-[#dedede] bg-white px-3 text-[10px] outline-none">
+                            {cartData.shipping.map((option, index) => <option key={option.label} value={index}>{option.label}</option>)}
+                          </select>
+                          <span className="text-[12px] font-semibold">{"$" + pharmacyShippingTotal.toFixed(2)}</span>
                         </div>
-                    )}
-                    </div>}
-                  </div>
-                    </>
-                  );
-                })()}
-              </div>
-              {(rowIndex === cartRowsWithNumbers.length - 1 ||
-                (cartRowsWithNumbers[rowIndex + 1].item.pharmacy ?? cartData.pharmacy) !== (item.pharmacy ?? cartData.pharmacy)) && (() => {
-                const pharmacy = item.pharmacy ?? cartData.pharmacy;
-                const selectedShipping = selectedShippingByPharmacy[pharmacy] ?? 0;
-                const multiPatientShipping = supportsMultiPatientShipping(pharmacy);
-                const pharmacyPatientCount = new Set(cartRowsWithNumbers
-                  .filter(row => (row.item.pharmacy ?? cartData.pharmacy) === pharmacy)
-                  .map(row => row.patient.name)).size;
-                const shipmentCount = multiPatientShipping ? 1 : Math.max(1, pharmacyPatientCount);
-                const pharmacyShippingTotal = cartData.shipping[selectedShipping].price * shipmentCount;
-                return (
-                  <div className="rounded-b-[16px] border-x border-b border-[#e8e3df] bg-[#fffaf6] px-5 py-4">
-                    <div className="flex flex-wrap items-center justify-between gap-2">
-                      <h3 className="text-[13px] font-semibold text-[#1a1a1a]">Shipping method</h3>
-                      <span className="text-[13px] font-semibold text-[#183229]">${pharmacyShippingTotal.toFixed(2)}</span>
-                    </div>
-                    <div className={`mt-2 rounded-[7px] px-3 py-2 text-[11px] font-medium ${multiPatientShipping ? "bg-[#edf5f0] text-[#315a47]" : "bg-[#fff3e6] text-[#8a4b08]"}`}>
-                      {multiPatientShipping
-                        ? `Multi-patient shipping supported — one shipping fee covers all ${pharmacyPatientCount} ${pharmacyPatientCount === 1 ? "patient" : "patients"} in this cart.`
-                        : `Multi-patient shipping is not supported — shipping is charged separately for each patient (${shipmentCount} shipping ${shipmentCount === 1 ? "fee" : "fees"}).`}
-                    </div>
-                    <div className="mt-3 flex flex-wrap gap-2">
-                      {cartData.shipping.map((shippingOption, shippingIndex) => (
-                        <button
-                          key={`${pharmacy}-${shippingOption.label}`}
-                          onClick={() => setSelectedShippingByPharmacy(current => ({ ...current, [pharmacy]: shippingIndex }))}
-                          className={`flex h-9 items-center gap-2 rounded-[7px] border px-3 text-left text-[11px] font-medium transition-colors ${
-                            selectedShipping === shippingIndex
-                              ? "border-[#183229] bg-white text-[#1a1a1a]"
-                              : "border-[#e3dfdc] bg-white/70 text-[#59615d] hover:bg-white"
-                          }`}
-                        >
-                          <span className={`flex size-4 items-center justify-center rounded-full ${selectedShipping === shippingIndex ? "bg-[#e7efe9]" : "bg-[#efedeb]"}`}>
-                            {selectedShipping === shippingIndex && <span className="size-2 rounded-full bg-[#183229]" />}
-                          </span>
-                          <span>{shippingOption.label} · ${shippingOption.price.toFixed(2)}{!multiPatientShipping && shipmentCount > 1 ? ` × ${shipmentCount} patients` : ""}</span>
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                );
-              })()}
-              </Fragment>
-            ))}
-          </div>
-        </div>
-
-        {/* Right — checkout summary */}
-        <aside className="self-start overflow-hidden rounded-[12px] border border-[#e8e3df] bg-white xl:sticky xl:top-6 xl:max-h-[calc(100vh-3rem)] xl:overflow-y-auto">
-          <div className="border-b border-[#eee8e3] bg-[#fbfaf8] px-5 py-4">
-            <p className="text-[15px] font-semibold text-[#1a1a1a]">Order Total</p>
-            <p className="mt-0.5 text-[12px] text-[#6f7782]">{prescriptionCount} prescriptions across {cartData.patients.length} patients</p>
-            <p className="mt-1 text-[11px] font-medium text-[#52645c]">Prescription details completed in cart</p>
-          </div>
-
-          <div className="flex flex-col gap-4 px-5 py-4">
-            <div className="space-y-3">
-              <label className="block">
-                <span className="mb-1.5 block text-[12px] font-medium text-[#6f7782]">Vouchers</span>
-                <div className="flex h-10 overflow-hidden rounded-[7px] border border-[#d8dfdc] bg-white">
-                  <input
-                    className="min-w-0 flex-1 px-3 text-[12px] outline-none placeholder:text-[#b9c0bc]"
-                    placeholder="Enter voucher code"
-                  />
-                  <button className="px-3 text-[12px] font-semibold text-[#183229] transition-colors hover:bg-[#eef5f1]">Apply</button>
-                </div>
-              </label>
-            </div>
-
-            <div className="border-t border-[#eee8e3] pt-4">
-              <p className="mb-3 text-[11px] font-semibold uppercase tracking-[0.12em] text-[#667085]">Items</p>
-              <div className="flex flex-col gap-3">
-                {visibleSummaryItems.map(item => (
-                  <div key={item.id} className="grid grid-cols-[minmax(0,1fr)_auto] gap-x-3 gap-y-1">
-                    <div className="min-w-0">
-                      <div className="flex min-w-0 items-center gap-1.5">
-                        <p className="truncate text-[12px] font-semibold leading-tight text-[#1a1a1a]">{item.name}</p>
                       </div>
                     </div>
-                    <span className="text-right text-[12px] font-semibold text-[#1a1a1a]">
-                      {item.price === 0 ? "Free" : `$${(item.price * (quantities[item.id] ?? 1)).toFixed(2)}`}
-                    </span>
-                    <p className="col-span-2 text-[11px] text-[#6f7782]">{item.detail}</p>
-                  </div>
-                ))}
-              </div>
-              {hiddenSummaryItemCount > 0 && (
-                <button
-                  onClick={() => setShowAllSummaryItems(prev => !prev)}
-                  className="mt-3 flex items-center gap-1 text-[12px] font-semibold text-[#183229] transition-colors hover:text-[#244438]"
-                >
-                  <ChevronDown
-                    size={14}
-                    strokeWidth={2}
-                    className={`transition-transform ${showAllSummaryItems ? "rotate-180" : ""}`}
-                  />
-                  {showAllSummaryItems ? "Show less" : `Show more (${hiddenSummaryItemCount})`}
-                </button>
-              )}
-            </div>
+                  )}
+                </Fragment>
+              );
+            })}
+          </section>
 
-            {/* Shipping option */}
-            <div className="border-t border-[#eee8e3] pt-4">
-              <p className="mb-2 text-[11px] font-semibold uppercase tracking-[0.12em] text-[#667085]">Shipping Option</p>
-              <div className="space-y-1.5 rounded-[8px] bg-[#f2f7f4] px-3 py-2 text-[11px] font-medium text-[#1a1a1a]">
-                {pharmacyNames.map(pharmacy => {
-                  const shippingIndex = selectedShippingByPharmacy[pharmacy] ?? 0;
-                  const option = cartData.shipping[shippingIndex];
-                  const patientCount = new Set(cartRows
-                    .filter(({ item }) => (item.pharmacy ?? cartData.pharmacy) === pharmacy)
-                    .map(({ patient }) => patient.name)).size;
-                  const shipmentCount = supportsMultiPatientShipping(pharmacy) ? 1 : Math.max(1, patientCount);
-                  return <div key={pharmacy} className="flex justify-between gap-3"><span className="truncate">{pharmacy}{shipmentCount > 1 ? ` (${shipmentCount} shipments)` : ""}</span><span className="shrink-0 font-semibold">${(option.price * shipmentCount).toFixed(2)}</span></div>;
-                })}
+          <aside className="self-start bg-white xl:sticky xl:top-6">
+            <h2 className="text-[28px] font-normal text-[#171717]">Order Total</h2>
+
+            <div className="mt-7">
+              <div className="flex items-center justify-between">
+                <p className="text-[13px] font-semibold text-[#202020]">Do you have a Voucher Code?</p>
+                <ChevronDown size={17} className="rotate-180" />
+              </div>
+              <div className="mt-3 flex gap-2">
+                <input className="h-[31px] min-w-0 flex-1 rounded-[8px] border-0 bg-white px-3 text-[12px] shadow-[inset_0_1px_0_#9E9EA0,inset_-1px_0_0_#9E9EA0,inset_0_-1px_0_#9E9EA0,inset_1px_0_0_#9E9EA0] outline-none focus:shadow-[inset_0_0_0_1px_#183229]" />
+                <button className="h-[31px] rounded-full border-0 bg-white px-5 text-[12px] font-medium text-[#666] shadow-[inset_0_1px_0_#9E9EA0,inset_-1px_0_0_#9E9EA0,inset_0_-1px_0_#9E9EA0,inset_1px_0_0_#9E9EA0] transition-colors hover:bg-[#f7f7f7]">Apply</button>
               </div>
             </div>
 
-            {/* Totals */}
-            <div className="flex flex-col gap-2 border-t border-[#eee8e3] pt-4">
-              <div className="flex justify-between text-[12px] text-[#6f7782]">
-                <span>Items subtotal</span><span className="font-semibold text-[#1a1a1a]">${subtotal.toFixed(2)}</span>
-              </div>
-              <div className="flex justify-between text-[12px] text-[#6f7782]">
-                <span>Shipping</span><span className="font-semibold text-[#1a1a1a]">${shipping.toFixed(2)}</span>
-              </div>
-              <div className="mt-3 flex items-end justify-between border-t border-[#eee8e3] pt-3 text-[#1a1a1a]">
-                <span className="text-[14px] font-bold">Total</span><span className="text-[19px] font-bold text-[#183229]">${total.toFixed(2)}</span>
-              </div>
+            <div className="mt-5 space-y-4 text-[13px] text-[#262626]">
+              <div className="flex justify-between gap-4"><span>Subtotal</span><span>{"$" + subtotal.toFixed(2)}</span></div>
+              <div className="flex justify-between gap-4"><span>Estimated Shipping & Handling</span><span>{"$" + shipping.toFixed(2)}</span></div>
+              <div className="flex justify-between gap-4"><span>Estimated Tax</span><span>—</span></div>
+              <div className="flex justify-between gap-4 border-y border-[#ececec] py-5 text-[14px] font-semibold"><span>Total</span><span>{"$" + total.toFixed(2)}</span></div>
             </div>
 
-            <button
-              onClick={() => setPreviewOpen(true)}
-              disabled={!prescriptionsComplete}
-              className="mt-1 h-11 w-full rounded-[8px] bg-[#183229] text-[13px] font-semibold text-white transition-colors hover:bg-[#244438] disabled:cursor-not-allowed disabled:bg-[#c8cecb]"
-            >
-              {prescriptionsComplete ? "Continue: Preview" : "Complete required fields"}
+            <p className="mt-4 text-[11px] leading-[18px] text-[#4f4f4f]">Shipping fees are calculated by pharmacy and patient based on the selected method.</p>
+
+            <button onClick={handleCheckout} className="mt-5 h-[52px] w-full rounded-full bg-[#111] text-[13px] font-medium text-white transition-opacity hover:opacity-90">
+              Checkout
             </button>
-          </div>
-        </aside>
+          </aside>
+        </div>
       </div>
-      </div>
-
       {previewOpen && (
         <div className="fixed inset-0 z-50 flex justify-end bg-[#1a1a1a]/35 backdrop-blur-[2px]">
           <button className="absolute inset-0 cursor-default" onClick={() => setPreviewOpen(false)} aria-label="Close preview" />
