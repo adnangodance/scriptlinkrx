@@ -3992,6 +3992,7 @@ function MultiPatientCartPage({
   const [selectedShippingByPharmacy, setSelectedShippingByPharmacy] = useState<Record<string, number>>({});
   const [removed, setRemoved] = useState<Set<number>>(new Set());
   const [showAllSummaryItems, setShowAllSummaryItems] = useState(false);
+  const [cartCardVariant, setCartCardVariant] = useState<1 | 2>(1);
   const [expandedSupplies, setExpandedSupplies] = useState<Set<number>>(new Set([1]));
   const [previewOpen, setPreviewOpen] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState<"patient" | "clinic">("patient");
@@ -4109,11 +4110,29 @@ function MultiPatientCartPage({
     setExpandedPrescriptionIds(new Set(cartRows.filter(({ item }) => !isPrescriptionComplete(item.id)).map(({ item }) => item.id)));
   }
 
+  const cartCardThemes = {
+    1: { label: "Current", shell: "#fffaf7", border: "#fffaf7", item: "#ffffff" },
+    2: { label: "Silver", shell: "#FBFBFB", border: "#FBFBFB", item: "#ffffff" },
+  } as const;
+  const activeCardTheme = cartCardThemes[cartCardVariant];
+
   return (
     <>
       <Header title="Cart" onNavigate={onNavigate} />
 
       <div className="max-w-[1300px]">
+        <div className="mb-5 flex flex-wrap items-center gap-2">
+          <span className="mr-1 text-[11px] font-semibold uppercase tracking-[0.1em] text-[#777]">Card style</span>
+          {([1, 2] as const).map(variant => (
+            <button
+              key={variant}
+              onClick={() => setCartCardVariant(variant)}
+              className={`h-8 rounded-full px-3 text-[11px] font-semibold transition-colors ${cartCardVariant === variant ? "bg-[#111] text-white" : "border border-[#ddd] bg-white text-[#555] hover:border-[#999]"}`}
+            >
+              {variant}. {cartCardThemes[variant].label}
+            </button>
+          ))}
+        </div>
         <div className="grid grid-cols-1 items-start gap-10 xl:grid-cols-[minmax(0,1fr)_290px]">
           <section className="min-w-0">
             {cartRowsWithNumbers.map(({ patient, item }, rowIndex) => {
@@ -4132,7 +4151,7 @@ function MultiPatientCartPage({
               return (
                 <Fragment key={item.id}>
                   {isFirstInPharmacy && (
-                    <div className={(rowIndex === 0 ? "" : "mt-7 ") + "rounded-t-[10px] bg-[#fffaf7] px-5 pb-4 pt-5"}>
+                    <div style={{ backgroundColor: activeCardTheme.shell }} className={(rowIndex === 0 ? "" : "mt-7 ") + "rounded-t-[10px] px-5 pb-4 pt-5"}>
                       <div className="flex items-center justify-between gap-4">
                         <h2 className="text-[16px] font-medium text-[#171717]">{pharmacy} Cart</h2>
                         <div className="flex flex-wrap items-center justify-end gap-2">
@@ -4145,7 +4164,10 @@ function MultiPatientCartPage({
                     </div>
                   )}
 
-                  <article className={"relative border-x-[12px] border-b-[12px] border-[#fffaf7] bg-white px-5 " + (isExpanded ? "pb-5 pt-5" : "py-7")}>
+                  <article
+                    style={{ backgroundColor: activeCardTheme.item, borderColor: activeCardTheme.border }}
+                    className={`relative border-x-[12px] border-b-[12px] px-5 ${isExpanded ? "pb-5 pt-5" : "py-7"}`}
+                  >
                     <div className="grid grid-cols-1 gap-5 lg:grid-cols-[minmax(270px,1fr)_210px_112px_90px] lg:items-start">
                       <div className="flex min-w-0 gap-4">
                         <CartItemImage item={item} />
@@ -4314,7 +4336,7 @@ function MultiPatientCartPage({
                   </article>
 
                   {isLastInPharmacy && (
-                    <div className="rounded-b-[10px] bg-[#fffaf7] px-5 pb-5 pt-2">
+                    <div style={{ backgroundColor: activeCardTheme.shell }} className="rounded-b-[10px] px-5 pb-5 pt-2">
                       <div className="flex flex-wrap items-center justify-between gap-3">
                         <p className="max-w-[620px] text-[10px] font-medium leading-[16px] text-[#303030]">
                           {multiPatientShipping ? "Multi-patient shipping is supported — one shipping fee covers all patients." : "Multi-patient shipping is not supported — shipping is charged separately for each patient (" + shipmentCount + " shipping fees)."}
@@ -4375,11 +4397,12 @@ function MultiPatientCartPage({
               <div className="rounded-[9px] bg-[#fffcf3] px-4 py-3">
                 <p className="text-[13px] font-medium text-[#1a1a1a]">Items</p>
               </div>
-              {cartRowsWithNumbers.map(({ patient, item, prescriptionNumber }, index) => {
+              {(showAllSummaryItems ? cartRowsWithNumbers : cartRowsWithNumbers.slice(0, 4)).map(({ patient, item, prescriptionNumber }, index) => {
                 const supplies = patient.items.filter(candidate => candidate.kind === "supply" && !removed.has(candidate.id));
                 const quantity = quantities[item.id] ?? 1;
                 return (
                   <div key={item.id} className={`py-4 ${index > 0 ? "border-t border-[#e6e6e6]" : ""}`}>
+                    <p className="mb-0.5 px-4 text-[10px] font-semibold uppercase tracking-[0.08em] text-[#557d70]">Prescription {prescriptionNumber}</p>
                     <p className="rounded-[8px] bg-[#fbfffd] px-4 py-2 text-[11px] font-medium text-[#222]">{patient.name} ({patient.name.match(/\((.*?)\)/)?.[1] ?? "M"})</p>
                     <div className="mt-3 flex items-start gap-3 px-4">
                       <CartItemImage item={item} />
@@ -4389,8 +4412,7 @@ function MultiPatientCartPage({
                       </div>
                       <div className="shrink-0 text-right">
                         <p className="text-[13px] font-semibold text-[#1a1a1a]">${(item.price * quantity).toFixed(2)}</p>
-                        <p className="mt-1 text-[10px] text-[#747b82]">{quantity} x</p>
-                        <p className="text-[10px] text-[#747b82]">${item.price.toFixed(2)}</p>
+                        <p className="mt-1 whitespace-nowrap text-[10px] text-[#747b82]">{quantity} × ${item.price.toFixed(2)}</p>
                       </div>
                     </div>
                     <div className="px-4">{supplies.map(supply => {
@@ -4404,7 +4426,7 @@ function MultiPatientCartPage({
                           </div>
                           <div className="shrink-0 text-right text-[10px] text-[#747b82]">
                             <p className="text-[12px] font-semibold text-[#1a1a1a]">${(supply.price * supplyQuantity).toFixed(2)}</p>
-                            <p>{supplyQuantity} x</p>
+                            <p className="whitespace-nowrap">{supplyQuantity} × ${supply.price.toFixed(2)}</p>
                           </div>
                         </div>
                       );
@@ -4412,12 +4434,23 @@ function MultiPatientCartPage({
                   </div>
                 );
               })}
+              {cartRowsWithNumbers.length > 4 && (
+                <button
+                  onClick={() => setShowAllSummaryItems(current => !current)}
+                  className="flex w-full items-center justify-center gap-1.5 border-t border-[#e6e6e6] py-3 text-[11px] font-semibold text-[#202020] hover:bg-[#fbfaf8]"
+                >
+                  {showAllSummaryItems ? "Show fewer prescriptions" : `Show ${cartRowsWithNumbers.length - 4} more prescription${cartRowsWithNumbers.length - 4 === 1 ? "" : "s"}`}
+                  <ChevronDown size={13} className={showAllSummaryItems ? "rotate-180 transition-transform" : "transition-transform"} />
+                </button>
+              )}
             </section>
 
             <section className="mt-1">
               <div className="border-t border-[#ededed] pt-4">
-                <p className="rounded-[8px] bg-[#fbfffd] px-3 py-2 text-[13px] font-medium text-[#171717]">Payment</p>
-                <p className="mt-2 text-[11px] text-[#8c8c8c]">Select the payment method for the prescription</p>
+                <div className="rounded-[8px] bg-[#fbfffd] px-3 py-2">
+                  <p className="text-[13px] font-medium text-[#171717]">Payment</p>
+                  <p className="mt-0.5 text-[10px] text-[#8c8c8c]">Select the payment method for the prescription</p>
+                </div>
                 <div className="mt-3 flex flex-wrap gap-2">
                   <button
                     onClick={() => setPaymentMethod("patient")}
@@ -4446,8 +4479,10 @@ function MultiPatientCartPage({
               </div>
 
               <div className="pt-5">
-                <p className="rounded-[8px] bg-[#fbfffd] px-3 py-2 text-[13px] font-medium text-[#171717]">Shipping</p>
-                <p className="mt-2 text-[11px] text-[#8c8c8c]">Choose where to ship the prescription</p>
+                <div className="rounded-[8px] bg-[#fbfffd] px-3 py-2">
+                  <p className="text-[13px] font-medium text-[#171717]">Shipping</p>
+                  <p className="mt-0.5 text-[10px] text-[#8c8c8c]">Choose where to ship the prescription</p>
+                </div>
                 <div className="mt-3 flex flex-wrap gap-2">
                   <button
                     onClick={() => setShipTo("patient")}
