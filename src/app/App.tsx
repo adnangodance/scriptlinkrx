@@ -4114,7 +4114,7 @@ function MultiPatientCartPage({
       <Header title="Cart" onNavigate={onNavigate} />
 
       <div className="max-w-[1300px]">
-        <div className="grid grid-cols-1 items-start gap-10 xl:grid-cols-[minmax(0,1fr)_320px]">
+        <div className="grid grid-cols-1 items-start gap-10 xl:grid-cols-[minmax(0,1fr)_290px]">
           <section className="min-w-0">
             {cartRowsWithNumbers.map(({ patient, item }, rowIndex) => {
               const pharmacy = item.pharmacy ?? cartData.pharmacy;
@@ -4136,10 +4136,6 @@ function MultiPatientCartPage({
                       <div className="flex items-center justify-between gap-4">
                         <h2 className="text-[16px] font-medium text-[#171717]">{pharmacy} Cart</h2>
                         <div className="flex flex-wrap items-center justify-end gap-2">
-                          <span className="inline-flex items-center gap-1.5 rounded-full bg-white px-3 py-1.5 text-[10px] font-semibold text-[#303030]">
-                            <CreditCard size={13} />
-                            Pay by patient
-                          </span>
                           <span className="inline-flex items-center gap-1.5 rounded-full bg-white px-3 py-1.5 text-[10px] font-semibold text-[#303030]">
                             {pharmacyPatientCount > 1 ? <Building2 size={13} /> : <User size={13} />}
                             {pharmacyPatientCount > 1 ? "Ship to clinic" : "Ship to patient"}
@@ -4338,32 +4334,9 @@ function MultiPatientCartPage({
           </section>
 
           <aside className="self-start bg-white xl:sticky xl:top-6">
-            <h2 className="text-[28px] font-normal text-[#171717]">Order Total</h2>
+            <h2 className="text-[24px] font-normal text-[#171717]">Order Total</h2>
 
-            <div className="mt-6 border-b border-[#ececec] pb-5">
-              <div className="space-y-3">
-                {(showAllSummaryItems ? cartRows : cartRows.slice(0, 2)).map(({ patient, item }) => (
-                  <div key={item.id} className="flex items-center gap-3">
-                    <div className="flex size-9 shrink-0 items-center justify-center overflow-hidden bg-white">
-                      <img src={item.image ?? imgAminoQuad} alt={item.name} className="h-9 w-9 object-contain mix-blend-multiply" />
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <p className="truncate text-[11px] font-semibold text-[#202020]">{item.name}</p>
-                      <p className="mt-0.5 truncate text-[9px] text-[#7a7a7a]">{patient.name} · Qty {quantities[item.id] ?? 1}</p>
-                    </div>
-                    <span className="shrink-0 text-[11px] font-semibold text-[#202020]">{`$${(item.price * (quantities[item.id] ?? 1)).toFixed(2)}`}</span>
-                  </div>
-                ))}
-              </div>
-              {cartRows.length > 2 && (
-                <button onClick={() => setShowAllSummaryItems(current => !current)} className="mt-4 inline-flex items-center gap-1.5 text-[11px] font-semibold text-[#202020] hover:underline hover:underline-offset-4">
-                  {showAllSummaryItems ? "Hide items" : `Show ${cartRows.length - 2} more item${cartRows.length - 2 === 1 ? "" : "s"}`}
-                  <ChevronDown size={13} className={showAllSummaryItems ? "rotate-180 transition-transform" : "transition-transform"} />
-                </button>
-              )}
-            </div>
-
-            <div className="mt-7">
+            <div className="mt-5">
               <div className="flex items-center justify-between">
                 <p className="text-[13px] font-semibold text-[#202020]">Do you have a Voucher Code?</p>
                 <ChevronDown size={17} className="rotate-180" />
@@ -4374,49 +4347,41 @@ function MultiPatientCartPage({
               </div>
             </div>
 
-            <div className="mt-5 space-y-4 text-[13px] text-[#262626]">
+            <div className="mt-5 space-y-3 text-[12px] text-[#262626]">
               <div className="flex justify-between gap-4"><span>Subtotal</span><span>{"$" + subtotal.toFixed(2)}</span></div>
               <div className="flex justify-between gap-4"><span>Estimated Shipping & Handling</span><span>{"$" + shipping.toFixed(2)}</span></div>
               <div className="flex justify-between gap-4"><span>Estimated Tax</span><span>—</span></div>
-              <div className="flex justify-between gap-4 border-y border-[#ececec] py-5 text-[14px] font-semibold"><span>Total</span><span>{"$" + total.toFixed(2)}</span></div>
+              <div className="flex justify-between gap-4 border-y border-[#ececec] py-4 text-[13px] font-semibold"><span>Total</span><span>{"$" + total.toFixed(2)}</span></div>
             </div>
 
             <p className="mt-4 text-[11px] leading-[18px] text-[#4f4f4f]">Shipping fees are calculated by pharmacy and patient based on the selected method.</p>
 
-            <button onClick={handleCheckout} className="mt-5 h-[52px] w-full rounded-full bg-[#111] text-[13px] font-medium text-white transition-opacity hover:opacity-90">
+            <button onClick={handleCheckout} className="mt-5 h-[46px] w-full rounded-full bg-[#111] text-[12px] font-medium text-white transition-opacity hover:opacity-90">
               Checkout
             </button>
           </aside>
         </div>
       </div>
       {previewOpen && (
-        <div className="fixed inset-0 z-50 flex justify-end bg-[#1a1a1a]/25 backdrop-blur-[2px]">
+        <div className="fixed inset-0 z-50 flex justify-end bg-[#1a1a1a]/20">
           <button className="absolute inset-0 cursor-default" onClick={() => setPreviewOpen(false)} aria-label="Close preview" />
-          <aside className="relative h-full w-full max-w-[460px] overflow-auto border-l border-[#eee8e3] bg-[#fdfaf7] shadow-[-20px_0_60px_rgba(24,24,24,0.12)]">
-            <header className="sticky top-0 z-10 flex items-start justify-between border-b border-[#eee8e3] bg-[#fdfaf7]/95 px-7 py-6 backdrop-blur sm:px-9">
-              <div>
-                <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[#7a736d]">Order review</p>
-                <h2 className="mt-1 text-[26px] font-medium text-[#1a1a1a]">Review and submit</h2>
-                <p className="mt-1 text-[12px] text-[#6f6862]">Confirm the patients, prescriptions, payment, and shipping before submitting.</p>
-              </div>
-              <button onClick={() => setPreviewOpen(false)} className="flex size-9 shrink-0 items-center justify-center rounded-full border border-[#e5dfda] bg-white text-[#333] hover:bg-[#f6f2ee]" aria-label="Close preview">
-                <XCircle size={18} />
-              </button>
+          <aside className="relative h-full w-full max-w-[460px] overflow-auto bg-white shadow-[-20px_0_60px_rgba(24,24,24,0.1)]">
+            <header className="sticky top-0 z-10 bg-white px-6 pb-5 pt-8">
+              <h2 className="text-[18px] font-semibold text-[#171717]">Review and submit</h2>
             </header>
-            <div className="px-7 pb-2 sm:px-9">
+            <div className="px-6 pb-5">
 
-            <section className="mt-7 overflow-hidden rounded-[12px] bg-white">
-              <div className="border-b border-[#e7e3df] px-4 py-3">
-                <p className="text-[11px] font-bold uppercase tracking-[0.12em] text-[#557d70]">Items</p>
+            <section>
+              <div className="rounded-[9px] bg-[#fffcf3] px-4 py-3">
+                <p className="text-[13px] font-medium text-[#1a1a1a]">Items</p>
               </div>
               {cartRowsWithNumbers.map(({ patient, item, prescriptionNumber }, index) => {
                 const supplies = patient.items.filter(candidate => candidate.kind === "supply" && !removed.has(candidate.id));
                 const quantity = quantities[item.id] ?? 1;
                 return (
-                  <div key={item.id} className={`px-4 py-4 ${index > 0 ? "border-t border-[#e7e3df]" : ""}`}>
-                    <p className="text-[10px] font-bold uppercase tracking-[0.08em] text-[#557d70]">Prescription {prescriptionNumber}</p>
-                    <p className="mt-1 text-[11px] font-semibold uppercase text-[#4e5863]">{patient.name} <span className="font-normal">| {patient.phone}</span></p>
-                    <div className="mt-3 flex items-start gap-3">
+                  <div key={item.id} className={`py-4 ${index > 0 ? "border-t border-[#e6e6e6]" : ""}`}>
+                    <p className="rounded-[8px] bg-[#fbfffd] px-4 py-2 text-[11px] font-medium text-[#222]">{patient.name} ({patient.name.match(/\((.*?)\)/)?.[1] ?? "M"})</p>
+                    <div className="mt-3 flex items-start gap-3 px-4">
                       <CartItemImage item={item} />
                       <div className="min-w-0 flex-1">
                         <p className="text-[13px] font-semibold leading-[17px] text-[#1a1a1a]">{item.name}</p>
@@ -4428,7 +4393,7 @@ function MultiPatientCartPage({
                         <p className="text-[10px] text-[#747b82]">${item.price.toFixed(2)}</p>
                       </div>
                     </div>
-                    {supplies.map(supply => {
+                    <div className="px-4">{supplies.map(supply => {
                       const supplyQuantity = quantities[supply.id] ?? 1;
                       return (
                         <div key={supply.id} className="mt-3 flex items-start gap-3">
@@ -4443,16 +4408,16 @@ function MultiPatientCartPage({
                           </div>
                         </div>
                       );
-                    })}
+                    })}</div>
                   </div>
                 );
               })}
             </section>
 
-            <section className="mt-4 rounded-[14px] bg-white p-4 sm:p-5">
-              <div className="border-b border-[#eee8e3] pb-5">
-                <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[#667085]">Payment</p>
-                <p className="mt-1 text-[13px] text-[#1a1a1a]">Select the payment method for the prescription</p>
+            <section className="mt-1">
+              <div className="border-t border-[#ededed] pt-4">
+                <p className="rounded-[8px] bg-[#fbfffd] px-3 py-2 text-[13px] font-medium text-[#171717]">Payment</p>
+                <p className="mt-2 text-[11px] text-[#8c8c8c]">Select the payment method for the prescription</p>
                 <div className="mt-3 flex flex-wrap gap-2">
                   <button
                     onClick={() => setPaymentMethod("patient")}
@@ -4481,8 +4446,8 @@ function MultiPatientCartPage({
               </div>
 
               <div className="pt-5">
-                <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[#667085]">Shipping</p>
-                <p className="mt-1 text-[13px] text-[#1a1a1a]">Choose where to ship the prescription</p>
+                <p className="rounded-[8px] bg-[#fbfffd] px-3 py-2 text-[13px] font-medium text-[#171717]">Shipping</p>
+                <p className="mt-2 text-[11px] text-[#8c8c8c]">Choose where to ship the prescription</p>
                 <div className="mt-3 flex flex-wrap gap-2">
                   <button
                     onClick={() => setShipTo("patient")}
@@ -4508,22 +4473,18 @@ function MultiPatientCartPage({
               </div>
             </section>
 
-            <section className="mt-4 rounded-[14px] bg-white p-4 sm:p-5">
-              <h3 className="border-b border-[#eee8e3] pb-3 text-[15px] font-semibold text-[#1a1a1a]">Summary</h3>
-              <div className="mt-4 space-y-3 text-[14px]">
-                <div className="flex justify-between text-[#6f7782]"><span>Items subtotal</span><span className="font-semibold text-[#1a1a1a]">${subtotal.toFixed(2)}</span></div>
-                <div className="flex justify-between text-[#6f7782]"><span>Shipping</span><span className="font-semibold text-[#1a1a1a]">${shipping.toFixed(2)}</span></div>
-                <div className="flex justify-between border-t border-[#eee8e3] pt-4 font-bold text-[#1a1a1a]"><span>Total</span><span className="text-[#183229]">${total.toFixed(2)}</span></div>
+            <section className="mt-8 border-t border-[#ededed] pt-5">
+              <div className="space-y-3 text-[13px]">
+                <div className="flex justify-between text-[#222]"><span>Subtotal</span><span>${subtotal.toFixed(2)}</span></div>
+                <div className="flex justify-between text-[#222]"><span>Estimated Shipping &amp; Handling</span><span>{shipping === 0 ? "Free" : `$${shipping.toFixed(2)}`}</span></div>
+                <div className="flex justify-between text-[#222]"><span>Estimated Tax <span className="ml-1 inline-flex size-3 items-center justify-center rounded-full bg-[#222] text-[8px] text-white">?</span></span><span>—</span></div>
+                <div className="flex justify-between border-y border-[#ededed] py-4 text-[14px] font-semibold text-[#1a1a1a]"><span>Total</span><span>${total.toFixed(2)}</span></div>
               </div>
             </section>
 
-            </div>
-            <div className="sticky bottom-0 mt-6 flex justify-end gap-3 border-t border-[#eee8e3] bg-[#fdfaf7]/95 px-7 py-5 backdrop-blur sm:px-9">
-              <button onClick={() => setPreviewOpen(false)} className="flex h-11 min-w-[140px] items-center justify-center gap-2 rounded-full border border-[#cfc8c2] bg-white px-5 text-[13px] font-semibold text-[#313131] hover:bg-[#f7f4f1]">
-                <ChevronLeft size={15} /> Edit cart
-              </button>
-              <button onClick={() => runWithAppLoader(() => onNavigate("orders"), 1000)} className="flex h-11 min-w-[210px] items-center justify-center gap-2 rounded-full bg-[#111] px-6 text-[13px] font-semibold text-white hover:bg-black">
-                <CheckCircle2 size={15} /> Submit for Approval
+              <p className="mt-4 text-[11px] leading-[16px] text-[#333]">Multi-Patient Orders can only be shipped to Clinic's address.</p>
+              <button onClick={() => runWithAppLoader(() => onNavigate("orders"), 1000)} className="mt-6 flex h-[52px] w-full items-center justify-center rounded-full bg-[#111] text-[13px] font-medium text-white hover:bg-black">
+                Review and submit
               </button>
             </div>
           </aside>
