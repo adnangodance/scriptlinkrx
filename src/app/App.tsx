@@ -1567,6 +1567,7 @@ function ProductDetailPage({
   const [qty, setQty] = useState(1);
   const [suppliesOpen, setSuppliesOpen] = useState(false);
   const [patientPickerOpen, setPatientPickerOpen] = useState(false);
+  const [createPatientOpen, setCreatePatientOpen] = useState(false);
   const [patientSearch, setPatientSearch] = useState("");
   const [paymentChoice, setPaymentChoice] = useState<"patient" | "clinic" | "card">("patient");
   const [shippingChoice, setShippingChoice] = useState<"patient" | "clinic">("clinic");
@@ -1828,7 +1829,7 @@ function ProductDetailPage({
                   })}
                 </div>
                 <div className="border-t border-[#e8e3df] p-2">
-                  <button onClick={() => onNavigate("users")} className="flex h-9 w-full items-center justify-center gap-1.5 rounded-[7px] border border-dashed border-[#b7c2bd] bg-[#fafcfb] text-[11px] font-semibold text-[#183229] transition-colors hover:border-[#183229] hover:bg-[#eef5f1]">
+                  <button onClick={() => { setPatientPickerOpen(false); setCreatePatientOpen(true); }} className="flex h-9 w-full items-center justify-center gap-1.5 rounded-[7px] border border-dashed border-[#b7c2bd] bg-[#fafcfb] text-[11px] font-semibold text-[#183229] transition-colors hover:border-[#183229] hover:bg-[#eef5f1]">
                     <Plus size={13} /> Create new patient
                   </button>
                 </div>
@@ -2011,6 +2012,59 @@ function ProductDetailPage({
         </div>
       </section>
       </div>
+      {createPatientOpen && (
+        <div className="fixed inset-0 z-[80] flex items-center justify-center bg-black/30 p-4 backdrop-blur-[2px]">
+          <button className="absolute inset-0 cursor-default" onClick={() => setCreatePatientOpen(false)} aria-label="Close create patient" />
+          <form
+            onSubmit={event => { event.preventDefault(); setCreatePatientOpen(false); }}
+            className="relative flex max-h-[92vh] w-full max-w-[720px] flex-col overflow-hidden rounded-[16px] border border-[#e4e1dd] bg-white shadow-[0_24px_70px_rgba(0,0,0,0.18)]"
+          >
+            <div className="flex items-center justify-between border-b border-[#ece9e5] px-6 py-5">
+              <div>
+                <h2 className="text-[20px] font-semibold text-[#171717]">Create Patient</h2>
+                <p className="mt-1 text-[11px] text-[#777]">Enter the patient’s personal and contact information.</p>
+              </div>
+              <button type="button" onClick={() => setCreatePatientOpen(false)} className="flex size-8 items-center justify-center rounded-full text-[#777] hover:bg-[#f4f2ef]" aria-label="Close"><X size={18} /></button>
+            </div>
+
+            <div className="overflow-y-auto px-6 py-5">
+              <div className="grid gap-x-4 gap-y-4 sm:grid-cols-2">
+                {[
+                  ["First Name", "firstName", "Write...", "text", true],
+                  ["Last Name", "lastName", "Write...", "text", true],
+                ].map(([label, name, placeholder, type, required]) => (
+                  <label key={String(name)} className="block text-[11px] font-medium text-[#242424]">{label} {required && <span className="text-[#b44b42]">*</span>}<input name={String(name)} type={String(type)} required={Boolean(required)} placeholder={String(placeholder)} className="mt-1.5 h-10 w-full rounded-[9px] border border-[#dddcd8] bg-white px-3 text-[12px] outline-none placeholder:text-[#b8b8b5] focus:border-[#202020]" /></label>
+                ))}
+                <label className="block text-[11px] font-medium text-[#242424]">Gender <span className="text-[#b44b42]">*</span><select name="gender" required defaultValue="" className="mt-1.5 h-10 w-full rounded-[9px] border border-[#dddcd8] bg-white px-3 text-[12px] text-[#555] outline-none focus:border-[#202020]"><option value="" disabled>Select</option><option>Female</option><option>Male</option><option>Other</option></select></label>
+                <label className="block text-[11px] font-medium text-[#242424]">Birth Date <span className="text-[#b44b42]">*</span><input name="birthDate" type="date" required className="mt-1.5 h-10 w-full rounded-[9px] border border-[#dddcd8] bg-white px-3 text-[12px] text-[#555] outline-none focus:border-[#202020]" /></label>
+                <label className="block text-[11px] font-medium text-[#242424]">Primary Phone <span className="text-[#b44b42]">*</span><input name="primaryPhone" type="tel" required placeholder="(000) 000-0000" className="mt-1.5 h-10 w-full rounded-[9px] border border-[#dddcd8] px-3 text-[12px] outline-none placeholder:text-[#b8b8b5] focus:border-[#202020]" /></label>
+                <label className="block text-[11px] font-medium text-[#242424]">Secondary Phone<input name="secondaryPhone" type="tel" placeholder="(000) 000-0000" className="mt-1.5 h-10 w-full rounded-[9px] border border-[#dddcd8] px-3 text-[12px] outline-none placeholder:text-[#b8b8b5] focus:border-[#202020]" /></label>
+                <label className="block text-[11px] font-medium text-[#242424]">Address 1 <span className="text-[#b44b42]">*</span><input name="address1" required placeholder="Start typing address..." className="mt-1.5 h-10 w-full rounded-[9px] border border-[#dddcd8] px-3 text-[12px] outline-none placeholder:text-[#b8b8b5] focus:border-[#202020]" /></label>
+                <label className="block text-[11px] font-medium text-[#242424]">Apt, Floor, etc.<input name="address2" placeholder="Write..." className="mt-1.5 h-10 w-full rounded-[9px] border border-[#dddcd8] px-3 text-[12px] outline-none placeholder:text-[#b8b8b5] focus:border-[#202020]" /></label>
+                <label className="block text-[11px] font-medium text-[#242424]">State <span className="text-[#b44b42]">*</span><select name="state" required defaultValue="" className="mt-1.5 h-10 w-full rounded-[9px] border border-[#dddcd8] bg-white px-3 text-[12px] text-[#555] outline-none focus:border-[#202020]"><option value="" disabled>Select a state</option><option>Florida</option><option>New York</option><option>Texas</option><option>California</option></select></label>
+                <label className="block text-[11px] font-medium text-[#242424]">City <span className="text-[#b44b42]">*</span><input name="city" required placeholder="Write..." className="mt-1.5 h-10 w-full rounded-[9px] border border-[#dddcd8] px-3 text-[12px] outline-none placeholder:text-[#b8b8b5] focus:border-[#202020]" /></label>
+                <label className="block text-[11px] font-medium text-[#242424]">Zip Code <span className="text-[#b44b42]">*</span><input name="zip" required placeholder="Write..." className="mt-1.5 h-10 w-full rounded-[9px] border border-[#dddcd8] px-3 text-[12px] outline-none placeholder:text-[#b8b8b5] focus:border-[#202020]" /></label>
+                <label className="block text-[11px] font-medium text-[#242424]">Allergies<input name="allergies" placeholder="Write..." className="mt-1.5 h-10 w-full rounded-[9px] border border-[#dddcd8] px-3 text-[12px] outline-none placeholder:text-[#b8b8b5] focus:border-[#202020]" /></label>
+                <label className="block text-[11px] font-medium text-[#242424]">Email<input name="email" type="email" placeholder="Write..." className="mt-1.5 h-10 w-full rounded-[9px] border border-[#dddcd8] px-3 text-[12px] outline-none placeholder:text-[#b8b8b5] focus:border-[#202020]" /></label>
+                <label className="block text-[11px] font-medium text-[#242424]">Language<select name="language" defaultValue="" className="mt-1.5 h-10 w-full rounded-[9px] border border-[#dddcd8] bg-white px-3 text-[12px] text-[#555] outline-none focus:border-[#202020]"><option value="" disabled>Select</option><option>English</option><option>Spanish</option><option>Albanian</option></select></label>
+              </div>
+
+              <div className="mt-5 border-t border-[#ece9e5] pt-5">
+                <h3 className="text-[12px] font-semibold text-[#242424]">BMI Classification</h3>
+                <div className="mt-3 grid gap-4 sm:grid-cols-2">
+                  <label className="block text-[11px] font-medium text-[#242424]">Weight<div className="mt-1.5 flex gap-2"><input name="weight" type="number" min="0" placeholder="Write..." className="h-10 min-w-0 flex-1 rounded-[9px] border border-[#dddcd8] px-3 text-[12px] outline-none focus:border-[#202020]" /><select name="weightUnit" className="h-10 w-20 rounded-[9px] border border-[#dddcd8] bg-white px-2 text-[12px]"><option>lb</option><option>kg</option></select></div></label>
+                  <label className="block text-[11px] font-medium text-[#242424]">Height<div className="mt-1.5 flex gap-2"><input name="height" type="number" min="0" placeholder="Write..." className="h-10 min-w-0 flex-1 rounded-[9px] border border-[#dddcd8] px-3 text-[12px] outline-none focus:border-[#202020]" /><select name="heightUnit" className="h-10 w-20 rounded-[9px] border border-[#dddcd8] bg-white px-2 text-[12px]"><option>in</option><option>cm</option></select></div></label>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex justify-end gap-2 border-t border-[#ece9e5] bg-white px-6 py-4">
+              <button type="button" onClick={() => setCreatePatientOpen(false)} className="h-10 rounded-[8px] border border-[#d5d3cf] bg-white px-5 text-[12px] font-semibold text-[#242424]">Cancel</button>
+              <button type="submit" className="h-10 rounded-[8px] bg-[#111] px-6 text-[12px] font-semibold text-white hover:bg-black">Save Patient</button>
+            </div>
+          </form>
+        </div>
+      )}
     </>
   );
 }
@@ -2673,9 +2727,134 @@ const PATIENTS = [
   { firstName: "Michael", lastName: "Chu", birthDate: "06/30/1979", gender: "M", primaryPhone: "(646) 617-1880", address1: "396 May Dr", address2: "", city: "New York", state: "NY", zip: "10001" },
 ];
 
+function PatientCreateModal({ open, onClose }: { open: boolean; onClose: () => void }) {
+  if (!open) return null;
+  const inputClass = "mt-1.5 h-10 w-full rounded-[9px] border border-[#dddcd8] bg-white px-3 text-[12px] outline-none placeholder:text-[#b8b8b5] focus:border-[#202020]";
+  const fields = [
+    ["First Name", "firstName", "Write...", true], ["Last Name", "lastName", "Write...", true],
+    ["Primary Phone", "primaryPhone", "(000) 000-0000", true], ["Secondary Phone", "secondaryPhone", "(000) 000-0000", false],
+    ["Address 1", "address1", "Start typing address...", true], ["Apt, Floor, etc.", "address2", "Write...", false],
+    ["City", "city", "Write...", true], ["Zip Code", "zip", "Write...", true],
+    ["Allergies", "allergies", "Write...", false], ["Email", "email", "Write...", false],
+  ] as const;
+  return (
+    <div className="fixed inset-0 z-[80] flex items-center justify-center bg-black/30 p-4 backdrop-blur-[2px]">
+      <button className="absolute inset-0 cursor-default" onClick={onClose} aria-label="Close create patient" />
+      <form onSubmit={event => { event.preventDefault(); onClose(); }} className="relative flex max-h-[92vh] w-full max-w-[720px] flex-col overflow-hidden rounded-[16px] border border-[#e4e1dd] bg-white shadow-[0_24px_70px_rgba(0,0,0,0.18)]">
+        <div className="flex items-center justify-between border-b border-[#ece9e5] px-6 py-5">
+          <div><h2 className="text-[20px] font-semibold text-[#171717]">Create Patient</h2><p className="mt-1 text-[11px] text-[#777]">Enter the patient’s personal and contact information.</p></div>
+          <button type="button" onClick={onClose} className="flex size-8 items-center justify-center rounded-full text-[#777] hover:bg-[#f4f2ef]" aria-label="Close"><X size={18} /></button>
+        </div>
+        <div className="overflow-y-auto px-6 py-5">
+          <div className="grid gap-x-4 gap-y-4 sm:grid-cols-2">
+            {fields.slice(0, 2).map(([label, name, placeholder, required]) => <label key={name} className="block text-[11px] font-medium text-[#242424]">{label} {required && <span className="text-[#b44b42]">*</span>}<input name={name} required={required} placeholder={placeholder} className={inputClass} /></label>)}
+            <label className="block text-[11px] font-medium text-[#242424]">Gender <span className="text-[#b44b42]">*</span><select required defaultValue="" className={inputClass}><option value="" disabled>Select</option><option>Female</option><option>Male</option><option>Other</option></select></label>
+            <label className="block text-[11px] font-medium text-[#242424]">Birth Date <span className="text-[#b44b42]">*</span><input type="date" required className={inputClass} /></label>
+            {fields.slice(2, 6).map(([label, name, placeholder, required]) => <label key={name} className="block text-[11px] font-medium text-[#242424]">{label} {required && <span className="text-[#b44b42]">*</span>}<input name={name} required={required} type={name.toLowerCase().includes("phone") ? "tel" : "text"} placeholder={placeholder} className={inputClass} /></label>)}
+            <label className="block text-[11px] font-medium text-[#242424]">State <span className="text-[#b44b42]">*</span><select required defaultValue="" className={inputClass}><option value="" disabled>Select a state</option><option>Florida</option><option>New York</option><option>Texas</option><option>California</option></select></label>
+            {fields.slice(6).map(([label, name, placeholder, required]) => <label key={name} className="block text-[11px] font-medium text-[#242424]">{label} {required && <span className="text-[#b44b42]">*</span>}<input name={name} required={required} type={name === "email" ? "email" : "text"} placeholder={placeholder} className={inputClass} /></label>)}
+            <label className="block text-[11px] font-medium text-[#242424]">Language<select defaultValue="" className={inputClass}><option value="" disabled>Select</option><option>English</option><option>Spanish</option><option>Albanian</option></select></label>
+          </div>
+          <div className="mt-5 border-t border-[#ece9e5] pt-5">
+            <h3 className="text-[12px] font-semibold text-[#242424]">BMI Classification</h3>
+            <div className="mt-3 grid gap-4 sm:grid-cols-2">
+              <label className="text-[11px] font-medium text-[#242424]">Weight<div className="mt-1.5 flex gap-2"><input type="number" min="0" placeholder="Write..." className={inputClass.replace("mt-1.5 ", "")} /><select className="h-10 w-20 rounded-[9px] border border-[#dddcd8] bg-white px-2 text-[12px]"><option>lb</option><option>kg</option></select></div></label>
+              <label className="text-[11px] font-medium text-[#242424]">Height<div className="mt-1.5 flex gap-2"><input type="number" min="0" placeholder="Write..." className={inputClass.replace("mt-1.5 ", "")} /><select className="h-10 w-20 rounded-[9px] border border-[#dddcd8] bg-white px-2 text-[12px]"><option>in</option><option>cm</option></select></div></label>
+            </div>
+          </div>
+        </div>
+        <div className="flex justify-end gap-2 border-t border-[#ece9e5] px-6 py-4"><button type="button" onClick={onClose} className="h-10 rounded-[8px] border border-[#d5d3cf] px-5 text-[12px] font-semibold">Cancel</button><button type="submit" className="h-10 rounded-[8px] bg-[#111] px-6 text-[12px] font-semibold text-white">Save Patient</button></div>
+      </form>
+    </div>
+  );
+}
+
+function PatientDetailsView({ patient, onBack, onEdit }: { patient: typeof PATIENTS[number]; onBack: () => void; onEdit: () => void }) {
+  const { runWithAppLoader } = useAppLoading();
+  const ordersSectionRef = useRef<HTMLElement>(null);
+  const [detailsOpen, setDetailsOpen] = useState(true);
+  const [orderDetailsOpen, setOrderDetailsOpen] = useState(false);
+  const [prescriptionFormOpen, setPrescriptionFormOpen] = useState(false);
+  const [medication, setMedication] = useState("");
+  const [strength, setStrength] = useState("");
+  const [prescriptionQty, setPrescriptionQty] = useState("1");
+  const [daysSupply, setDaysSupply] = useState("");
+  const [refills, setRefills] = useState("");
+  const [directions, setDirections] = useState("");
+  const [injectionType, setInjectionType] = useState("");
+  const [compoundReason, setCompoundReason] = useState("");
+  const [description, setDescription] = useState("");
+  const [savedPrescriptions, setSavedPrescriptions] = useState<Array<{ medication: string; strength: string; qty: string; days: string; refills: string; directions: string; injectionType?: string; reason?: string; description?: string }>>([]);
+  const [orderedPrescriptions, setOrderedPrescriptions] = useState<Array<{ medication: string; strength: string; qty: string; days: string; refills: string; directions: string; injectionType?: string; reason?: string; description?: string }>>([]);
+  const [selectedPatientPharmacy, setSelectedPatientPharmacy] = useState<"DCA Pharmacy" | "Rush Pharmacy FL">("DCA Pharmacy");
+  const initials = `${patient.firstName[0] ?? ""}${patient.lastName[0] ?? ""}`;
+  const prescriptionComplete = Boolean(medication && strength && prescriptionQty && daysSupply && refills && directions && injectionType && compoundReason);
+  const selectedMedicationImage = medication === "NAD+ Injection" ? imgNadInjection : imgAminoQuad;
+  const prescriptionUnitPrice = (name: string) => name === "NAD+ Injection" ? 84.50 : name === "Tirzepatide/Pyridoxine (B6)" ? 125.43 : 35;
+  return (
+    <div className="max-w-[1080px]">
+      <button onClick={onBack} className="mb-5 inline-flex items-center gap-2 text-[13px] font-semibold text-[#222] hover:underline"><ChevronLeft size={16} /> Patients</button>
+      <section className="rounded-[14px] border border-[#e4e1dd] bg-white px-5 py-5">
+        <div className="flex flex-wrap items-center justify-between gap-4">
+          <div className="flex items-center gap-4"><div className="flex size-12 items-center justify-center rounded-full bg-[#edf5f0] text-[17px] font-semibold text-[#315a47]">{initials}</div><div><h1 className="text-[22px] font-semibold text-[#171717]">{patient.firstName} {patient.lastName}</h1><p className="mt-1 text-[11px] text-[#7a7a7a]">{patient.gender === "M" ? "Male" : patient.gender === "F" ? "Female" : patient.gender} · DOB {patient.birthDate}</p></div></div>
+          <button onClick={onEdit} className="inline-flex h-9 items-center gap-2 rounded-[8px] border border-[#d8d5d1] px-4 text-[11px] font-semibold"><Edit3 size={13} /> Edit</button>
+        </div>
+      </section>
+
+      <section className="mt-4 rounded-[14px] border border-[#e4e1dd] bg-white">
+        <button onClick={() => setDetailsOpen(current => !current)} className="flex w-full items-center justify-between px-5 py-4 text-left"><div><h2 className="text-[14px] font-semibold text-[#202020]">Patient information</h2><p className="mt-0.5 text-[10px] text-[#858585]">Contact, address, and medical details</p></div><span className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-[#333]">{detailsOpen ? "Hide details" : "Show details"}<ChevronDown size={14} className={detailsOpen ? "rotate-180" : ""} /></span></button>
+        {detailsOpen && <div className="grid gap-5 border-t border-[#ece9e5] px-5 py-5 md:grid-cols-3">
+          <div><p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-[#9298a0]">Contact</p><p className="mt-3 text-[11px] text-[#777]">Primary phone</p><p className="mt-1 text-[12px] font-semibold text-[#222]">{patient.primaryPhone}</p><p className="mt-3 text-[11px] text-[#777]">Email</p><p className="mt-1 text-[12px] text-[#222]">—</p></div>
+          <div><p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-[#9298a0]">Address</p><p className="mt-3 text-[12px] font-semibold text-[#222]">{patient.address1}</p>{patient.address2 && <p className="mt-1 text-[12px] text-[#555]">{patient.address2}</p>}<p className="mt-1 text-[12px] text-[#555]">{patient.city}, {patient.state} {patient.zip}</p></div>
+          <div><p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-[#9298a0]">Medical</p><p className="mt-3 text-[11px] text-[#777]">Birth date</p><p className="mt-1 text-[12px] font-semibold text-[#222]">{patient.birthDate}</p><p className="mt-3 text-[11px] text-[#777]">Allergies</p><p className="mt-1 text-[12px] text-[#222]">None recorded</p></div>
+        </div>}
+      </section>
+
+      <section className="mt-4 rounded-[14px] border border-[#e4e1dd] bg-white p-5">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div><h2 className="text-[16px] font-semibold text-[#202020]">Prescriptions</h2><p className="mt-1 text-[10px] text-[#858585]">Create and review prescriptions for this patient.</p></div>
+          {!prescriptionFormOpen && <button onClick={() => setPrescriptionFormOpen(true)} className={`inline-flex h-9 items-center gap-1.5 rounded-[8px] px-4 text-[11px] font-semibold transition-colors ${savedPrescriptions.length > 0 ? "border border-[#d7d4d0] bg-[#f7f6f4] text-[#292929] hover:bg-[#efedea]" : "bg-[#111] text-white hover:bg-black"}`}><Plus size={13} /> {savedPrescriptions.length > 0 ? "Add another prescription" : "Add a prescription"}</button>}
+        </div>
+
+        {savedPrescriptions.length > 0 && <div className="mt-4 space-y-3">{savedPrescriptions.map((prescription, index) => <div key={`${prescription.medication}-${index}`} className="rounded-[10px] border border-[#e7e3df] px-4 py-4"><div className="flex flex-wrap items-center gap-4"><div className="flex size-12 items-center justify-center overflow-hidden bg-white"><img src={prescription.medication === "NAD+ Injection" ? imgNadInjection : imgAminoQuad} alt="" className="size-12 object-contain mix-blend-multiply" /></div><div className="min-w-0 flex-1"><p className="text-[13px] font-semibold text-[#222]">{prescription.medication}</p><p className="mt-1 text-[10px] text-[#777]">{prescription.strength} · {prescription.days} days · {prescription.refills} refills</p></div><p className="text-[13px] font-semibold text-[#222]">${(prescriptionUnitPrice(prescription.medication) * Number(prescription.qty)).toFixed(2)}</p><div className="inline-flex h-9 items-center rounded-full border border-[#ddd]"><button onClick={() => setSavedPrescriptions(current => current.map((item, itemIndex) => itemIndex === index ? { ...item, qty: String(Math.max(1, Number(item.qty) - 1)) } : item))} className="flex size-9 items-center justify-center"><Minus size={13} /></button><span className="w-7 text-center text-[11px] font-semibold">{prescription.qty}</span><button onClick={() => setSavedPrescriptions(current => current.map((item, itemIndex) => itemIndex === index ? { ...item, qty: String(Number(item.qty) + 1) } : item))} className="flex size-9 items-center justify-center"><Plus size={13} /></button></div><button onClick={() => setSavedPrescriptions(current => current.filter((_, itemIndex) => itemIndex !== index))} className="flex size-8 items-center justify-center rounded-[7px] text-[#8d9290] transition-colors hover:bg-[#f0f1ef] hover:text-[#555a58]" aria-label={`Delete ${prescription.medication}`}><Trash2 size={14} /></button></div>{prescription.directions && <p className="mt-3 border-t border-[#eee] pt-3 text-[10px] leading-5 text-[#666]">{prescription.directions}</p>}</div>)}</div>}
+
+        {prescriptionFormOpen && <form onSubmit={event => { event.preventDefault(); if (!prescriptionComplete) return; setSavedPrescriptions(current => [...current, { medication, strength, qty: prescriptionQty, days: daysSupply, refills, directions, injectionType, reason: compoundReason, description }]); setPrescriptionFormOpen(false); setMedication(""); setStrength(""); setPrescriptionQty("1"); setDaysSupply(""); setRefills(""); setDirections(""); setInjectionType(""); setCompoundReason(""); setDescription(""); }} className="mt-4 rounded-[10px] bg-[#fbfaf8] p-4">
+          <div className="grid gap-x-3 gap-y-3 sm:grid-cols-12">
+            <label className="sm:col-span-12 text-[11px] font-medium text-[#222]">Product / Medication <span className="text-[#b44b42]">*</span><select value={medication} onChange={event => { setMedication(event.target.value); setStrength(""); }} className="mt-1.5 h-[34px] w-full rounded-[10px] border border-[#EAE8E1] bg-white px-3 text-[12px] outline-none focus:border-[#202020]"><option value="">Select product or medication</option><option>NAD+ Injection</option><option>Tirzepatide/Pyridoxine (B6)</option><option>7-Keto DHEA</option><option>Anastrozole</option><option>Bacteriostatic Water</option></select></label>
+            {medication && <div className="sm:col-span-12 flex items-center gap-3 rounded-[10px] border border-[#EAE8E1] bg-white px-3 py-2.5"><div className="flex size-11 items-center justify-center overflow-hidden"><img src={selectedMedicationImage} alt={medication} className="size-11 object-contain mix-blend-multiply" /></div><div className="min-w-0 flex-1"><p className="text-[12px] font-semibold text-[#222]">{medication}</p><p className="mt-0.5 text-[10px] text-[#777]">Selected product</p></div><div className="inline-flex h-9 items-center rounded-full border border-[#ddd]"><button type="button" onClick={() => Number(prescriptionQty) === 1 ? setMedication("") : setPrescriptionQty(current => String(Number(current) - 1))} className="flex size-9 items-center justify-center">{Number(prescriptionQty) === 1 ? <Trash2 size={13} /> : <Minus size={13} />}</button><span className="w-7 text-center text-[11px] font-semibold">{prescriptionQty}</span><button type="button" onClick={() => setPrescriptionQty(current => String(Number(current) + 1))} className="flex size-9 items-center justify-center"><Plus size={13} /></button></div></div>}
+            <label className="sm:col-span-2 text-[11px] font-medium text-[#222]">Days <span className="text-[#b44b42]">*</span><input type="number" min="1" value={daysSupply} onChange={event => setDaysSupply(event.target.value)} placeholder="Enter days" className="mt-1.5 h-[34px] w-full rounded-[10px] border border-[#EAE8E1] bg-white px-3 text-[12px] outline-none" /></label>
+            <label className="sm:col-span-2 text-[11px] font-medium text-[#222]">Size <span className="text-[#b44b42]">*</span><select value={strength} onChange={event => setStrength(event.target.value)} className="mt-1.5 h-[34px] w-full rounded-[10px] border border-[#EAE8E1] bg-white px-3 text-[12px]"><option value="">Select size</option><option>1 (5mL) Vial</option><option>1 (10mL) Vial</option><option>30 Capsules</option></select></label>
+            <label className="sm:col-span-8 text-[11px] font-medium text-[#222]">Directions of Use <span className="text-[#b44b42]">*</span><select value={directions} onChange={event => setDirections(event.target.value)} className="mt-1.5 h-[34px] w-full rounded-[10px] border border-[#EAE8E1] bg-white px-3 text-[12px]"><option value="">Select directions</option><option>Inject subcutaneously once weekly</option><option>Use as directed by prescriber</option><option>Take one capsule daily</option></select></label>
+            <label className="sm:col-span-2 text-[11px] font-medium text-[#222]">Injection Type <span className="text-[#b44b42]">*</span><select value={injectionType} onChange={event => setInjectionType(event.target.value)} className="mt-1.5 h-[34px] w-full rounded-[10px] border border-[#EAE8E1] bg-white px-3 text-[12px]"><option value="">Select type</option><option>Subcutaneous</option><option>Intramuscular</option><option>Oral</option></select></label>
+            <label className="sm:col-span-2 text-[11px] font-medium text-[#222]">Refills <span className="text-[#b44b42]">*</span><input type="number" min="0" value={refills} onChange={event => setRefills(event.target.value)} placeholder="Enter refills" className="mt-1.5 h-[34px] w-full rounded-[10px] border border-[#EAE8E1] bg-white px-3 text-[12px] outline-none" /></label>
+            <label className="sm:col-span-8 text-[11px] font-medium text-[#222]">Reason to Compound <span className="text-[#b44b42]">*</span><select value={compoundReason} onChange={event => setCompoundReason(event.target.value)} className="mt-1.5 h-[34px] w-full rounded-[10px] border border-[#EAE8E1] bg-white px-3 text-[12px]"><option value="">Select reason below or type out your own</option><option>Patient requires a dosage form not commercially available.</option><option>Patient requires excipient avoidance.</option><option>Prescriber requested custom strength.</option></select></label>
+            <label className="sm:col-span-12 text-[11px] font-medium text-[#222]">Description <span className="font-normal text-[#888]">(Optional)</span><textarea value={description} onChange={event => setDescription(event.target.value)} placeholder="Add a description or prescription note" className="mt-1.5 min-h-[64px] w-full resize-y rounded-[10px] border border-[#EAE8E1] bg-white px-3 py-2.5 text-[12px] outline-none" /></label>
+          </div>
+          <div className="mt-4 flex justify-end gap-2"><button type="button" onClick={() => setPrescriptionFormOpen(false)} className="h-9 rounded-[8px] border border-[#d5d2ce] bg-white px-4 text-[11px] font-semibold">Cancel</button><button type="submit" disabled={!prescriptionComplete} className="h-9 rounded-[8px] bg-[#111] px-5 text-[11px] font-semibold text-white disabled:cursor-not-allowed disabled:bg-[#dededb] disabled:text-[#949491]">Add prescription</button></div>
+        </form>}
+
+        {savedPrescriptions.length > 0 && <div className="mt-5 border-t border-[#ece9e5] pt-5"><h3 className="text-[13px] font-semibold text-[#222]">Pharmacy</h3><p className="mt-1 text-[10px] text-[#777]">Choose the pharmacy that will prepare and process this prescription.</p><div className="mt-3 space-y-2">{([{ name: "DCA Pharmacy" as const, price: 35.88 }, { name: "Rush Pharmacy FL" as const, price: 55.88 }]).map(option => <button key={option.name} onClick={() => setSelectedPatientPharmacy(option.name)} className={`grid w-full grid-cols-[minmax(0,1fr)_90px] items-center rounded-[10px] border bg-white px-3 py-3 text-left transition-colors ${selectedPatientPharmacy === option.name ? "border-2 border-[#202020]" : "border-[#d8d5d1] hover:border-[#777]"}`}><span><span className="block text-[12px] font-semibold text-[#222]">{option.name}</span><span className="mt-1 block text-[9px] text-[#777]">Beyond use 90 days</span></span><span className="text-right"><span className="block text-[12px] font-semibold text-[#222]">${option.price.toFixed(2)}</span><span className="mt-0.5 block text-[8px] leading-tight text-[#777]">1–2 Days<br />Processing</span></span></button>)}</div><div className="mt-4 flex justify-end gap-2"><button onClick={() => setSavedPrescriptions([])} className="h-9 rounded-[8px] border border-[#d5d2ce] bg-white px-4 text-[11px] font-semibold">Cancel</button><button onClick={() => runWithAppLoader(() => { setOrderedPrescriptions(current => [...savedPrescriptions, ...current]); setSavedPrescriptions([]); window.setTimeout(() => ordersSectionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }), 0); }, 1000)} className="inline-flex h-9 items-center gap-2 rounded-[8px] bg-[#111] px-5 text-[11px] font-semibold text-white"><CheckCircle2 size={13} /> Submit order</button></div></div>}
+      </section>
+
+      <section ref={ordersSectionRef} className="mt-4 scroll-mt-5 rounded-[14px] border border-[#e4e1dd] bg-white p-5">
+        <div className="flex items-center justify-between"><div><h2 className="text-[16px] font-semibold text-[#202020]">Orders <span className="ml-1 text-[12px] font-normal text-[#999]">({orderedPrescriptions.length + 1})</span></h2><p className="mt-1 text-[10px] text-[#858585]">Prescription and order history</p></div><div className="flex h-9 w-48 items-center gap-2 rounded-[8px] border border-[#ddd] px-3"><Search size={13} className="text-[#999]" /><input placeholder="Search orders" className="min-w-0 flex-1 text-[11px] outline-none" /></div></div>
+        {orderedPrescriptions.map((prescription, index) => <article key={`ordered-${prescription.medication}-${index}`} className="mt-4 flex flex-wrap items-center gap-4 rounded-[10px] border border-[#e5e2de] px-4 py-4"><div className="flex size-10 items-center justify-center overflow-hidden"><img src={prescription.medication === "NAD+ Injection" ? imgNadInjection : imgAminoQuad} alt="" className="size-10 object-contain mix-blend-multiply" /></div><div className="min-w-0 flex-1"><div className="flex items-center gap-2"><p className="text-[12px] font-semibold text-[#222]">{prescription.medication}</p><span className="rounded-full bg-[#f0f0ee] px-2 py-1 text-[8px] font-bold uppercase text-[#555]">Pending approval</span></div><p className="mt-1 text-[10px] text-[#777]">Qty {prescription.qty} · {prescription.days} days · {prescription.refills} refills · {selectedPatientPharmacy}</p></div><p className="text-[13px] font-semibold">${(prescriptionUnitPrice(prescription.medication) * Number(prescription.qty)).toFixed(2)}</p></article>)}
+        <article className="mt-4 rounded-[10px] border border-[#e5e2de]">
+          <div className="flex flex-wrap items-center justify-between gap-4 px-4 py-4"><div><div className="flex items-center gap-2"><p className="text-[12px] font-semibold text-[#222]">NAD+ Injection</p><span className="rounded-full bg-[#f0f0ee] px-2 py-1 text-[8px] font-bold uppercase text-[#555]">Pending approval</span></div><p className="mt-1 text-[10px] text-[#777]">Order #449537 · Jul 13, 2026 · Qty 1</p></div><div className="flex items-center gap-5"><p className="text-[13px] font-semibold text-[#222]">$74.64</p><button onClick={() => setOrderDetailsOpen(current => !current)} className="inline-flex items-center gap-1 text-[11px] font-semibold text-[#333] hover:underline">{orderDetailsOpen ? "Hide details" : "Show details"}<ChevronDown size={13} className={orderDetailsOpen ? "rotate-180" : ""} /></button></div></div>
+          {orderDetailsOpen && <div className="grid gap-4 border-t border-[#ece9e5] bg-[#fbfaf8] px-4 py-4 text-[11px] sm:grid-cols-4"><div><p className="text-[#888]">Patient</p><p className="mt-1 font-semibold">{patient.firstName} {patient.lastName}</p></div><div><p className="text-[#888]">Shipping</p><p className="mt-1 font-semibold">Ship to patient</p></div><div><p className="text-[#888]">Tracking</p><p className="mt-1 font-semibold">Not ready</p></div><div><p className="text-[#888]">Days supply / Refills</p><p className="mt-1 font-semibold">30 days · 0 refills</p></div></div>}
+        </article>
+      </section>
+    </div>
+  );
+}
+
 function UsersPage({ onNavigate }: { onNavigate: (p: Page) => void }) {
   const [search, setSearch] = useState("");
-  const filtered = PATIENTS.filter(
+  const [createPatientOpen, setCreatePatientOpen] = useState(false);
+  const [patients, setPatients] = useState(PATIENTS);
+  const [openPatientMenu, setOpenPatientMenu] = useState<number | null>(null);
+  const [selectedPatientIndex, setSelectedPatientIndex] = useState<number | null>(null);
+  const filtered = patients.filter(
     (p) =>
       `${p.firstName} ${p.lastName}`.toLowerCase().includes(search.toLowerCase()) ||
       p.city.toLowerCase().includes(search.toLowerCase()) ||
@@ -2684,8 +2863,12 @@ function UsersPage({ onNavigate }: { onNavigate: (p: Page) => void }) {
 
   const COLS = [
     "First Name", "Last Name", "Birth Date", "Gender",
-    "Primary Phone", "Address Line 1", "Address Line 2", "City", "State", "Zip",
+    "Primary Phone", "Address Line 1", "Address Line 2", "City", "State", "Zip", "",
   ];
+
+  if (selectedPatientIndex !== null && patients[selectedPatientIndex]) {
+    return <><PatientDetailsView patient={patients[selectedPatientIndex]} onBack={() => setSelectedPatientIndex(null)} onEdit={() => setCreatePatientOpen(true)} /><PatientCreateModal open={createPatientOpen} onClose={() => setCreatePatientOpen(false)} /></>;
+  }
 
   return (
     <>
@@ -2693,14 +2876,14 @@ function UsersPage({ onNavigate }: { onNavigate: (p: Page) => void }) {
       <div className="flex items-center justify-between mb-5">
         <h1 className="text-[22px] font-semibold text-[#1a1a1a] leading-tight">
           Patients{" "}
-          <span className="text-[16px] font-normal text-[#9d9d9d]">({PATIENTS.length})</span>
+          <span className="text-[16px] font-normal text-[#9d9d9d]">({patients.length})</span>
         </h1>
         <div className="flex items-center gap-2">
           <button className="flex items-center gap-1.5 border border-[#d0d0d0] bg-white rounded-[8px] px-4 py-2 text-[12px] font-medium text-[#1a1a1a] hover:bg-[#f7efe9]/60 transition-colors">
             <Upload size={12} />
             Upload Patients
           </button>
-          <button className="flex items-center gap-1.5 bg-[#183229] text-white rounded-[8px] px-4 py-2 text-[12px] font-medium hover:bg-[#183229]/90 transition-colors">
+          <button onClick={() => setCreatePatientOpen(true)} className="flex items-center gap-1.5 bg-[#183229] text-white rounded-[8px] px-4 py-2 text-[12px] font-medium hover:bg-[#183229]/90 transition-colors">
             <Plus size={12} />
             Create Patient
           </button>
@@ -2736,10 +2919,13 @@ function UsersPage({ onNavigate }: { onNavigate: (p: Page) => void }) {
             </tr>
           </thead>
           <tbody>
-            {filtered.map((p, i) => (
+            {filtered.map((p, i) => {
+              const patientIndex = patients.indexOf(p);
+              return (
               <tr
                 key={i}
-                className="border-b border-[#f3f3f3] hover:bg-[#fffbf8] transition-colors cursor-pointer"
+                onClick={() => setSelectedPatientIndex(patientIndex)}
+                className="group border-b border-[#f3f3f3] hover:bg-[#fffbf8] transition-colors cursor-pointer"
               >
                 <td className="px-3 py-2.5 text-[12px] text-[#1a1a1a] whitespace-nowrap">{p.firstName}</td>
                 <td className="px-3 py-2.5 text-[12px] text-[#1a1a1a] whitespace-nowrap">{p.lastName}</td>
@@ -2751,11 +2937,25 @@ function UsersPage({ onNavigate }: { onNavigate: (p: Page) => void }) {
                 <td className="px-3 py-2.5 text-[12px] text-[#4b4b4b] whitespace-nowrap">{p.city}</td>
                 <td className="px-3 py-2.5 text-[12px] text-[#4b4b4b] whitespace-nowrap">{p.state}</td>
                 <td className="px-3 py-2.5 text-[12px] text-[#4b4b4b] whitespace-nowrap">{p.zip}</td>
+                <td onClick={event => event.stopPropagation()} className="relative px-2 py-2.5 text-right">
+                  <button onClick={() => setOpenPatientMenu(current => current === patientIndex ? null : patientIndex)} className={`flex size-7 items-center justify-center rounded-[7px] text-[#777] transition-all hover:bg-[#eceae7] hover:text-[#111] ${openPatientMenu === patientIndex ? "bg-[#eceae7] opacity-100" : "opacity-0 group-hover:opacity-100"}`} aria-label={`Actions for ${p.firstName} ${p.lastName}`}>
+                    <MoreHorizontal size={16} />
+                  </button>
+                  {openPatientMenu === patientIndex && (
+                    <div className="absolute right-2 top-10 z-30 w-[150px] overflow-hidden rounded-[9px] border border-[#e2dfdb] bg-white p-1.5 text-left shadow-[0_10px_30px_rgba(0,0,0,0.14)]">
+                      <button onClick={() => { setCreatePatientOpen(true); setOpenPatientMenu(null); }} className="flex h-8 w-full items-center gap-2 rounded-[6px] px-2.5 text-[11px] font-medium text-[#222] hover:bg-[#f4f2ef]"><Edit3 size={13} /> Edit</button>
+                      <button onClick={() => setOpenPatientMenu(null)} className="flex h-8 w-full items-center gap-2 rounded-[6px] px-2.5 text-[11px] font-medium text-[#222] hover:bg-[#f4f2ef]"><RefreshCw size={13} /> DoseSpot Sync</button>
+                      <button onClick={() => { setPatients(current => current.filter((_, index) => index !== patientIndex)); setOpenPatientMenu(null); }} className="flex h-8 w-full items-center gap-2 rounded-[6px] px-2.5 text-[11px] font-medium text-[#9f3f39] hover:bg-[#fbefee]"><Trash2 size={13} /> Delete</button>
+                    </div>
+                  )}
+                </td>
               </tr>
-            ))}
+              );
+            })}
           </tbody>
         </table>
       </div>
+      <PatientCreateModal open={createPatientOpen} onClose={() => setCreatePatientOpen(false)} />
     </>
   );
 }
@@ -4180,6 +4380,29 @@ function MultiPatientCartPage({
 
           <aside className="self-start bg-white xl:sticky xl:top-6">
             <h2 className="text-[28px] font-normal text-[#171717]">Order Total</h2>
+
+            <div className="mt-6 border-b border-[#ececec] pb-5">
+              <div className="space-y-3">
+                {(showAllSummaryItems ? cartRows : cartRows.slice(0, 2)).map(({ patient, item }) => (
+                  <div key={item.id} className="flex items-center gap-3">
+                    <div className="flex size-9 shrink-0 items-center justify-center overflow-hidden bg-white">
+                      <img src={item.image ?? imgAminoQuad} alt={item.name} className="h-9 w-9 object-contain mix-blend-multiply" />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-[11px] font-semibold text-[#202020]">{item.name}</p>
+                      <p className="mt-0.5 truncate text-[9px] text-[#7a7a7a]">{patient.name} · Qty {quantities[item.id] ?? 1}</p>
+                    </div>
+                    <span className="shrink-0 text-[11px] font-semibold text-[#202020]">{`$${(item.price * (quantities[item.id] ?? 1)).toFixed(2)}`}</span>
+                  </div>
+                ))}
+              </div>
+              {cartRows.length > 2 && (
+                <button onClick={() => setShowAllSummaryItems(current => !current)} className="mt-4 inline-flex items-center gap-1.5 text-[11px] font-semibold text-[#202020] hover:underline hover:underline-offset-4">
+                  {showAllSummaryItems ? "Hide items" : `Show ${cartRows.length - 2} more item${cartRows.length - 2 === 1 ? "" : "s"}`}
+                  <ChevronDown size={13} className={showAllSummaryItems ? "rotate-180 transition-transform" : "transition-transform"} />
+                </button>
+              )}
+            </div>
 
             <div className="mt-7">
               <div className="flex items-center justify-between">
