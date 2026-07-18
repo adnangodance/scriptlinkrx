@@ -2263,7 +2263,7 @@ function CopyButton({ text }: { text: string }) {
 }
 
 function OrdersPage({ onNavigate, onOrderSelect }: { onNavigate: (p: Page) => void; onOrderSelect: (order: typeof ORDERS[number]) => void }) {
-  const [filter, setFilter] = useState("All");
+  const [filter, setFilter] = useState("Overall");
   const [search, setSearch] = useState("");
   const [selectedOrderId, setSelectedOrderId] = useState(ORDERS[0]?.id ?? "");
   const [expandedItems, setExpandedItems] = useState<Record<string, boolean>>({});
@@ -2274,23 +2274,24 @@ function OrdersPage({ onNavigate, onOrderSelect }: { onNavigate: (p: Page) => vo
   });
   const [shippingMethod, setShippingMethod] = useState<"standard" | "overnight">("standard");
   const [reviewOpen, setReviewOpen] = useState(false);
+  const [orderCardVariant, setOrderCardVariant] = useState<"current" | "cart" | "optimized">("current");
 
-  const tabs = ["All", "Pending Payment", "Pending Approval", "Cancellation Requested", "Processing", "Pending eScript", "Shipped", "Delivered", "Flagged", "Cancelled"];
+  const tabs = ["Overall", "Pending Payment", "Pending Approval", "Cancellation Requested", "Processing", "Pending eScript", "Shipped", "Delivered", "Flagged", "Cancelled"];
 
   const statusPillStyle: Record<string, string> = {
-    "Pending Payment": "border-[#f2c56b] bg-[#fff7df] text-[#8a5b00]",
-    "Pending Approval": "border-[#f2c56b] bg-[#fff7df] text-[#8a5b00]",
-    "Cancellation Requested": "border-[#f2c56b] bg-[#fff7df] text-[#8a5b00]",
-    Processing: "border-[#bfdbfe] bg-[#eff6ff] text-[#2563eb]",
-    "Pending eScript": "border-[#e8e3df] bg-[#f6f4f5] text-[#667085]",
-    Shipped: "border-[#bfdbfe] bg-[#eff6ff] text-[#2563eb]",
-    Delivered: "border-[#cfe3d7] bg-[#f2f7f4] text-[#183229]",
-    Flagged: "border-[#fecaca] bg-[#fff1f2] text-[#b42318]",
-    Cancelled: "border-[#d8dfdc] bg-[#f6f6f7] text-[#667085]",
+    "Pending Payment": "bg-gradient-to-r from-[#FFE2D2] to-[#FFF45C] text-[#56203B]",
+    "Pending Approval": "bg-gradient-to-r from-[#FFE2D2] to-[#FFF45C] text-[#56203B]",
+    "Cancellation Requested": "bg-gradient-to-r from-[#FFB78E] to-[#F07A00] text-[#56203B]",
+    Processing: "bg-gradient-to-r from-[#FFE5A8] to-[#F07A00] text-[#56203B]",
+    "Pending eScript": "bg-[#E8E5B0] text-[#31583F]",
+    Shipped: "bg-[#292B78] text-[#C9F4F5]",
+    Delivered: "bg-[#31583F] text-[#F1EFD9]",
+    Flagged: "bg-[#7B003B] text-[#FFE8EE]",
+    Cancelled: "bg-[#56203B] text-[#FFE7D6]",
   };
 
   const filtered = ORDERS.filter((order) => {
-    const matchesTab = filter === "All" || order.status === filter;
+    const matchesTab = filter === "Overall" || order.status === filter;
     const query = search.toLowerCase();
     const matchesSearch = !query || order.id.toLowerCase().includes(query) || order.patient.name.toLowerCase().includes(query) || order.items.some((item) => item.name.toLowerCase().includes(query));
     return matchesTab && matchesSearch;
@@ -2313,11 +2314,16 @@ function OrdersPage({ onNavigate, onOrderSelect }: { onNavigate: (p: Page) => vo
   const total = subtotal + shipping + convenienceFee;
 
   function tabCount(tab: string) {
-    return tab === "All" ? ORDERS.length : ORDERS.filter((order) => order.status === tab).length;
+    return tab === "Overall" ? ORDERS.length : ORDERS.filter((order) => order.status === tab).length;
   }
 
   function updateQty(key: string, delta: number) {
     setQuantities((prev) => ({ ...prev, [key]: Math.max(1, (prev[key] ?? 1) + delta) }));
+  }
+
+  function labelCase(value: string) {
+    const lower = value.toLowerCase();
+    return lower.charAt(0).toUpperCase() + lower.slice(1);
   }
 
   return (
@@ -2328,39 +2334,49 @@ function OrdersPage({ onNavigate, onOrderSelect }: { onNavigate: (p: Page) => vo
       <div className="mb-5 flex flex-col gap-3">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
-            <p className="text-[12px] font-semibold uppercase tracking-[0.12em] text-[#9d9d9d]">Order history</p>
-            <p className="mt-1 text-[13px] text-[#6f7782]">Track payment status, shipping destination, prescriptions, and fulfillment state.</p>
+            <p className="text-[13px] text-[#6f7782]">Track payment status, shipping destination, prescriptions, and fulfillment state.</p>
           </div>
-          <div className="bg-white border border-[#e4e4e4] rounded-[8px] h-9 flex items-center gap-2 px-3 w-full sm:w-72">
-            <Search size={13} className="text-[#9d9d9d] flex-shrink-0" />
+          <div className="flex h-[38px] w-full items-center gap-2 rounded-[9px] border border-[#efefef] bg-white px-3 sm:w-[220px]">
+            <Search size={14} strokeWidth={1.8} className="flex-shrink-0 text-[#686868]" />
             <input
               value={search}
               onChange={(event) => setSearch(event.target.value)}
-              className="flex-1 text-[12px] text-[#1a1a1a] bg-transparent outline-none placeholder:text-[#b0b0b0]"
+              className="min-w-0 flex-1 bg-transparent text-[11px] font-medium text-[#1a1a1a] outline-none placeholder:font-medium placeholder:text-[#686868]"
               placeholder="Search by order, patient, or item"
             />
+            <span className="shrink-0 text-[10px] text-[#686868]">⌘ F</span>
           </div>
         </div>
 
-        <div className="flex gap-1 rounded-[8px] bg-[#f6f4f5] p-1 overflow-x-auto">
+        <div className="flex items-end gap-4 overflow-x-auto border-b border-[#e3e3e3] px-1">
           {tabs.map((tab) => {
-            const count = tabCount(tab);
             const isActive = filter === tab;
             return (
               <button
                 key={tab}
                 onClick={() => setFilter(tab)}
-                className={`flex items-center gap-1.5 px-3 py-[6px] rounded-[6px] text-[12px] font-medium whitespace-nowrap transition-all ${
-                  isActive ? "bg-white text-[#1a1a1a]" : "text-[#9d9d9d] hover:text-[#1a1a1a]"
+                className={`relative h-[46px] whitespace-nowrap px-0.5 text-[12px] font-medium transition-colors after:absolute after:bottom-0 after:left-0 after:h-[2px] after:w-full after:transition-colors ${
+                  isActive ? "text-[#171717] after:bg-[#183229]" : "text-[#555] after:bg-transparent hover:text-[#171717]"
                 }`}
               >
-                <span className={`w-4 h-4 rounded-full text-[10px] font-bold flex items-center justify-center flex-shrink-0 ${
-                  isActive ? "bg-[#183229] text-white" : "bg-[#d0d0d0] text-[#6b6b6b]"
-                }`}>{count}</span>
-                {tab}
+                <span>{tab}</span>
+                <span className={`ml-1.5 inline-flex size-[18px] items-center justify-center rounded-full text-[9px] font-semibold ${isActive ? "bg-[#183229] text-white" : "bg-[#eeeeec] text-[#777]"}`}>{tabCount(tab)}</span>
               </button>
             );
           })}
+        </div>
+
+        <div className="flex items-center gap-2 pt-1">
+          <span className="mr-1 text-[10px] font-semibold uppercase tracking-[0.1em] text-[#888]">Card style</span>
+          {(["current", "cart", "optimized"] as const).map(variant => (
+            <button
+              key={variant}
+              onClick={() => setOrderCardVariant(variant)}
+              className={`h-8 rounded-full px-3 text-[11px] font-semibold capitalize transition-colors ${orderCardVariant === variant ? "bg-[#111] text-white" : "border border-[#ddd] bg-white text-[#555] hover:border-[#999]"}`}
+            >
+              {variant === "current" ? "1. Current" : variant === "cart" ? "2. Cart style" : "3. Optimized"}
+            </button>
+          ))}
         </div>
 
       </div>
@@ -2374,25 +2390,23 @@ function OrdersPage({ onNavigate, onOrderSelect }: { onNavigate: (p: Page) => vo
       ) : (
         <div className="grid gap-4">
           {filtered.map((order) => (
-            <section key={order.id} onClick={() => onOrderSelect(order)} className="cursor-pointer overflow-hidden rounded-[13px] border border-[#e5ddd5] bg-white transition-shadow hover:shadow-md">
-              <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[#eee8e3] bg-[#fffcf8] px-5 py-4">
+            <section key={order.id} onClick={() => onOrderSelect(order)} className={`cursor-pointer overflow-hidden transition-shadow hover:shadow-md ${orderCardVariant === "current" ? "rounded-[13px] border border-[#e5ddd5] bg-white" : "rounded-[10px] bg-[#fffaf7] p-3"}`}>
+              <div className={`flex flex-wrap items-center justify-between gap-3 ${orderCardVariant === "current" ? "border-b border-[#eee8e3] bg-[#fffcf8] px-5 py-4" : "bg-[#fffaf7] px-2 pb-4 pt-2"}`}>
                 <div className="flex flex-wrap items-center gap-3">
                   <span className="text-[14px] font-bold text-[#1a1a1a]">{order.id}</span>
-                  <span className="inline-flex items-center gap-1 rounded-full bg-[#a7e9b8] px-2.5 py-1 text-[11px] font-bold text-[#183229]">
-                    {order.payMethod}
-                    <User size={12} strokeWidth={2} />
+                  <span className="inline-flex items-center gap-1 rounded-full bg-gradient-to-r from-[#C5F5DD] to-[#E7F5A5] px-2.5 py-1 text-[11px] font-bold text-[#31583F]">
+                    {labelCase(order.payMethod)}
                     <span className={`rounded-full px-1.5 py-0.5 text-[9px] font-bold text-white ${
-                      order.payStatus === "PAID" ? "bg-[#00b43a]" : "bg-[#ff4f8b]"
+                      order.payStatus === "PAID" ? "bg-[#31583F]" : "bg-[#7B003B]"
                     }`}>
-                      {order.payStatus}
+                      {labelCase(order.payStatus)}
                     </span>
                   </span>
-                  <span className="inline-flex items-center gap-1 rounded-full bg-[#11d4d8] px-2.5 py-1 text-[11px] font-bold text-[#062b2c]">
-                    {order.shipMethod}
-                    <Building2 size={12} strokeWidth={2} />
+                  <span className="inline-flex items-center gap-1 rounded-full bg-gradient-to-r from-[#CADDD9] to-[#E8E5B0] px-2.5 py-1 text-[11px] font-bold text-[#56203B]">
+                    {labelCase(order.shipMethod)}
                   </span>
-                  <span className="inline-flex items-center rounded-full bg-[#667085] px-2.5 py-1 text-[11px] font-bold text-white">
-                    {order.status.toUpperCase()}
+                  <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-[11px] font-bold tracking-[0.01em] ${statusPillStyle[order.status] ?? "bg-[#56203B] text-white"}`}>
+                    {labelCase(order.status)}
                   </span>
                 </div>
                 <div className="text-right">
@@ -2401,27 +2415,70 @@ function OrdersPage({ onNavigate, onOrderSelect }: { onNavigate: (p: Page) => vo
                 </div>
               </div>
 
-              <div className="px-7 py-3">
+              {orderCardVariant === "optimized" ? (
+                <div className="rounded-[8px] bg-white px-5 pb-5 pt-4">
+                  <div className="flex flex-wrap gap-2 rounded-[9px] bg-[#fbfffd] px-4 py-3">
+                    {(order.payMethod === "Pay by Clinic" && "patients" in order ? order.patients : [order.patient]).map(patient => (
+                      <div key={patient.name} className="min-w-[220px] flex-1">
+                        <p className="text-[12px] font-semibold text-[#1a1a1a]">{patient.name} <span className="font-normal text-[#8c95a1]">({patient.gender})</span></p>
+                        <p className="mt-1 text-[10px] text-[#6f7782]">{patient.phone} · {patient.address}</p>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="mt-4 grid gap-3 lg:grid-cols-2">
+                    {(expandedItems[order.id] ? order.items : order.items.slice(0, 2)).map((item, index) => (
+                      <article key={`${order.id}-${item.name}`} className="flex min-h-[142px] gap-4 rounded-[10px] bg-[#FFFAF7] p-4">
+                        <div className="flex size-16 shrink-0 items-center justify-center overflow-hidden bg-white">
+                          <img src={item.image} alt="" className="size-16 object-contain mix-blend-multiply" />
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <div className="flex items-start justify-between gap-3">
+                            <p className="text-[13px] font-semibold leading-[17px] text-[#1a1a1a]">{item.name}</p>
+                            <span className="shrink-0 text-[12px] font-bold text-[#1a1a1a]">{item.price}</span>
+                          </div>
+                          <p className="mt-1 text-[11px] text-[#6f7782]">{item.description}</p>
+                          <p className="mt-1 text-[10px] text-[#8c95a1]">{item.pharmacy}</p>
+                          <span className={`mt-2 inline-flex rounded-full px-2 py-0.5 text-[9px] font-semibold ${item.tracking === "Tracking Not Ready" ? "bg-[#E8E5B0] text-[#31583F]" : "bg-[#C5F5DD] text-[#31583F]"}`}>{labelCase(item.tracking)}</span>
+                          <p className="mt-2 text-[10px] text-[#8c95a1]">Qty {quantities[`${order.id}-${index}`] ?? item.qty} · Refills {item.authRefills} · Days {item.daysSupply}</p>
+                        </div>
+                      </article>
+                    ))}
+                    {order.items.length > 2 && (
+                      <div className="flex items-center lg:col-start-2">
+                        <button onClick={(event) => { event.stopPropagation(); setExpandedItems(prev => ({ ...prev, [order.id]: !prev[order.id] })); }} className="inline-flex items-center gap-1.5 px-1 text-[10px] font-semibold text-[#183229] hover:underline hover:underline-offset-4">
+                          <ChevronDown size={13} className={expandedItems[order.id] ? "rotate-180" : ""} />
+                          {expandedItems[order.id] ? "Show fewer prescriptions" : `Show ${order.items.length - 2} more prescriptions`}
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ) : (
+              <div className={orderCardVariant === "current" ? "px-7 py-3" : "rounded-[8px] bg-white px-5 py-2"}>
                   {(expandedItems[order.id] ? order.items : order.items.slice(0, 2)).map((item, index) => {
-                    const orderPatients = "patients" in order ? order.patients : [order.patient];
+                    const orderPatients = order.payMethod === "Pay by Clinic" && "patients" in order ? order.patients : [order.patient];
                     const patient = orderPatients[index] ?? orderPatients[orderPatients.length - 1];
                     return (
-                      <div key={`${patient.name}-${item.name}`} className={`grid min-h-[126px] grid-cols-1 py-4 lg:grid-cols-[0.78fr_1.32fr] ${index === (expandedItems[order.id] ? order.items.length : Math.min(2, order.items.length)) - 1 ? "" : "border-b border-[#e8e5e2]"}`}>
+                      <div key={`${patient.name}-${item.name}`} className={`grid min-h-[126px] grid-cols-1 lg:grid-cols-[0.78fr_1.32fr] ${orderCardVariant === "current" ? `py-4 ${index === (expandedItems[order.id] ? order.items.length : Math.min(2, order.items.length)) - 1 ? "" : "border-b border-[#e8e5e2]"}` : "py-5"}`}>
                         <div className="px-3">
-                          <p className="text-[12px] font-semibold text-[#1a1a1a]">{patient.name} <span className="font-normal text-[#8c95a1]">({patient.gender})</span></p>
-                          <p className="mt-1 text-[11px] text-[#6f7782]">{patient.phone}</p>
-                          <p className="mt-1 text-[11px] leading-relaxed text-[#6f7782]">{patient.address}</p>
+                          {(order.payMethod === "Pay by Clinic" || index === 0) && (
+                            <>
+                              <p className="text-[12px] font-semibold text-[#1a1a1a]">{patient.name} <span className="font-normal text-[#8c95a1]">({patient.gender})</span></p>
+                              <p className="mt-1 text-[11px] text-[#6f7782]">{patient.phone}</p>
+                              <p className="mt-1 text-[11px] leading-relaxed text-[#6f7782]">{patient.address}</p>
+                            </>
+                          )}
                         </div>
                         <div className="flex items-start justify-between gap-3 px-3">
                           <div className="flex min-w-0 gap-3">
-                            <div className="flex size-12 shrink-0 items-center justify-center overflow-hidden rounded-[8px] border border-[#eee8e3] bg-white">
+                            <div className={`flex size-12 shrink-0 items-center justify-center overflow-hidden bg-white ${orderCardVariant === "current" ? "rounded-[8px] border border-[#eee8e3]" : ""}`}>
                               <img src={item.image} alt="" className="h-12 w-12 object-contain mix-blend-multiply" />
                             </div>
                             <div className="min-w-0">
                               <p className="text-[12px] font-semibold text-[#1a1a1a]">{item.name}</p>
                               <p className="mt-0.5 text-[11px] text-[#6f7782]">{item.description}</p>
                               <p className="mt-1 text-[10px] text-[#8c95a1]">{item.pharmacy}</p>
-                              <span className={`mt-1.5 inline-flex rounded-full px-2 py-0.5 text-[9px] font-semibold ${item.tracking === "Tracking Not Ready" ? "bg-[#f1f2f1] text-[#667085]" : "bg-[#e8f5ed] text-[#24613f]"}`}>{item.tracking}</span>
+                              <span className={`mt-1.5 inline-flex rounded-full px-2 py-0.5 text-[9px] font-semibold ${item.tracking === "Tracking Not Ready" ? "bg-[#E8E5B0] text-[#31583F]" : "bg-[#C5F5DD] text-[#31583F]"}`}>{labelCase(item.tracking)}</span>
                               <p className="mt-1 text-[10px] text-[#8c95a1]">Qty {quantities[`${order.id}-${index}`] ?? item.qty} · Auth refills {item.authRefills} · Refills left {item.refillsLeft} · Days {item.daysSupply}</p>
                             </div>
                           </div>
@@ -2437,6 +2494,7 @@ function OrdersPage({ onNavigate, onOrderSelect }: { onNavigate: (p: Page) => vo
                     </button>
                   )}
                 </div>
+              )}
             </section>
           ))}
         </div>
@@ -2454,37 +2512,65 @@ function OrderDetailPage({ order, onNavigate }: { order: typeof ORDERS[number]; 
   const [detailSideTab, setDetailSideTab] = useState<"status" | "receipt">("status");
   const patients = "patients" in order ? order.patients : [order.patient];
   const patientTrackingLink = `https://scriptlinkrx.com/track/${order.id.replace('#','')}`;
-  const shell = variant === 1 ? "rounded-[14px] border border-[#e6e1dd] bg-white" : variant === 2 ? "rounded-[10px] border border-[#dfe5e2] bg-white shadow-sm" : variant === 3 ? "rounded-[18px] bg-[#faf7f4] shadow-[0_8px_28px_rgba(24,50,41,0.08)]" : variant === 4 ? "rounded-[12px] border-l-4 border-l-[#183229] border-y border-r border-[#e5e1dd] bg-white" : "rounded-[16px] border border-[#dce5e1] bg-[#f7faf8]";
-  const section = variant === 3 ? "rounded-[14px] border border-[#ebe4df] bg-white p-5" : variant === 5 ? "rounded-[12px] border border-[#dce5e1] bg-white p-5" : "rounded-[10px] border border-[#e8e3df] bg-white p-5";
+  const shell = "rounded-[12px] bg-white";
+  const section = "rounded-[12px] bg-white p-5";
   return (
     <>
       <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
         <button onClick={() => onNavigate("orders")} className="flex items-center gap-2 text-[22px] font-semibold text-[#1a1a1a]"><ChevronLeft size={22} /> Orders</button>
-        <div className="flex flex-wrap gap-2"><button className="inline-flex items-center gap-1.5 rounded-[7px] bg-[#00b43a] px-3 py-2 text-[11px] font-semibold text-white"><Download size={13} /> Download receipt</button><button onClick={() => onNavigate("support")} className="inline-flex items-center gap-1.5 rounded-[7px] bg-[#1a1a1a] px-3 py-2 text-[11px] font-semibold text-white"><Plus size={13} /> Create ticket</button><button className="inline-flex items-center gap-1.5 rounded-[7px] bg-[#df542f] px-3 py-2 text-[11px] font-semibold text-white"><XCircle size={13} /> Request cancellation</button></div>
+        <div className="flex flex-wrap gap-2"><button className="inline-flex items-center gap-1.5 rounded-full border border-[#d8dedb] bg-white px-4 py-2 text-[11px] font-semibold text-[#31583F]"><Download size={13} /> Download receipt</button><button onClick={() => onNavigate("support")} className="inline-flex items-center gap-1.5 rounded-full bg-[#111] px-4 py-2 text-[11px] font-semibold text-white"><Plus size={13} /> Create ticket</button><button className="inline-flex items-center gap-1.5 rounded-full bg-[#FFE7D6] px-4 py-2 text-[11px] font-semibold text-[#7B003B]"><XCircle size={13} /> Request cancellation</button></div>
       </div>
       <div className="grid items-start gap-5 xl:grid-cols-[minmax(0,1fr)_330px]">
         <div className="space-y-4">
           <section className={`${shell} overflow-hidden`}>
-            <div className={`grid gap-4 border-b border-[#ece7e3] px-5 py-4 sm:grid-cols-3 lg:grid-cols-6 ${variant === 3 ? "bg-[#183229] text-white" : "bg-[#fffcf8]"}`}>
-              {[['Order timestamp', order.timestamp], ['Order ID', order.id], ['Status', order.status], ['Ship to', order.shipMethod], ['Payment', order.payMethod], ['Final total', order.total]].map(([label,value]) => <div key={label}><p className={`text-[9px] font-semibold uppercase tracking-wider ${variant === 3 ? "text-white/60" : "text-[#8c95a1]"}`}>{label}</p>{label === 'Status' ? <span className="mt-1 inline-flex rounded-full bg-[#667085] px-2 py-1 text-[9px] font-bold text-white">{value.toUpperCase()}</span> : label === 'Ship to' ? <span className="mt-1 inline-flex items-center gap-1 rounded-full bg-[#11d4d8] px-2 py-1 text-[9px] font-bold text-[#062b2c]">{value}<Building2 size={10} /></span> : label === 'Payment' ? <span className="mt-1 inline-flex items-center gap-1 rounded-full bg-[#a7e9b8] px-2 py-1 text-[9px] font-bold text-[#183229]">{value}<User size={10} /><span className={`rounded-full px-1 py-0.5 text-[8px] text-white ${order.payStatus === 'PAID' ? 'bg-[#00b43a]' : 'bg-[#ff4f8b]'}`}>{order.payStatus}</span></span> : <p className="mt-1 text-[12px] font-semibold">{value}</p>}</div>)}
+            <div className="grid gap-4 rounded-[12px] bg-[#fffaf7] px-5 py-4 sm:grid-cols-3 lg:grid-cols-6">
+              {[['Order timestamp', order.timestamp], ['Order ID', order.id], ['Status', order.status], ['Ship to', order.shipMethod], ['Payment', order.payMethod], ['Final total', order.total]].map(([label,value]) => <div key={label}><p className="text-[9px] font-semibold uppercase tracking-wider text-[#8c95a1]">{label}</p>{label === 'Status' ? <span className="mt-1 inline-flex rounded-full bg-gradient-to-r from-[#FFE2D2] to-[#FFF45C] px-2 py-1 text-[9px] font-bold text-[#56203B]">{value.charAt(0).toUpperCase() + value.slice(1).toLowerCase()}</span> : label === 'Ship to' ? <span className="mt-1 inline-flex rounded-full bg-gradient-to-r from-[#CADDD9] to-[#E8E5B0] px-2 py-1 text-[9px] font-bold text-[#56203B]">{value.charAt(0).toUpperCase() + value.slice(1).toLowerCase()}</span> : label === 'Payment' ? <span className="mt-1 inline-flex items-center gap-1 rounded-full bg-gradient-to-r from-[#C5F5DD] to-[#E7F5A5] px-2 py-1 text-[9px] font-bold text-[#31583F]">{value.charAt(0).toUpperCase() + value.slice(1).toLowerCase()}<span className={`rounded-full px-1 py-0.5 text-[8px] text-white ${order.payStatus === 'PAID' ? 'bg-[#31583F]' : 'bg-[#7B003B]'}`}>{order.payStatus.charAt(0).toUpperCase() + order.payStatus.slice(1).toLowerCase()}</span></span> : <p className="mt-1 text-[12px] font-semibold">{value}</p>}</div>)}
             </div>
-            <div className={`grid gap-5 p-5 ${variant === 2 ? "md:grid-cols-1" : "md:grid-cols-[1.2fr_0.8fr]"}`}>
+            <div className="grid gap-4 p-5 md:grid-cols-2">
               <div><p className="mb-2 text-[10px] font-semibold uppercase tracking-wider text-[#8c95a1]">Patients</p><div className="space-y-2">{patients.map(patient => <div key={patient.name} className="rounded-[9px] bg-[#f6f8f7] p-3"><p className="text-[12px] font-semibold">{patient.name} <span className="font-normal text-[#8c95a1]">({patient.gender})</span></p><p className="mt-1 text-[11px] text-[#667085]">{patient.phone}</p><p className="mt-1 text-[11px] text-[#667085]">{patient.address}</p></div>)}</div></div>
               <div><p className="mb-2 text-[10px] font-semibold uppercase tracking-wider text-[#8c95a1]">Prescriber</p><div className="rounded-[9px] bg-[#f6f8f7] p-3">{prescriberAssigned ? <><p className="text-[12px] font-semibold">Dr. Maya Chen</p><p className="mt-1 text-[10px] leading-relaxed text-[#667085]">2823 Middletown Road<br />Bronx, NY 10461<br />(646) 617-9881<br />NPI: 1234523452</p><span className="mt-2 inline-flex items-center gap-1 rounded-full bg-[#e7f5ec] px-2 py-1 text-[9px] font-bold text-[#2f704c]"><CheckCircle2 size={10} /> Assigned</span></> : <><p className="text-[11px] text-[#667085]">No prescriber has approved this order yet.</p><button onClick={() => setPrescriberAssigned(true)} className="mt-2 inline-flex items-center gap-1 rounded-[6px] border border-[#b9c7c0] bg-white px-2 py-1.5 text-[10px] font-semibold text-[#183229]"><User size={11} /> Assign prescriber</button></>}</div></div>
             </div>
           </section>
           <section className={shell}>
-            <div className="flex items-center justify-between border-b border-[#ece7e3] px-5 py-4"><div><p className="text-[14px] font-semibold">{order.items[0].pharmacy}</p><p className="mt-1 text-[11px] text-[#8c95a1]">Licensed compounding pharmacy</p></div><p className="text-[17px] font-bold text-[#183229]">{order.total}</p></div>
-            <div className="grid gap-3 border-b border-[#ece7e3] bg-[#fbfcfb] px-5 py-3 sm:grid-cols-3"><div><p className="text-[9px] font-semibold uppercase text-[#8c95a1]">Shipping method</p><p className="mt-1 text-[11px] font-semibold">FedEx Overnight Refrigerated</p></div><div><p className="text-[9px] font-semibold uppercase text-[#8c95a1]">Est. delivery</p><p className="mt-1 text-[11px] font-semibold">Pending</p></div><div><p className="text-[9px] font-semibold uppercase text-[#8c95a1]">Tracking</p><p className="mt-1 text-[11px] text-[#8c95a1]">Tracking Not Ready</p></div></div>
-            <div className="divide-y divide-[#ece7e3]">{order.items.map((item,index) => <div key={item.name}><div className="flex flex-wrap items-center gap-2 bg-[#f6f8f7] px-5 py-2 text-[10px] text-[#52645c]"><User size={12} className="text-[#00a63a]" /><span className="font-semibold text-[#1a1a1a]">{patients[index]?.name ?? patients[0].name}</span><span>|</span><span>{patients[index]?.phone ?? patients[0].phone}</span><span>|</span><span>{patients[index]?.address ?? patients[0].address}</span></div><div className={`grid gap-4 px-5 py-4 ${variant === 4 ? "md:grid-cols-[160px_minmax(0,1fr)_90px]" : "md:grid-cols-[minmax(0,1fr)_90px]"}`}>{variant === 4 && <div className="text-[11px] text-[#667085]">Days {item.daysSupply}<br />Refills {item.authRefills}</div>}<div className="flex gap-3"><div className="flex size-12 shrink-0 items-center justify-center overflow-hidden rounded-[8px] border border-[#e8e3df] bg-white"><img src={item.image} alt="" className="size-12 object-contain mix-blend-multiply" /></div><div><p className="text-[12px] font-semibold">{item.name}</p><p className="mt-1 text-[11px] text-[#667085]">{item.description}</p><span className="mt-2 inline-flex rounded-full bg-[#fff0c7] px-2 py-0.5 text-[9px] font-semibold text-[#865500]">Open Rx</span><p className="mt-2 text-[10px] text-[#1a1a1a]"><strong>Sig:</strong> Use as directed by prescriber.</p><p className="mt-1 text-[10px] text-[#1a1a1a]"><strong>Reason:</strong> Patient requires a customized compounded formulation.</p><p className="mt-2 text-[10px] text-[#8c95a1]">Qty {item.qty} · Days {item.daysSupply} · Refills {item.authRefills}</p></div></div><p className="text-right text-[12px] font-bold">{item.price}</p></div><div className="flex items-center gap-3 px-5 pb-4"><div className="flex size-10 items-center justify-center rounded-[8px] border border-[#e8e3df] bg-[#fafafa]"><Syringe size={15} className="text-[#8c95a1]" /></div><div><p className="text-[11px] font-semibold">Supplies pack — suitable needles, syringe and alcohol pads</p><p className="mt-0.5 text-[10px] text-[#8c95a1]">Suitable amount for the prescribed dosage</p></div></div></div>)}</div>
+            <div className="flex items-center justify-between rounded-t-[12px] bg-[#fffaf7] px-5 py-4"><div><p className="text-[14px] font-semibold">{order.items[0].pharmacy}</p><p className="mt-1 text-[11px] text-[#8c95a1]">Licensed compounding pharmacy</p></div><p className="text-[17px] font-bold text-[#183229]">{order.total}</p></div>
+            <div className="mx-5 mt-3 grid gap-3 rounded-[10px] bg-[#FBFBFB] px-4 py-3 sm:grid-cols-3"><div><p className="text-[9px] font-semibold uppercase text-[#8c95a1]">Shipping method</p><p className="mt-1 text-[11px] font-semibold">FedEx Overnight Refrigerated</p></div><div><p className="text-[9px] font-semibold uppercase text-[#8c95a1]">Est. delivery</p><p className="mt-1 text-[11px] font-semibold">Pending</p></div><div><p className="text-[9px] font-semibold uppercase text-[#8c95a1]">Tracking</p><p className="mt-1 text-[11px] text-[#8c95a1]">Tracking not ready</p></div></div>
+            <div>{order.items.map((item,index) => <div key={item.name} className="py-2"><div className="mx-5 flex flex-wrap items-center gap-2 rounded-[8px] bg-[#fbfffd] px-4 py-2 text-[10px] text-[#52645c]"><span className="font-semibold text-[#1a1a1a]">{patients[index]?.name ?? patients[0].name}</span><span>·</span><span>{patients[index]?.phone ?? patients[0].phone}</span><span>·</span><span>{patients[index]?.address ?? patients[0].address}</span></div><div className="grid gap-4 px-5 py-4 md:grid-cols-[minmax(0,1fr)_90px]"><div className="flex gap-3"><div className="flex size-12 shrink-0 items-center justify-center overflow-hidden bg-white"><img src={item.image} alt="" className="size-12 object-contain mix-blend-multiply" /></div><div><p className="text-[12px] font-semibold">{item.name}</p><p className="mt-1 text-[11px] text-[#667085]">{item.description}</p><span className="mt-2 inline-flex rounded-full bg-gradient-to-r from-[#FFE2D2] to-[#FFF45C] px-2 py-0.5 text-[9px] font-semibold text-[#56203B]">Open Rx</span><p className="mt-2 text-[10px] text-[#1a1a1a]"><strong>Sig:</strong> Use as directed by prescriber.</p><p className="mt-1 text-[10px] text-[#1a1a1a]"><strong>Reason:</strong> Patient requires a customized compounded formulation.</p><p className="mt-2 text-[10px] text-[#8c95a1]">Qty {item.qty} · Days {item.daysSupply} · Refills {item.authRefills}</p></div></div><p className="text-right text-[12px] font-bold">{item.price}</p></div><div className="flex items-center gap-3 px-5 pb-4"><div className="flex size-10 items-center justify-center bg-[#fafafa]"><Syringe size={15} className="text-[#8c95a1]" /></div><div><p className="text-[11px] font-semibold">Supplies pack — suitable needles, syringe and alcohol pads</p><p className="mt-0.5 text-[10px] text-[#8c95a1]">Suitable amount for the prescribed dosage</p></div></div></div>)}</div>
           </section>
         </div>
         <aside className="sticky top-6 space-y-4">
-          <div className="grid grid-cols-2 rounded-[12px] bg-white p-1 shadow-sm"><button onClick={() => setDetailSideTab("status")} className={`h-9 rounded-[9px] text-[11px] font-semibold ${detailSideTab === "status" ? "bg-[#183229] text-white" : "text-[#667085]"}`}>Order status</button><button onClick={() => setDetailSideTab("receipt")} className={`h-9 rounded-[9px] text-[11px] font-semibold ${detailSideTab === "receipt" ? "bg-[#183229] text-white" : "text-[#667085]"}`}>Receipt</button></div>
+          <div className="flex border-b border-[#e4e4e1] bg-white">
+            {(["status", "receipt"] as const).map(tab => (
+              <button key={tab} onClick={() => setDetailSideTab(tab)} className={`relative h-11 flex-1 text-[11px] font-semibold after:absolute after:bottom-0 after:left-0 after:h-[2px] after:w-full ${detailSideTab === tab ? "text-[#171717] after:bg-[#183229]" : "text-[#777] after:bg-transparent"}`}>
+                {tab === "status" ? "Order status" : "Receipt"}
+              </button>
+            ))}
+          </div>
           {detailSideTab === "status" ? <>
-          <section className={section}><h2 className="text-[18px] font-semibold">Order status</h2><div className="mt-5 space-y-0">{['Order created','In progress','Shipped','Delivered'].map((step,index) => <div key={step} className="flex gap-3"><div className="flex flex-col items-center"><span className={`flex size-8 items-center justify-center rounded-full ${index === 0 ? 'bg-[#183229] text-white' : 'bg-[#edf0ee] text-[#8c95a1]'}`}>{index === 0 ? <Package size={14}/> : <CheckCircle2 size={14}/>}</span>{index < 3 && <span className="h-9 w-px bg-[#dfe5e2]" />}</div><div className="pt-1"><p className="text-[12px] font-semibold">{step}</p>{index === 0 && <p className="mt-1 text-[10px] text-[#b42318]">Payment {order.payStatus.toLowerCase()}</p>}</div></div>)}</div><div className="mt-5 flex items-center gap-3 rounded-[10px] bg-[#f1f3f2] px-3.5 py-3"><span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-white text-[#183229]"><Bell size={14} /></span><div><p className="text-[12px] font-semibold text-[#1a1a1a]">Live updates</p><p className="mt-0.5 text-[10px] text-[#667085]">We’ll keep you informed as this order progresses.</p></div></div></section>
-          <section className={section}><h3 className="text-[14px] font-semibold">Share with patient</h3><p className="mt-1 text-[11px] text-[#667085]">Send this link so the patient can track the order.</p><div className="mt-3 flex items-center gap-2 rounded-[8px] border border-[#dfe5e2] bg-[#f8faf9] px-3 py-2"><span className="min-w-0 flex-1 truncate text-[10px] text-[#52645c]">{patientTrackingLink}</span><button onClick={() => navigator.clipboard.writeText(patientTrackingLink).then(() => { setTrackingLinkCopied(true); window.setTimeout(() => setTrackingLinkCopied(false), 1600); })} className="flex shrink-0 items-center gap-1 rounded-[6px] bg-white px-2 py-1 text-[10px] font-semibold text-[#183229] shadow-sm">{trackingLinkCopied ? <CheckCircle2 size={12} /> : <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><rect x="3.5" y="3.5" width="7" height="7" rx="1.2" stroke="currentColor"/><path d="M1.5 8V1.5H8" stroke="currentColor" strokeLinecap="round"/></svg>}{trackingLinkCopied ? 'Copied' : 'Copy'}</button></div></section>
-          </> : <section className={section}><h2 className="text-[18px] font-semibold">Receipt</h2><p className="mt-1 text-[11px] text-[#667085]">Order {order.id}</p><div className="mt-5 space-y-3">{order.items.map(item => <div key={item.name} className="flex justify-between gap-3 text-[11px]"><span className="text-[#667085]">{item.name}</span><span className="font-semibold">{item.price}</span></div>)}</div><div className="mt-5 border-t border-[#e8e3df] pt-4"><div className="flex justify-between text-[12px]"><span>Shipping</span><span className="font-semibold">Included</span></div><div className="mt-3 flex justify-between text-[15px] font-bold"><span>Total</span><span className="text-[#183229]">{order.total}</span></div></div><button className="mt-5 flex h-10 w-full items-center justify-center gap-2 rounded-[8px] bg-[#183229] text-[11px] font-semibold text-white"><Download size={13} /> Download receipt</button></section>}
+            <section className="rounded-[12px] bg-[#fffaf7] p-5">
+              <h2 className="text-[17px] font-semibold">Order status</h2>
+              <div className="mt-5">{['Order created','In progress','Shipped','Delivered'].map((step,index) => (
+                <div key={step} className="flex gap-3">
+                  <div className="flex flex-col items-center">
+                    <span className={`flex size-8 items-center justify-center rounded-full ${index === 0 ? "bg-gradient-to-br from-[#31583F] to-[#56203B] text-white" : "bg-[#F0F1EF] text-[#8c95a1]"}`}>{index === 0 ? <Package size={14}/> : <CheckCircle2 size={14}/>}</span>
+                    {index < 3 && <span className="h-9 w-px bg-[#dfe5e2]" />}
+                  </div>
+                  <div className="pt-1"><p className="text-[12px] font-semibold">{step}</p>{index === 0 && <p className="mt-1 text-[10px] font-medium text-[#7B003B]">Payment {order.payStatus.toLowerCase()}</p>}</div>
+                </div>
+              ))}</div>
+              <div className="mt-5 flex items-center gap-3 rounded-[10px] bg-gradient-to-r from-[#CADDD9] to-[#E8E5B0] px-3.5 py-3">
+                <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-white/80 text-[#31583F]"><Bell size={14} /></span>
+                <div><p className="text-[12px] font-semibold text-[#1a1a1a]">Live updates</p><p className="mt-0.5 text-[10px] leading-4 text-[#52645c]">We’ll keep you informed as this order progresses.</p></div>
+              </div>
+            </section>
+            <section className="rounded-[12px] bg-white p-5">
+              <h3 className="text-[14px] font-semibold">Share with patient</h3>
+              <p className="mt-1 text-[11px] leading-4 text-[#667085]">Send this link so the patient can track the order.</p>
+              <div className="mt-3 flex items-center gap-2 rounded-[9px] bg-[#FBFBFB] px-3 py-2.5">
+                <span className="min-w-0 flex-1 truncate text-[10px] text-[#52645c]">{patientTrackingLink}</span>
+                <button onClick={() => navigator.clipboard.writeText(patientTrackingLink).then(() => { setTrackingLinkCopied(true); window.setTimeout(() => setTrackingLinkCopied(false), 1600); })} className="flex shrink-0 items-center gap-1 rounded-full bg-white px-3 py-1.5 text-[10px] font-semibold text-[#183229] shadow-sm">{trackingLinkCopied ? <CheckCircle2 size={12} /> : <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><rect x="3.5" y="3.5" width="7" height="7" rx="1.2" stroke="currentColor"/><path d="M1.5 8V1.5H8" stroke="currentColor" strokeLinecap="round"/></svg>}{trackingLinkCopied ? 'Copied' : 'Copy'}</button>
+              </div>
+            </section>
+          </> : <section className={section}><h2 className="text-[18px] font-semibold">Receipt</h2><p className="mt-1 text-[11px] text-[#667085]">Order {order.id}</p><div className="mt-5 space-y-3">{order.items.map(item => <div key={item.name} className="flex justify-between gap-3 text-[11px]"><span className="text-[#667085]">{item.name}</span><span className="font-semibold">{item.price}</span></div>)}</div><div className="mt-5 border-t border-[#e8e3df] pt-4"><div className="flex justify-between text-[12px]"><span>Shipping</span><span className="font-semibold">Included</span></div><div className="mt-3 flex justify-between text-[15px] font-bold"><span>Total</span><span className="text-[#183229]">{order.total}</span></div></div><button className="mt-5 flex h-10 w-full items-center justify-center gap-2 rounded-full bg-[#111] text-[11px] font-semibold text-white"><Download size={13} /> Download receipt</button></section>}
         </aside>
       </div>
     </>
@@ -2507,12 +2593,13 @@ function PharmaciesPage({ onNavigate }: { onNavigate: (p: Page) => void }) {
       <Header title="Pharmacies" onNavigate={onNavigate} />
 
       <div className="flex items-center gap-3 mb-6">
-        <div className="bg-white border border-[#efefef] rounded-[9px] h-9 flex items-center gap-2 px-3 w-64">
-          <Search size={14} className="text-[#9d9d9d]" />
+        <div className="flex h-[38px] w-[220px] items-center gap-2 rounded-[9px] border border-[#efefef] bg-white px-3">
+          <Search size={14} strokeWidth={1.8} className="shrink-0 text-[#686868]" />
           <input
-            className="flex-1 text-[12px] font-medium text-[#1a1a1a] bg-transparent outline-none placeholder:text-[#9d9d9d]"
+            className="min-w-0 flex-1 bg-transparent text-[11px] font-medium text-[#1a1a1a] outline-none placeholder:font-medium placeholder:text-[#686868]"
             placeholder="Search pharmacies..."
           />
+          <span className="shrink-0 text-[10px] text-[#686868]">⌘ F</span>
         </div>
         <div className="ml-auto flex gap-2">
           <button className="flex items-center gap-1.5 border border-[#eaeaea] bg-card rounded-[8px] px-3 py-2 text-[12px] font-medium text-[#1a1a1a] hover:bg-[#f7efe9]/60 transition-colors">
@@ -2796,7 +2883,7 @@ function PatientDetailsView({ patient, onBack, onEdit }: { patient: typeof PATIE
 
 
       <section ref={ordersSectionRef} className="mt-4 scroll-mt-5 rounded-[14px] border border-[#e4e1dd] bg-white p-5">
-        <div className="flex items-center justify-between"><div><h2 className="text-[16px] font-semibold text-[#202020]">Orders <span className="ml-1 text-[12px] font-normal text-[#999]">({orderedPrescriptions.length + 1})</span></h2><p className="mt-1 text-[10px] text-[#858585]">Prescription and order history</p></div><div className="flex h-9 w-48 items-center gap-2 rounded-[8px] border border-[#ddd] px-3"><Search size={13} className="text-[#999]" /><input placeholder="Search orders" className="min-w-0 flex-1 text-[11px] outline-none" /></div></div>
+        <div className="flex items-center justify-between"><div><h2 className="text-[16px] font-semibold text-[#202020]">Orders <span className="ml-1 text-[12px] font-normal text-[#999]">({orderedPrescriptions.length + 1})</span></h2><p className="mt-1 text-[10px] text-[#858585]">Prescription and order history</p></div><div className="flex h-[38px] w-[220px] items-center gap-2 rounded-[9px] border border-[#efefef] bg-white px-3"><Search size={14} strokeWidth={1.8} className="shrink-0 text-[#686868]" /><input placeholder="Search orders" className="min-w-0 flex-1 bg-transparent text-[11px] font-medium text-[#1a1a1a] outline-none placeholder:font-medium placeholder:text-[#686868]" /><span className="shrink-0 text-[10px] text-[#686868]">⌘ F</span></div></div>
         {orderedPrescriptions.map((prescription, index) => <article key={`ordered-${prescription.medication}-${index}`} className="mt-4 flex flex-wrap items-center gap-4 rounded-[10px] border border-[#e5e2de] px-4 py-4"><div className="flex size-10 items-center justify-center overflow-hidden"><img src={prescription.medication === "NAD+ Injection" ? imgNadInjection : imgAminoQuad} alt="" className="size-10 object-contain mix-blend-multiply" /></div><div className="min-w-0 flex-1"><div className="flex items-center gap-2"><p className="text-[12px] font-semibold text-[#222]">{prescription.medication}</p><span className="rounded-full bg-[#f0f0ee] px-2 py-1 text-[8px] font-bold uppercase text-[#555]">Pending approval</span></div><p className="mt-1 text-[10px] text-[#777]">Qty {prescription.qty} · {prescription.days} days · {prescription.refills} refills · {selectedPatientPharmacy}</p></div><p className="text-[13px] font-semibold">${(prescriptionUnitPrice(prescription.medication) * Number(prescription.qty)).toFixed(2)}</p></article>)}
         <article className="mt-4 rounded-[10px] border border-[#e5e2de]">
           <div className="flex flex-wrap items-center justify-between gap-4 px-4 py-4"><div className="flex items-center gap-3"><div className="flex size-11 shrink-0 items-center justify-center overflow-hidden bg-white"><img src={imgNadInjection} alt="NAD+ Injection" className="size-11 object-contain mix-blend-multiply" /></div><div><div className="flex items-center gap-2"><p className="text-[12px] font-semibold text-[#222]">NAD+ Injection</p><span className="rounded-full bg-[#f0f0ee] px-2 py-1 text-[8px] font-bold uppercase text-[#555]">Pending approval</span></div><p className="mt-1 text-[10px] text-[#777]">Order #449537 · Jul 13, 2026 · Qty 1</p></div></div><div className="flex items-center gap-5"><p className="text-[13px] font-semibold text-[#222]">$74.64</p><button onClick={() => setOrderDetailsOpen(current => !current)} className="inline-flex items-center gap-1 text-[11px] font-semibold text-[#333] hover:underline">{orderDetailsOpen ? "Hide details" : "Show details"}<ChevronDown size={13} className={orderDetailsOpen ? "rotate-180" : ""} /></button></div></div>
@@ -2851,14 +2938,15 @@ function UsersPage({ onNavigate }: { onNavigate: (p: Page) => void }) {
 
       {/* Search bar */}
       <div className="mb-4">
-        <div className="bg-white border border-[#e4e4e4] rounded-[8px] h-9 flex items-center gap-2 px-3 w-56">
-          <Search size={13} className="text-[#9d9d9d] flex-shrink-0" />
+        <div className="flex h-[38px] w-[220px] items-center gap-2 rounded-[9px] border border-[#efefef] bg-white px-3">
+          <Search size={14} strokeWidth={1.8} className="flex-shrink-0 text-[#686868]" />
           <input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="flex-1 text-[12px] text-[#1a1a1a] bg-transparent outline-none placeholder:text-[#b0b0b0]"
+            className="min-w-0 flex-1 bg-transparent text-[11px] font-medium text-[#1a1a1a] outline-none placeholder:font-medium placeholder:text-[#686868]"
             placeholder="Search"
           />
+          <span className="shrink-0 text-[10px] text-[#686868]">⌘ F</span>
         </div>
       </div>
 
