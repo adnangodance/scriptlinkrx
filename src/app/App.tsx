@@ -3038,7 +3038,7 @@ function SettingsPage({ onNavigate }: { onNavigate: (p: Page) => void }) {
         <input
           readOnly
           value={value}
-          className="w-full rounded-[8px] border border-[#eaeaea] bg-card px-3 py-2.5 text-[13px] text-[#1a1a1a] outline-none transition-colors focus:border-[#183229]"
+          className="w-full rounded-[9px] border border-[#EAE8E1] bg-white px-3 py-2.5 text-[13px] text-[#1a1a1a] outline-none transition-colors focus:border-[#183229]"
         />
       </label>
     );
@@ -3050,16 +3050,16 @@ function SettingsPage({ onNavigate }: { onNavigate: (p: Page) => void }) {
       ? ["#", "Full Name", "User Phone", "User Email", "User Title", "Status", ""]
       : ["#", "Full Name", "Prescriber Phone", "Prescriber Email", "NPI Number", "Status", ""];
     return (
-      <div className="overflow-hidden rounded-[10px] border border-[#e8e3df] bg-white">
-        <div className="grid grid-cols-[40px_1.1fr_1fr_1.55fr_1fr_92px_38px] border-b border-[#eee8e3] bg-[#fbfaf8] px-4 py-3">
+      <div className="overflow-hidden rounded-[12px] bg-[#fffaf7] p-2">
+        <div className="grid grid-cols-[40px_1.25fr_1fr_1.55fr_1fr_92px_38px] rounded-t-[9px] bg-[#FBFBFB] px-4 py-3">
           {headers.map(h => (
             <span key={h} className="text-[10px] font-semibold uppercase tracking-[0.08em] text-[#8c8c8c]">{h}</span>
           ))}
         </div>
         {rows.map(row => (
-          <div key={`${type}-${row[0]}`} className="grid grid-cols-[40px_1.1fr_1fr_1.55fr_1fr_92px_38px] items-center px-4 py-3 text-[12px] text-[#1a1a1a] odd:bg-white even:bg-[#fbfaf8]">
-            {row.map(cell => <span key={cell} className="min-w-0 truncate">{cell}</span>)}
-            <Badge variant="success">Active</Badge>
+          <div key={`${type}-${row[0]}`} className="grid grid-cols-[40px_1.25fr_1fr_1.55fr_1fr_92px_38px] items-center bg-white px-4 py-3.5 text-[12px] text-[#1a1a1a] transition-colors hover:bg-[#fffbf8]">
+            {row.map((cell, index) => index === 1 ? <span key={cell} className="flex min-w-0 items-center gap-2.5"><span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-[#FFE9D8] to-[#FFD8B8] text-[9px] font-bold text-[#8A4A24]">{cell.split(" ").map(part => part[0]).join("").slice(0,2).toUpperCase()}</span><span className="truncate font-semibold">{cell}</span></span> : <span key={`${index}-${cell}`} className={`min-w-0 truncate ${index === 0 ? "text-[#999]" : ""}`}>{cell}</span>)}
+            <span className="inline-flex w-fit rounded-full bg-gradient-to-r from-[#C5F5DD] to-[#E7F5A5] px-3 py-1.5 text-[10px] font-semibold text-[#31583F]">Active</span>
             <button className="flex size-7 items-center justify-center rounded-[7px] text-[#8c95a1] transition-colors hover:bg-[#f2f7f4] hover:text-[#183229]" aria-label="More actions">
               <MoreHorizontal size={15} />
             </button>
@@ -3085,8 +3085,8 @@ function SettingsPage({ onNavigate }: { onNavigate: (p: Page) => void }) {
             <button
               key={label}
               onClick={() => setActiveTab(label)}
-              className={`flex items-center gap-2.5 rounded-[8px] px-3 py-2.5 text-left text-[13px] font-medium transition-colors ${
-                activeTab === label ? "bg-[#f7efe9] text-[#1a1a1a]" : "text-[#9d9d9d] hover:bg-[#f7efe9]/60 hover:text-[#1a1a1a]"
+              className={`flex items-center gap-2.5 rounded-[9px] px-3 py-2.5 text-left text-[12px] font-semibold transition-colors ${
+                activeTab === label ? "bg-[#f7efe9] text-[#1a1a1a]" : "text-[#858b88] hover:bg-[#FBFBFB] hover:text-[#1a1a1a]"
               }`}
             >
               <Icon size={15} strokeWidth={1.5} />
@@ -3097,10 +3097,10 @@ function SettingsPage({ onNavigate }: { onNavigate: (p: Page) => void }) {
 
         <div className="space-y-5">
           {activeTab === "Business Account" && (
-            <div className="bg-card rounded-xl border border-[#eaeaea] p-6">
+            <div className="rounded-[14px] bg-[#fffaf7] p-6">
               <div className="mb-4 flex items-center justify-between">
                 <h3 className="text-[14px] font-semibold text-[#1a1a1a]">Business Account</h3>
-                <button className="rounded-[8px] bg-black px-4 py-2 text-[12px] font-medium text-white transition-colors hover:bg-[#1a1a1a]/90">
+                <button className="rounded-full bg-black px-4 py-2 text-[12px] font-medium text-white transition-colors hover:bg-[#1a1a1a]/90">
                   Edit Profile
                 </button>
               </div>
@@ -3121,12 +3121,12 @@ function SettingsPage({ onNavigate }: { onNavigate: (p: Page) => void }) {
           )}
 
           {activeTab === "Users" && (
-            <div className="bg-card rounded-xl border border-[#eaeaea] p-6">
+            <div className="rounded-[14px] bg-[#fffaf7] p-6">
             <div className="mb-4 flex items-center justify-between">
               <h3 className="text-[14px] font-semibold text-[#1a1a1a]">Users</h3>
               <div className="flex gap-2">
-                <button className="rounded-[8px] border border-[#eaeaea] px-3 py-2 text-[12px] font-medium text-[#1a1a1a] transition-colors hover:bg-[#f7efe9]/60">Invite</button>
-                <button className="flex items-center gap-1.5 rounded-[8px] bg-black px-3 py-2 text-[12px] font-medium text-white transition-colors hover:bg-[#1a1a1a]/90">
+                <button className="rounded-full border border-[#EAE8E1] bg-white px-4 py-2 text-[12px] font-medium text-[#1a1a1a] transition-colors hover:bg-[#FBFBFB]">Invite</button>
+                <button className="flex items-center gap-1.5 rounded-full bg-black px-4 py-2 text-[12px] font-medium text-white transition-colors hover:bg-[#1a1a1a]/90">
                   <Plus size={15} /> Add User
                 </button>
               </div>
@@ -3136,12 +3136,12 @@ function SettingsPage({ onNavigate }: { onNavigate: (p: Page) => void }) {
           )}
 
           {activeTab === "Prescribers" && (
-            <div className="bg-card rounded-xl border border-[#eaeaea] p-6">
+            <div className="rounded-[14px] bg-[#fffaf7] p-6">
             <div className="mb-4 flex items-center justify-between">
               <h3 className="text-[14px] font-semibold text-[#1a1a1a]">Prescribers</h3>
               <div className="flex gap-2">
-                <button className="rounded-[8px] border border-[#eaeaea] px-3 py-2 text-[12px] font-medium text-[#1a1a1a] transition-colors hover:bg-[#f7efe9]/60">Invite</button>
-                <button className="flex items-center gap-1.5 rounded-[8px] bg-black px-3 py-2 text-[12px] font-medium text-white transition-colors hover:bg-[#1a1a1a]/90">
+                <button className="rounded-full border border-[#EAE8E1] bg-white px-4 py-2 text-[12px] font-medium text-[#1a1a1a] transition-colors hover:bg-[#FBFBFB]">Invite</button>
+                <button className="flex items-center gap-1.5 rounded-full bg-black px-4 py-2 text-[12px] font-medium text-white transition-colors hover:bg-[#1a1a1a]/90">
                   <Plus size={15} /> Add Prescriber
                 </button>
               </div>
@@ -3151,7 +3151,7 @@ function SettingsPage({ onNavigate }: { onNavigate: (p: Page) => void }) {
           )}
 
           {activeTab === "Pay by Clinic" && (
-            <div className="bg-card rounded-xl border border-[#eaeaea] p-6">
+            <div className="rounded-[14px] bg-[#fffaf7] p-6">
             <div className="mb-5 flex items-center border-b border-[#f5f5f5] pb-4">
               <button
                 onClick={() => setPayByClinicTab("cards")}
@@ -3160,7 +3160,7 @@ function SettingsPage({ onNavigate }: { onNavigate: (p: Page) => void }) {
                 }`}
               >
                 Credit Cards
-                <span className="ml-2 rounded-[6px] border border-[#cfe3d7] bg-[#f2f7f4] px-2 py-0.5 text-[10px] font-semibold text-[#183229]">
+                <span className="ml-2 rounded-full bg-gradient-to-r from-[#FFE2D2] to-[#FFF45C] px-2 py-0.5 text-[10px] font-semibold text-[#56203B]">
                   Primary
                 </span>
               </button>
@@ -3212,7 +3212,7 @@ function SettingsPage({ onNavigate }: { onNavigate: (p: Page) => void }) {
                         <p className="mt-1 text-[11px] text-[#8c8c8c]">**** **** **** 2826</p>
                         <p className="mt-2 text-[11px] text-[#667085]">Checking</p>
                       </div>
-                      <span className="w-fit rounded-[6px] border border-[#cfe3d7] bg-[#f2f7f4] px-2 py-1 text-[10px] font-semibold text-[#183229]">
+                      <span className="w-fit rounded-full bg-gradient-to-r from-[#C5F5DD] to-[#E7F5A5] px-2.5 py-1 text-[10px] font-semibold text-[#31583F]">
                         Primary
                       </span>
                       <button className="rounded-[8px] border border-[#00b43a] px-3 py-2 text-[12px] font-semibold text-[#00b43a] transition-colors hover:bg-[#ecfff2]">
@@ -3233,7 +3233,7 @@ function SettingsPage({ onNavigate }: { onNavigate: (p: Page) => void }) {
           )}
 
           {activeTab === "Agreements" && (
-            <div className="bg-card rounded-xl border border-[#eaeaea] p-6">
+            <div className="rounded-[14px] bg-[#fffaf7] p-6">
             <h3 className="mb-4 text-[14px] font-semibold text-[#1a1a1a]">Agreements</h3>
             <div className="grid grid-cols-2 gap-5 max-lg:grid-cols-1">
               <div className="rounded-[10px] border border-[#eaeaea] bg-white p-6">
