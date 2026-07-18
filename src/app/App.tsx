@@ -2863,31 +2863,31 @@ function PatientDetailsView({ patient, onBack, onEdit }: { patient: typeof PATIE
   const selectedMedicationImage = medication === "NAD+ Injection" ? imgNadInjection : imgAminoQuad;
   const prescriptionUnitPrice = (name: string) => name === "NAD+ Injection" ? 84.50 : name === "Tirzepatide/Pyridoxine (B6)" ? 125.43 : 35;
   return (
-    <div className="max-w-[1080px]">
+    <div className="max-w-[1180px]">
       <button onClick={onBack} className="mb-5 inline-flex items-center gap-2 text-[13px] font-semibold text-[#222] hover:underline"><ChevronLeft size={16} /> Patients</button>
-      <section className="rounded-[14px] border border-[#e4e1dd] bg-white px-5 py-5">
+      <section className="rounded-[14px] bg-[#fffaf7] px-6 py-5">
         <div className="flex flex-wrap items-center justify-between gap-4">
-          <div className="flex items-center gap-4"><div className="flex size-12 items-center justify-center rounded-full bg-[#edf5f0] text-[17px] font-semibold text-[#315a47]">{initials}</div><div><h1 className="text-[22px] font-semibold text-[#171717]">{patient.firstName} {patient.lastName}</h1><p className="mt-1 text-[11px] text-[#7a7a7a]">{patient.gender === "M" ? "Male" : patient.gender === "F" ? "Female" : patient.gender} · DOB {patient.birthDate}</p></div></div>
-          <button onClick={onEdit} className="inline-flex h-9 items-center gap-2 rounded-[8px] border border-[#d8d5d1] px-4 text-[11px] font-semibold"><Edit3 size={13} /> Edit</button>
+          <div className="flex items-center gap-4"><div className="flex size-12 items-center justify-center rounded-full bg-gradient-to-br from-[#C5F5DD] to-[#E7F5A5] text-[17px] font-semibold text-[#31583F]">{initials}</div><div><h1 className="text-[22px] font-semibold text-[#171717]">{patient.firstName} {patient.lastName}</h1><p className="mt-1 text-[11px] text-[#7a7a7a]">{patient.gender === "M" ? "Male" : patient.gender === "F" ? "Female" : patient.gender} · DOB {patient.birthDate}</p></div></div>
+          <button onClick={onEdit} className="inline-flex h-9 items-center gap-2 rounded-full bg-white px-4 text-[11px] font-semibold text-[#31583F] shadow-sm"><Edit3 size={13} /> Edit patient</button>
         </div>
       </section>
 
-      <section className="mt-4 rounded-[14px] border border-[#e4e1dd] bg-white">
+      <section className="mt-4 rounded-[14px] bg-white">
         <button onClick={() => setDetailsOpen(current => !current)} className="flex w-full items-center justify-between px-5 py-4 text-left"><div><h2 className="text-[14px] font-semibold text-[#202020]">Patient information</h2><p className="mt-0.5 text-[10px] text-[#858585]">Contact, address, and medical details</p></div><span className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-[#333]">{detailsOpen ? "Hide details" : "Show details"}<ChevronDown size={14} className={detailsOpen ? "rotate-180" : ""} /></span></button>
-        {detailsOpen && <div className="grid gap-5 border-t border-[#ece9e5] px-5 py-5 md:grid-cols-3">
-          <div><p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-[#9298a0]">Contact</p><p className="mt-3 text-[11px] text-[#777]">Primary phone</p><p className="mt-1 text-[12px] font-semibold text-[#222]">{patient.primaryPhone}</p><p className="mt-3 text-[11px] text-[#777]">Email</p><p className="mt-1 text-[12px] text-[#222]">—</p></div>
-          <div><p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-[#9298a0]">Address</p><p className="mt-3 text-[12px] font-semibold text-[#222]">{patient.address1}</p>{patient.address2 && <p className="mt-1 text-[12px] text-[#555]">{patient.address2}</p>}<p className="mt-1 text-[12px] text-[#555]">{patient.city}, {patient.state} {patient.zip}</p></div>
-          <div><p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-[#9298a0]">Medical</p><p className="mt-3 text-[11px] text-[#777]">Birth date</p><p className="mt-1 text-[12px] font-semibold text-[#222]">{patient.birthDate}</p><p className="mt-3 text-[11px] text-[#777]">Allergies</p><p className="mt-1 text-[12px] text-[#222]">None recorded</p></div>
+        {detailsOpen && <div className="grid gap-3 px-5 pb-5 md:grid-cols-3">
+          <div className="rounded-[10px] bg-[#FBFBFB] p-4"><p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-[#9298a0]">Contact</p><p className="mt-3 text-[11px] text-[#777]">Primary phone</p><p className="mt-1 text-[12px] font-semibold text-[#222]">{patient.primaryPhone}</p><p className="mt-3 text-[11px] text-[#777]">Email</p><p className="mt-1 text-[12px] text-[#222]">—</p></div>
+          <div className="rounded-[10px] bg-[#fffaf7] p-4"><p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-[#9298a0]">Address</p><p className="mt-3 text-[12px] font-semibold text-[#222]">{patient.address1}</p>{patient.address2 && <p className="mt-1 text-[12px] text-[#555]">{patient.address2}</p>}<p className="mt-1 text-[12px] text-[#555]">{patient.city}, {patient.state} {patient.zip}</p></div>
+          <div className="rounded-[10px] bg-[#fbfffd] p-4"><p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-[#9298a0]">Medical</p><p className="mt-3 text-[11px] text-[#777]">Birth date</p><p className="mt-1 text-[12px] font-semibold text-[#222]">{patient.birthDate}</p><p className="mt-3 text-[11px] text-[#777]">Allergies</p><p className="mt-1 text-[12px] text-[#222]">None recorded</p></div>
         </div>}
       </section>
 
 
-      <section ref={ordersSectionRef} className="mt-4 scroll-mt-5 rounded-[14px] border border-[#e4e1dd] bg-white p-5">
+      <section ref={ordersSectionRef} className="mt-4 scroll-mt-5 rounded-[14px] bg-[#fffaf7] p-5">
         <div className="flex items-center justify-between"><div><h2 className="text-[16px] font-semibold text-[#202020]">Orders <span className="ml-1 text-[12px] font-normal text-[#999]">({orderedPrescriptions.length + 1})</span></h2><p className="mt-1 text-[10px] text-[#858585]">Prescription and order history</p></div><div className="flex h-[38px] w-[220px] items-center gap-2 rounded-[9px] border border-[#efefef] bg-white px-3"><Search size={14} strokeWidth={1.8} className="shrink-0 text-[#686868]" /><input placeholder="Search orders" className="min-w-0 flex-1 bg-transparent text-[11px] font-medium text-[#1a1a1a] outline-none placeholder:font-medium placeholder:text-[#686868]" /><span className="shrink-0 text-[10px] text-[#686868]">⌘ F</span></div></div>
-        {orderedPrescriptions.map((prescription, index) => <article key={`ordered-${prescription.medication}-${index}`} className="mt-4 flex flex-wrap items-center gap-4 rounded-[10px] border border-[#e5e2de] px-4 py-4"><div className="flex size-10 items-center justify-center overflow-hidden"><img src={prescription.medication === "NAD+ Injection" ? imgNadInjection : imgAminoQuad} alt="" className="size-10 object-contain mix-blend-multiply" /></div><div className="min-w-0 flex-1"><div className="flex items-center gap-2"><p className="text-[12px] font-semibold text-[#222]">{prescription.medication}</p><span className="rounded-full bg-[#f0f0ee] px-2 py-1 text-[8px] font-bold uppercase text-[#555]">Pending approval</span></div><p className="mt-1 text-[10px] text-[#777]">Qty {prescription.qty} · {prescription.days} days · {prescription.refills} refills · {selectedPatientPharmacy}</p></div><p className="text-[13px] font-semibold">${(prescriptionUnitPrice(prescription.medication) * Number(prescription.qty)).toFixed(2)}</p></article>)}
-        <article className="mt-4 rounded-[10px] border border-[#e5e2de]">
-          <div className="flex flex-wrap items-center justify-between gap-4 px-4 py-4"><div className="flex items-center gap-3"><div className="flex size-11 shrink-0 items-center justify-center overflow-hidden bg-white"><img src={imgNadInjection} alt="NAD+ Injection" className="size-11 object-contain mix-blend-multiply" /></div><div><div className="flex items-center gap-2"><p className="text-[12px] font-semibold text-[#222]">NAD+ Injection</p><span className="rounded-full bg-[#f0f0ee] px-2 py-1 text-[8px] font-bold uppercase text-[#555]">Pending approval</span></div><p className="mt-1 text-[10px] text-[#777]">Order #449537 · Jul 13, 2026 · Qty 1</p></div></div><div className="flex items-center gap-5"><p className="text-[13px] font-semibold text-[#222]">$74.64</p><button onClick={() => setOrderDetailsOpen(current => !current)} className="inline-flex items-center gap-1 text-[11px] font-semibold text-[#333] hover:underline">{orderDetailsOpen ? "Hide details" : "Show details"}<ChevronDown size={13} className={orderDetailsOpen ? "rotate-180" : ""} /></button></div></div>
-          {orderDetailsOpen && <div className="grid gap-4 border-t border-[#ece9e5] bg-[#fbfaf8] px-4 py-4 text-[11px] sm:grid-cols-4"><div><p className="text-[#888]">Patient</p><p className="mt-1 font-semibold">{patient.firstName} {patient.lastName}</p></div><div><p className="text-[#888]">Shipping</p><p className="mt-1 font-semibold">Ship to patient</p></div><div><p className="text-[#888]">Tracking</p><p className="mt-1 font-semibold">Not ready</p></div><div><p className="text-[#888]">Days supply / Refills</p><p className="mt-1 font-semibold">30 days · 0 refills</p></div></div>}
+        {orderedPrescriptions.map((prescription, index) => <article key={`ordered-${prescription.medication}-${index}`} className="mt-3 flex flex-wrap items-center gap-4 rounded-[10px] bg-white px-4 py-4"><div className="flex size-12 items-center justify-center overflow-hidden"><img src={prescription.medication === "NAD+ Injection" ? imgNadInjection : imgAminoQuad} alt="" className="size-12 object-contain mix-blend-multiply" /></div><div className="min-w-0 flex-1"><div className="flex items-center gap-2"><p className="text-[12px] font-semibold text-[#222]">{prescription.medication}</p><span className="rounded-full bg-gradient-to-r from-[#FFE2D2] to-[#FFF45C] px-2 py-1 text-[8px] font-bold text-[#56203B]">Pending approval</span></div><p className="mt-1 text-[10px] text-[#777]">Qty {prescription.qty} · {prescription.days} days · {prescription.refills} refills · {selectedPatientPharmacy}</p></div><p className="text-[13px] font-semibold">${(prescriptionUnitPrice(prescription.medication) * Number(prescription.qty)).toFixed(2)}</p></article>)}
+        <article className="mt-3 rounded-[10px] bg-white">
+          <div className="flex flex-wrap items-center justify-between gap-4 px-4 py-4"><div className="flex items-center gap-3"><div className="flex size-12 shrink-0 items-center justify-center overflow-hidden bg-white"><img src={imgNadInjection} alt="NAD+ Injection" className="size-12 object-contain mix-blend-multiply" /></div><div><div className="flex items-center gap-2"><p className="text-[12px] font-semibold text-[#222]">NAD+ Injection</p><span className="rounded-full bg-gradient-to-r from-[#FFE2D2] to-[#FFF45C] px-2 py-1 text-[8px] font-bold text-[#56203B]">Pending approval</span></div><p className="mt-1 text-[10px] text-[#777]">Order #449537 · Jul 13, 2026 · Qty 1</p></div></div><div className="flex items-center gap-5"><p className="text-[13px] font-semibold text-[#222]">$74.64</p><button onClick={() => setOrderDetailsOpen(current => !current)} className="inline-flex items-center gap-1 text-[11px] font-semibold text-[#333] hover:underline">{orderDetailsOpen ? "Hide details" : "Show details"}<ChevronDown size={13} className={orderDetailsOpen ? "rotate-180" : ""} /></button></div></div>
+          {orderDetailsOpen && <div className="mx-4 mb-4 grid gap-4 rounded-[9px] bg-[#FBFBFB] px-4 py-4 text-[11px] sm:grid-cols-4"><div><p className="text-[#888]">Patient</p><p className="mt-1 font-semibold">{patient.firstName} {patient.lastName}</p></div><div><p className="text-[#888]">Shipping</p><p className="mt-1 font-semibold">Ship to patient</p></div><div><p className="text-[#888]">Tracking</p><p className="mt-1 font-semibold">Not ready</p></div><div><p className="text-[#888]">Days supply / Refills</p><p className="mt-1 font-semibold">30 days · 0 refills</p></div></div>}
         </article>
       </section>
     </div>
@@ -2907,10 +2907,7 @@ function UsersPage({ onNavigate }: { onNavigate: (p: Page) => void }) {
       p.primaryPhone.includes(search)
   );
 
-  const COLS = [
-    "First Name", "Last Name", "Birth Date", "Gender",
-    "Primary Phone", "Address Line 1", "Address Line 2", "City", "State", "Zip", "",
-  ];
+  const COLS = ["Patient", "Birth date", "Gender", "Phone", "Address", "Location", ""];
 
   if (selectedPatientIndex !== null && patients[selectedPatientIndex]) {
     return <><PatientDetailsView patient={patients[selectedPatientIndex]} onBack={() => setSelectedPatientIndex(null)} onEdit={() => setCreatePatientOpen(true)} /><PatientCreateModal open={createPatientOpen} onClose={() => setCreatePatientOpen(false)} /></>;
@@ -2925,11 +2922,11 @@ function UsersPage({ onNavigate }: { onNavigate: (p: Page) => void }) {
           <span className="text-[16px] font-normal text-[#9d9d9d]">({patients.length})</span>
         </h1>
         <div className="flex items-center gap-2">
-          <button className="flex items-center gap-1.5 border border-[#d0d0d0] bg-white rounded-[8px] px-4 py-2 text-[12px] font-medium text-[#1a1a1a] hover:bg-[#f7efe9]/60 transition-colors">
+          <button className="flex items-center gap-1.5 rounded-full border border-[#d8dedb] bg-white px-4 py-2 text-[11px] font-semibold text-[#31583F] transition-colors hover:bg-[#f7f8f7]">
             <Upload size={12} />
             Upload Patients
           </button>
-          <button onClick={() => setCreatePatientOpen(true)} className="flex items-center gap-1.5 bg-[#183229] text-white rounded-[8px] px-4 py-2 text-[12px] font-medium hover:bg-[#183229]/90 transition-colors">
+          <button onClick={() => setCreatePatientOpen(true)} className="flex items-center gap-1.5 rounded-full bg-[#111] px-4 py-2 text-[11px] font-semibold text-white transition-colors hover:bg-black">
             <Plus size={12} />
             Create Patient
           </button>
@@ -2951,14 +2948,14 @@ function UsersPage({ onNavigate }: { onNavigate: (p: Page) => void }) {
       </div>
 
       {/* Table */}
-      <div className="bg-white border border-[#e8e8e8] rounded-[10px] overflow-x-auto">
-        <table className="w-full min-w-[900px]">
+      <div className="overflow-x-auto rounded-[12px] bg-[#fffaf7] p-2">
+        <table className="w-full min-w-[820px] overflow-hidden rounded-[9px] bg-white">
           <thead>
-            <tr className="border-b border-[#efefef] bg-[#fafafa]">
+            <tr className="bg-[#FBFBFB]">
               {COLS.map((h) => (
                 <th
                   key={h}
-                  className="text-left text-[11px] font-semibold text-[#6b6b6b] px-3 py-2.5 whitespace-nowrap"
+                  className="whitespace-nowrap px-4 py-3 text-left text-[10px] font-semibold uppercase tracking-[0.08em] text-[#858b88]"
                 >
                   {h}
                 </th>
@@ -2972,19 +2969,15 @@ function UsersPage({ onNavigate }: { onNavigate: (p: Page) => void }) {
               <tr
                 key={i}
                 onClick={() => setSelectedPatientIndex(patientIndex)}
-                className="group border-b border-[#f3f3f3] hover:bg-[#fffbf8] transition-colors cursor-pointer"
+                className="group cursor-pointer transition-colors hover:bg-[#fffbf8]"
               >
-                <td className="px-3 py-2.5 text-[12px] text-[#1a1a1a] whitespace-nowrap">{p.firstName}</td>
-                <td className="px-3 py-2.5 text-[12px] text-[#1a1a1a] whitespace-nowrap">{p.lastName}</td>
-                <td className="px-3 py-2.5 text-[12px] text-[#4b4b4b] whitespace-nowrap">{p.birthDate}</td>
-                <td className="px-3 py-2.5 text-[12px] text-[#4b4b4b] whitespace-nowrap">{p.gender}</td>
-                <td className="px-3 py-2.5 text-[12px] text-[#4b4b4b] whitespace-nowrap">{p.primaryPhone}</td>
-                <td className="px-3 py-2.5 text-[12px] text-[#4b4b4b]">{p.address1}</td>
-                <td className="px-3 py-2.5 text-[12px] text-[#4b4b4b]">{p.address2}</td>
-                <td className="px-3 py-2.5 text-[12px] text-[#4b4b4b] whitespace-nowrap">{p.city}</td>
-                <td className="px-3 py-2.5 text-[12px] text-[#4b4b4b] whitespace-nowrap">{p.state}</td>
-                <td className="px-3 py-2.5 text-[12px] text-[#4b4b4b] whitespace-nowrap">{p.zip}</td>
-                <td onClick={event => event.stopPropagation()} className="relative px-2 py-2.5 text-right">
+                <td className="px-4 py-3.5"><div className="flex items-center gap-3"><span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-[#C5F5DD] to-[#E7F5A5] text-[11px] font-bold text-[#31583F]">{p.firstName[0]}{p.lastName[0]}</span><div><p className="whitespace-nowrap text-[12px] font-semibold text-[#1a1a1a]">{p.firstName} {p.lastName}</p><p className="mt-0.5 text-[9px] text-[#8c95a1]">Patient profile</p></div></div></td>
+                <td className="whitespace-nowrap px-4 py-3.5 text-[11px] text-[#4b4b4b]">{p.birthDate}</td>
+                <td className="px-4 py-3.5"><span className="inline-flex rounded-full bg-[#eeeeec] px-2 py-1 text-[9px] font-semibold text-[#666]">{p.gender === "M" ? "Male" : p.gender === "F" ? "Female" : p.gender}</span></td>
+                <td className="whitespace-nowrap px-4 py-3.5 text-[11px] text-[#4b4b4b]">{p.primaryPhone}</td>
+                <td className="max-w-[230px] px-4 py-3.5 text-[11px] leading-4 text-[#4b4b4b]">{p.address1}{p.address2 ? `, ${p.address2}` : ""}</td>
+                <td className="whitespace-nowrap px-4 py-3.5 text-[11px] text-[#4b4b4b]">{p.city}, {p.state} {p.zip}</td>
+                <td onClick={event => event.stopPropagation()} className="relative px-3 py-3.5 text-right">
                   <button onClick={() => setOpenPatientMenu(current => current === patientIndex ? null : patientIndex)} className={`flex size-7 items-center justify-center rounded-[7px] text-[#777] transition-all hover:bg-[#eceae7] hover:text-[#111] ${openPatientMenu === patientIndex ? "bg-[#eceae7] opacity-100" : "opacity-0 group-hover:opacity-100"}`} aria-label={`Actions for ${p.firstName} ${p.lastName}`}>
                     <MoreHorizontal size={16} />
                   </button>
@@ -4080,7 +4073,7 @@ function MultiPatientCartPage({
   const [selectedShippingByPharmacy, setSelectedShippingByPharmacy] = useState<Record<string, number>>({});
   const [removed, setRemoved] = useState<Set<number>>(new Set());
   const [showAllSummaryItems, setShowAllSummaryItems] = useState(false);
-  const [cartCardVariant, setCartCardVariant] = useState<1 | 2>(1);
+  const [cartCardVariant, setCartCardVariant] = useState<1 | 2 | 3>(1);
   const [expandedSupplies, setExpandedSupplies] = useState<Set<number>>(new Set([1]));
   const [previewOpen, setPreviewOpen] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState<"patient" | "clinic">("patient");
@@ -4201,6 +4194,7 @@ function MultiPatientCartPage({
   const cartCardThemes = {
     1: { label: "Current", shell: "#fffaf7", border: "#fffaf7", item: "#ffffff" },
     2: { label: "Silver", shell: "#FBFBFB", border: "#FBFBFB", item: "#ffffff" },
+    3: { label: "Clean", shell: "#fffaf7", border: "#EAE8E1", item: "#FBFBFB" },
   } as const;
   const activeCardTheme = cartCardThemes[cartCardVariant];
 
@@ -4211,7 +4205,7 @@ function MultiPatientCartPage({
       <div className="max-w-[1300px]">
         <div className="mb-5 flex flex-wrap items-center gap-2">
           <span className="mr-1 text-[11px] font-semibold uppercase tracking-[0.1em] text-[#777]">Card style</span>
-          {([1, 2] as const).map(variant => (
+          {([1, 2, 3] as const).map(variant => (
             <button
               key={variant}
               onClick={() => setCartCardVariant(variant)}
@@ -4239,7 +4233,7 @@ function MultiPatientCartPage({
               return (
                 <Fragment key={item.id}>
                   {isFirstInPharmacy && (
-                    <div style={{ backgroundColor: activeCardTheme.shell }} className={(rowIndex === 0 ? "" : "mt-7 ") + "rounded-t-[10px] px-5 pb-4 pt-5"}>
+                    <div style={{ backgroundColor: activeCardTheme.shell, borderColor: activeCardTheme.border }} className={(rowIndex === 0 ? "" : "mt-7 ") + `rounded-t-[10px] px-5 ${cartCardVariant === 3 ? "border-x border-t pb-3 pt-4" : "pb-4 pt-5"}`}>
                       <div className="flex items-center justify-between gap-4">
                         <h2 className="text-[16px] font-medium text-[#171717]">{pharmacy} Cart</h2>
                         <div className="flex flex-wrap items-center justify-end gap-2">
@@ -4254,7 +4248,7 @@ function MultiPatientCartPage({
 
                   <article
                     style={{ backgroundColor: activeCardTheme.item, borderColor: activeCardTheme.border }}
-                    className={`relative border-x-[12px] border-b-[12px] px-5 ${isExpanded ? "pb-5 pt-5" : "py-7"}`}
+                    className={`relative px-5 ${cartCardVariant === 3 ? "border-x border-b py-5" : `border-x-[12px] border-b-[12px] ${isExpanded ? "pb-5 pt-5" : "py-7"}`}`}
                   >
                     <div className="grid grid-cols-1 gap-5 lg:grid-cols-[minmax(270px,1fr)_210px_112px_90px] lg:items-start">
                       <div className="flex min-w-0 gap-4">
@@ -4424,7 +4418,7 @@ function MultiPatientCartPage({
                   </article>
 
                   {isLastInPharmacy && (
-                    <div style={{ backgroundColor: activeCardTheme.shell }} className="rounded-b-[10px] px-5 pb-5 pt-2">
+                    <div style={{ backgroundColor: activeCardTheme.shell, borderColor: activeCardTheme.border }} className={`rounded-b-[10px] px-5 pt-2 ${cartCardVariant === 3 ? "border-x border-b pb-4" : "pb-5"}`}>
                       <div className="flex flex-wrap items-center justify-between gap-3">
                         <p className="max-w-[620px] text-[10px] font-medium leading-[16px] text-[#303030]">
                           {multiPatientShipping ? "Multi-patient shipping is supported — one shipping fee covers all patients." : "Multi-patient shipping is not supported — shipping is charged separately for each patient (" + shipmentCount + " shipping fees)."}
