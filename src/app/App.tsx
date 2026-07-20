@@ -1551,21 +1551,32 @@ function OptionPill({
   label,
   selected,
   onClick,
+  emphasis,
+  card,
 }: {
   label: string;
   selected?: boolean;
   onClick?: () => void;
+  emphasis?: boolean;
+  card?: boolean;
 }) {
   return (
     <button
       onClick={onClick}
-      className={`h-11 rounded-[7px] border px-5 text-[12px] font-medium transition-colors ${
-        selected
+      className={`inline-flex h-11 items-center rounded-[7px] border px-5 text-[12px] font-medium transition-colors ${
+        selected && card
+          ? "border-[#183229] bg-[#eef7f2] text-[#183229] shadow-[0_8px_18px_rgba(24,50,41,0.08)]"
+          : selected && emphasis
+          ? "border-[#183229] bg-[#183229] text-white shadow-[0_8px_18px_rgba(24,50,41,0.16)]"
+          : selected
           ? "border-2 border-[#111] bg-white text-[#111]"
           : "border-[#c8c8c8] bg-white text-[#333] hover:border-[#111]/50"
       }`}
     >
-      {label}
+      <span className={`inline-flex items-center gap-1.5 ${card ? "w-full justify-between" : ""}`}>
+        <span>{label}</span>
+        {(emphasis || card) && selected && <CheckCircle2 size={13} strokeWidth={2} />}
+      </span>
     </button>
   );
 }
@@ -1745,13 +1756,13 @@ function ProductDetailPage({
         <span className="mr-1 text-[10px] font-semibold uppercase tracking-[0.1em] text-[#777]">Page style</span>
         {([1, 2, 3] as const).map(variant => (
           <button key={variant} onClick={() => setProductDetailVariant(variant)} className={`h-8 rounded-full px-3 text-[11px] font-semibold transition-colors ${productDetailVariant === variant ? "bg-[#111] text-white" : "border border-[#ddd] bg-white text-[#555] hover:border-[#999]"}`}>
-            {variant}. {variant === 1 ? "Current" : variant === 2 ? "Compact" : "Editorial"}
+            {variant}. {variant === 1 ? "Current" : variant === 2 ? "Selection" : "Card Selection"}
           </button>
         ))}
       </div>
-      <div className={`grid items-start ${productDetailVariant === 1 ? "max-w-[1073px] gap-10 xl:grid-cols-[minmax(0,1.244fr)_minmax(0,1fr)]" : productDetailVariant === 2 ? "max-w-[1180px] gap-7 xl:grid-cols-[minmax(0,0.92fr)_minmax(0,1.08fr)]" : "max-w-[1280px] gap-12 xl:grid-cols-[minmax(0,1.42fr)_minmax(360px,0.78fr)]"}`}>
+      <div className="grid max-w-[1073px] items-start gap-10 xl:grid-cols-[minmax(0,1.244fr)_minmax(0,1fr)]">
         <div className="min-w-0">
-          <div className={`flex items-center justify-center overflow-hidden p-16 ${productDetailVariant === 1 ? "h-[600px] rounded-[18px] border border-[#e4e4e4] bg-[#f8f8f8]" : productDetailVariant === 2 ? "h-[480px] rounded-[14px] bg-[var(--app-soft)]" : "h-[680px] rounded-[20px] bg-[#FBFBFB]"}`}>
+          <div className={`flex h-[600px] items-center justify-center overflow-hidden rounded-[18px] border border-[#e4e4e4] p-16 ${productDetailVariant === 2 ? "bg-[#fbfdfc]" : "bg-[#f8f8f8]"}`}>
             <img src={product.img} alt={product.name} className="h-full max-h-[410px] w-full object-contain mix-blend-multiply" />
           </div>
           <div className="mt-7 flex flex-wrap gap-2">
@@ -1761,7 +1772,7 @@ function ProductDetailPage({
           </div>
         </div>
 
-        <div ref={configurationCardRef} className={`min-w-0 ${productDetailVariant === 1 ? "-mt-[23px]" : productDetailVariant === 2 ? "rounded-[14px] bg-[#FBFBFB] p-5" : "xl:sticky xl:top-5"}`}>
+        <div ref={configurationCardRef} className="-mt-[23px] min-w-0">
           <h1 className="text-[30px] font-medium leading-tight text-[#111]">{product.name}</h1>
           <p className="mt-1.5 max-w-[500px] text-[13px] leading-[1.45] text-[#8a8a8a]">A compounded {product.dosage.toLowerCase()} developed for personalized {product.areaOfTreatment.toLowerCase()} treatment and patient care.</p>
           <p className="mt-5 text-[25px] font-medium text-[#111]">${baseProductPrice.toFixed(2)}</p>
@@ -1769,21 +1780,21 @@ function ProductDetailPage({
           <div className="mt-2 border-t border-[#ededed] pt-2">
             <p className="mb-2 text-[12px] font-medium text-[#111]">Size</p>
             <div className="flex flex-wrap gap-2">
-              {(product.dosage === "Gel" ? ["15g Tube", "30g Tube", "60g Tube"] : product.dosage === "Capsule" ? ["30 Capsules", "60 Capsules", "90 Capsules"] : ["1 (5mL) Vial", "1 (10mL) Vial", "1 (30mL) Vial"]).map(option => <OptionPill key={option} label={option} selected={size === option} onClick={() => setSize(option)} />)}
+              {(product.dosage === "Gel" ? ["15g Tube", "30g Tube", "60g Tube"] : product.dosage === "Capsule" ? ["30 Capsules", "60 Capsules", "90 Capsules"] : ["1 (5mL) Vial", "1 (10mL) Vial", "1 (30mL) Vial"]).map(option => <OptionPill key={option} label={option} selected={size === option} onClick={() => setSize(option)} emphasis={productDetailVariant === 2} card={productDetailVariant === 3} />)}
             </div>
           </div>
 
           <div className="mt-3 border-t border-[#ededed] pt-2">
             <p className="mb-2 text-[12px] font-medium text-[#111]">Strength</p>
             <div className="flex flex-wrap gap-2">
-              {[defaultStrength, product.dosage === "Gel" ? "0.05%" : "1mg/mL"].filter((option, index, list) => list.indexOf(option) === index).map(option => <OptionPill key={option} label={option} selected={strength === option} onClick={() => setStrength(option)} />)}
+              {[defaultStrength, product.dosage === "Gel" ? "0.05%" : "1mg/mL"].filter((option, index, list) => list.indexOf(option) === index).map(option => <OptionPill key={option} label={option} selected={strength === option} onClick={() => setStrength(option)} emphasis={productDetailVariant === 2} card={productDetailVariant === 3} />)}
             </div>
           </div>
 
           <div className="mt-3 border-t border-[#ededed] pt-2">
             <p className="mb-2 text-[12px] font-medium text-[#111]">{product.dosage === "Injection" ? "Injection Type" : "Form"}</p>
             <div className="flex flex-wrap gap-2">
-              {(product.dosage === "Injection" ? ["Subcutaneous", "Intramuscular"] : [product.dosage]).map(option => <OptionPill key={option} label={option} selected={injType === option} onClick={() => setInjType(option)} />)}
+              {(product.dosage === "Injection" ? ["Subcutaneous", "Intramuscular"] : [product.dosage]).map(option => <OptionPill key={option} label={option} selected={injType === option} onClick={() => setInjType(option)} emphasis={productDetailVariant === 2} card={productDetailVariant === 3} />)}
             </div>
           </div>
 
@@ -1793,9 +1804,12 @@ function ProductDetailPage({
               {pharmacies.slice(0, 2).map(option => {
                 const selected = pharmacy === option.name;
                 return (
-                  <button key={option.name} onClick={() => setPharmacy(option.name)} className={`grid w-full grid-cols-[minmax(0,1fr)_90px] items-center rounded-[8px] border px-3 py-3 text-left transition-colors ${selected ? "border-2 border-[#202c27] bg-[#fcfdfc]" : "border-[#bdbdbd] bg-white hover:border-[#555]"}`}>
+                  <button key={option.name} onClick={() => setPharmacy(option.name)} className={`grid w-full grid-cols-[minmax(0,1fr)_90px] items-center rounded-[8px] border px-3 py-3 text-left transition-colors ${selected && productDetailVariant === 2 ? "border-[#183229] bg-[#eef7f2] shadow-[0_8px_18px_rgba(24,50,41,0.08)]" : selected ? "border-2 border-[#202c27] bg-[#fcfdfc]" : "border-[#bdbdbd] bg-white hover:border-[#555]"}`}>
                     <span className="min-w-0">
-                      <span className="block truncate text-[12px] font-medium text-[#111]">{option.name}</span>
+                      <span className="flex items-center gap-1.5 truncate text-[12px] font-medium text-[#111]">
+                        {selected && productDetailVariant === 2 && <CheckCircle2 size={13} className="shrink-0 text-[#183229]" />}
+                        {option.name}
+                      </span>
                       <span className="mt-0.5 block text-[9px] text-[#777]">Beyond use 90 days</span>
                     </span>
                     <span className="text-right">
@@ -2280,7 +2294,7 @@ function OrdersPage({ onNavigate, onOrderSelect }: { onNavigate: (p: Page) => vo
   });
   const [shippingMethod, setShippingMethod] = useState<"standard" | "overnight">("standard");
   const [reviewOpen, setReviewOpen] = useState(false);
-  const [orderCardVariant, setOrderCardVariant] = useState<"current" | "cart" | "optimized" | "silver">("cart");
+  const [orderCardVariant, setOrderCardVariant] = useState<"current" | "cart" | "optimized" | "silver">("silver");
 
   const tabs = ["Overall", "Pending Payment", "Pending Approval", "Cancellation Requested", "Processing", "Pending eScript", "Shipped", "Delivered", "Flagged", "Cancelled"];
 
@@ -2395,13 +2409,13 @@ function OrdersPage({ onNavigate, onOrderSelect }: { onNavigate: (p: Page) => vo
 
         <div className="flex items-center gap-2 pt-1">
           <span className="mr-1 text-[10px] font-semibold uppercase tracking-[0.1em] text-[#888]">Card style</span>
-          {(["cart", "silver"] as const).map(variant => (
+          {(["silver", "cart"] as const).map(variant => (
             <button
               key={variant}
               onClick={() => setOrderCardVariant(variant)}
               className={`h-8 rounded-full px-3 text-[11px] font-semibold capitalize transition-colors ${orderCardVariant === variant ? "bg-[#111] text-white" : "border border-[#ddd] bg-white text-[#555] hover:border-[#999]"}`}
             >
-              {variant === "cart" ? "Cart style" : "4. Silver"}
+              {variant === "cart" ? "Cart style" : "Current"}
             </button>
           ))}
         </div>
