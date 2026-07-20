@@ -441,7 +441,7 @@ function Sidebar({
   };
 
   return (
-    <aside className="sticky top-0 h-screen w-[248px] flex-shrink-0 flex flex-col border-r border-[#eaeaea] bg-[#fffbf8]">
+    <aside className="sticky top-0 h-screen w-[248px] flex-shrink-0 flex flex-col bg-[#fffbf8]">
       {/* Logo */}
       <button
         type="button"
@@ -492,7 +492,7 @@ function Sidebar({
       </div>
 
       <div className="mt-auto" />
-      <div className="border-t border-[#e8e3df] px-4 py-4">
+      <div className="px-4 py-4">
         <UserChip onNavigate={onNavigate} onLogout={onLogout} />
       </div>
     </aside>
@@ -522,24 +522,19 @@ function UserChip({ onNavigate, onLogout }: { onNavigate: (p: Page) => void; onL
           </div>
         </div>
       )}
-      <button
-        onClick={() => setMenuOpen(current => !current)}
-        className="flex items-center gap-2.5 rounded-[26px] bg-[#f6f4f5] px-3.5 py-2.5 transition-colors hover:bg-[#eee9e5]"
-        aria-expanded={menuOpen}
-        aria-label="Open account menu"
-      >
-        <div className="relative flex size-8 items-center justify-center rounded-full bg-[#b6a7ff]">
-          <span className="text-[14px] font-medium text-[#6947ef]">Z</span>
-          <span className="absolute -right-0.5 -top-1 size-3.5 rounded-full border-2 border-[#f6f4f5] bg-[#ff7e86]" />
-        </div>
-        <div className="text-left leading-tight">
-          <div className="flex items-center gap-2">
-            <span className="text-[14px] font-medium text-[#151515]">Hi, Zee</span>
-            <img src={userVerifiedIcon} alt="Verified" className="size-3.5" />
+      <div className="flex items-center rounded-[26px] bg-[#f6f4f5] px-2 py-2 transition-colors hover:bg-[#eee9e5]">
+        <button onClick={() => setMenuOpen(current => !current)} className="flex min-w-0 flex-1 items-center gap-2.5 text-left" aria-expanded={menuOpen} aria-label="Open account menu">
+          <div className="relative flex size-8 shrink-0 items-center justify-center rounded-full bg-[#b6a7ff] text-[#6947ef]">
+            <span className="text-[14px] font-medium">Z</span>
+            <span className="absolute -right-0.5 -top-1 size-3.5 rounded-full border-2 border-[#f6f4f5] bg-[#ff7e86]" />
           </div>
-          <span className="mt-0.5 block text-[11px] text-[#777]">Verified User</span>
-        </div>
-      </button>
+          <div className="min-w-0 flex-1 leading-tight">
+            <div className="flex items-center gap-1.5"><span className="truncate text-[14px] font-medium text-[#151515]">Hi, Zee</span><img src={userVerifiedIcon} alt="Verified" className="size-3.5 shrink-0" /></div>
+            <span className="mt-0.5 block truncate text-[11px] text-[#777]">Verified User</span>
+          </div>
+        </button>
+        <button onClick={() => setMenuOpen(current => !current)} className={`ml-1 flex size-8 shrink-0 flex-col items-center justify-center gap-[3px] rounded-full text-[#777] transition-colors hover:bg-white hover:text-[#111] ${menuOpen ? "bg-white text-[#111]" : ""}`} aria-label="More account options"><span className="size-[3px] rounded-full bg-current" /><span className="size-[3px] rounded-full bg-current" /></button>
+      </div>
     </div>
   );
 }
@@ -2248,7 +2243,7 @@ function OrdersPage({ onNavigate, onOrderSelect }: { onNavigate: (p: Page) => vo
   });
   const [shippingMethod, setShippingMethod] = useState<"standard" | "overnight">("standard");
   const [reviewOpen, setReviewOpen] = useState(false);
-  const [orderCardVariant, setOrderCardVariant] = useState<"current" | "cart" | "optimized">("current");
+  const [orderCardVariant, setOrderCardVariant] = useState<"current" | "cart" | "optimized" | "silver">("current");
 
   const tabs = ["Overall", "Pending Payment", "Pending Approval", "Cancellation Requested", "Processing", "Pending eScript", "Shipped", "Delivered", "Flagged", "Cancelled"];
 
@@ -2342,13 +2337,13 @@ function OrdersPage({ onNavigate, onOrderSelect }: { onNavigate: (p: Page) => vo
 
         <div className="flex items-center gap-2 pt-1">
           <span className="mr-1 text-[10px] font-semibold uppercase tracking-[0.1em] text-[#888]">Card style</span>
-          {(["current", "cart", "optimized"] as const).map(variant => (
+          {(["current", "cart", "optimized", "silver"] as const).map(variant => (
             <button
               key={variant}
               onClick={() => setOrderCardVariant(variant)}
               className={`h-8 rounded-full px-3 text-[11px] font-semibold capitalize transition-colors ${orderCardVariant === variant ? "bg-[#111] text-white" : "border border-[#ddd] bg-white text-[#555] hover:border-[#999]"}`}
             >
-              {variant === "current" ? "1. Current" : variant === "cart" ? "2. Cart style" : "3. Optimized"}
+              {variant === "current" ? "1. Current" : variant === "cart" ? "2. Cart style" : variant === "optimized" ? "3. Optimized" : "4. Silver"}
             </button>
           ))}
         </div>
@@ -2364,8 +2359,8 @@ function OrdersPage({ onNavigate, onOrderSelect }: { onNavigate: (p: Page) => vo
       ) : (
         <div className="grid gap-4">
           {filtered.map((order) => (
-            <section key={order.id} onClick={() => onOrderSelect(order)} className={`cursor-pointer overflow-hidden ${orderCardVariant === "current" ? "rounded-[13px] border border-[#e5ddd5] bg-white" : "rounded-[10px] bg-[#fffaf7] p-3"}`}>
-              <div className={`flex flex-wrap items-center justify-between gap-3 ${orderCardVariant === "current" ? "border-b border-[#eee8e3] bg-[#fffcf8] px-5 py-4" : "bg-[#fffaf7] px-2 pb-4 pt-2"}`}>
+            <section key={order.id} onClick={() => onOrderSelect(order)} className={`cursor-pointer overflow-hidden ${orderCardVariant === "current" ? "rounded-[13px] border border-[#e5ddd5] bg-white" : orderCardVariant === "silver" ? "rounded-[10px] bg-[#FBFBFB] p-3" : "rounded-[10px] bg-[#fffaf7] p-3"}`}>
+              <div className={`flex flex-wrap items-center justify-between gap-3 ${orderCardVariant === "current" ? "border-b border-[#eee8e3] bg-[#fffcf8] px-5 py-4" : orderCardVariant === "silver" ? "bg-[#FBFBFB] px-2 pb-4 pt-2" : "bg-[#fffaf7] px-2 pb-4 pt-2"}`}>
                 <div className="flex flex-wrap items-center gap-3">
                   <span className="text-[14px] font-bold text-[#1a1a1a]">{order.id}</span>
                   <span className="inline-flex items-center gap-1 rounded-full bg-gradient-to-r from-[#C5F5DD] to-[#E7F5A5] px-2.5 py-1 text-[11px] font-bold text-[#31583F]">
@@ -5256,7 +5251,7 @@ export default function App() {
             <Sidebar active={page} onNavigate={setPage} cartPage={cartPage} onLogout={() => setIsAuthenticated(false)} />
 
             {/* Main content area */}
-            <main className="h-screen min-w-0 flex-1 overflow-y-auto p-6">
+            <main className="h-screen min-w-0 flex-1 overflow-y-auto p-3 pl-1.5">
               <div className="bg-card rounded-[10px] min-h-full p-7 shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
                 {renderPage()}
               </div>
