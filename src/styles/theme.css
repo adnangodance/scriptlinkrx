@@ -2,7 +2,7 @@
 
 :root {
   --font-size: 16px;
-  --background: #fffbf8;
+  --background: #fafafa;
   --foreground: #1a1a1a;
   --card: #fefeff;
   --card-foreground: #1a1a1a;
@@ -40,6 +40,25 @@
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
 }
+
+.app-theme {
+  --app-soft: #fafafa;
+  --app-soft-hover: #fafafa;
+  --app-menu-bg: #f6f4f7;
+  --app-menu-hover: #f6f4f7;
+  --background: #fafafa;
+  --card: #ffffff;
+}
+
+.app-theme-orange {
+  --app-soft: #fffaf7;
+  --app-soft-hover: #fffbf8;
+  --app-menu-bg: #fff3e8;
+  --app-menu-hover: #fff3e8;
+  --background: #fffbf8;
+  --card: #ffffff;
+}
+
 
 .dark {
   --background: oklch(0.145 0 0);
@@ -135,6 +154,7 @@
 
   html {
     font-size: var(--font-size);
+    scrollbar-gutter: stable;
   }
 
   h1 {

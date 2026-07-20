@@ -48,6 +48,8 @@ import {
   Loader2,
   EyeOff,
   LogOut,
+  Flag,
+  Send,
 } from "lucide-react";
 
 import img430 from "@/imports/ScriptlinkrxDashboard/9b6fa0a3b334659006bcf39e91b4da387a7b4cf0.png";
@@ -84,6 +86,8 @@ type Page =
   | "cart-single"
   | "cart-multi"
   | "checkout-prescription";
+
+type AppTheme = "default" | "orange";
 
 type CartMode = "single" | "multi";
 
@@ -330,8 +334,8 @@ function NavItem({
         <div className="absolute inset-x-0 top-0 h-0.5 bg-[#183229] rounded-full -translate-y-px" />
       )}
       <div
-        className={`flex items-center gap-2.5 px-3 py-2 rounded-[7px] text-[13px] font-medium text-[#1a1a1a] w-full transition-colors cursor-grab active:cursor-grabbing select-none ${
-          isActive ? "bg-[#f7efe9]" : isDragOver ? "bg-[#f7efe9]/40" : "hover:bg-[#f7efe9]/60"
+        className={`flex h-10 w-full cursor-grab select-none items-center gap-2.5 rounded-[9px] px-2.5 text-[13px] font-normal text-[#242424] transition-colors active:cursor-grabbing ${
+          isActive ? "bg-[#F2F3F4] text-[#171717]" : isDragOver ? "bg-[#F6F7F7]" : "hover:bg-[#F6F6F5]"
         }`}
         onClick={() => {
           if (label === "Hard Refresh") {
@@ -342,14 +346,14 @@ function NavItem({
           onOpenMenu(null);
         }}
       >
-        <Icon size={17} strokeWidth={1.5} className="flex-shrink-0" />
+        <Icon size={16} strokeWidth={1.65} className="flex-shrink-0 text-[#303332]" />
         <span className="flex-1">{label}</span>
         {(isHovered || menuOpen) && (
           <button
-            className="w-5 h-5 flex items-center justify-center rounded hover:bg-[#e7d7cc] transition-colors flex-shrink-0"
+            className="flex size-6 flex-shrink-0 items-center justify-center rounded-[6px] transition-colors hover:bg-white"
             onClick={(e) => { e.stopPropagation(); onOpenMenu(menuOpen ? null : label); }}
           >
-            <MoreHorizontal size={13} className="text-[#9d9d9d]" />
+            <MoreHorizontal size={14} className="text-[#8b8f8d]" />
           </button>
         )}
       </div>
@@ -380,11 +384,15 @@ function Sidebar({
   onNavigate,
   cartPage,
   onLogout,
+  appTheme,
+  setAppTheme,
 }: {
   active: Page;
   onNavigate: (p: Page) => void;
   cartPage: Page;
   onLogout: () => void;
+  appTheme: AppTheme;
+  setAppTheme: Dispatch<SetStateAction<AppTheme>>;
 }) {
   const [favorites, setFavorites] = useState<MenuItem[]>(INITIAL_FAVORITES);
   const [mainMenu, setMainMenu] = useState<MenuItem[]>(INITIAL_MAIN);
@@ -441,39 +449,38 @@ function Sidebar({
   };
 
   return (
-    <aside className="sticky top-0 h-screen w-[248px] flex-shrink-0 flex flex-col bg-[#fffbf8]">
+    <aside className="sticky top-0 flex h-screen w-[248px] flex-shrink-0 flex-col bg-[#FCFBFA] px-3">
       {/* Logo */}
       <button
         type="button"
         onClick={() => onNavigate("products")}
-        className="flex w-full cursor-pointer items-center gap-2.5 px-5 pt-6 pb-5 text-left"
+        className="flex min-w-0 cursor-pointer items-center gap-2.5 py-4 text-left"
         aria-label="Go to catalog"
       >
-        <img src={scriptlinkrxLogo} alt="ScriptLinkRx" className="h-[26px] w-8 object-contain" />
-        <span className="font-['Poppins',sans-serif] font-semibold text-[17px] text-[#1a1a1a] uppercase tracking-wide">
+        <img src={scriptlinkrxLogo} alt="ScriptLinkRx" className="h-[25px] w-8 object-contain" />
+        <span className="min-w-0 flex-1 truncate font-['Poppins',sans-serif] text-[16px] font-semibold uppercase tracking-wide text-[#1a1a1a]">
           S<span className="lowercase">CRIPTLINKrx</span>
         </span>
+        <span className="flex size-7 shrink-0 items-center justify-center rounded-[7px] text-[#666] hover:bg-[#F1F2F2]" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="2.25" y="2.25" width="11.5" height="11.5" rx="3" stroke="currentColor" strokeWidth="1.2"/><path d="M9.25 2.75V13.25" stroke="currentColor" strokeWidth="1.2"/></svg></span>
       </button>
 
       {/* Search */}
-      <div className="px-3 pb-4">
-        <div className="bg-[#f9f0ea] rounded-[7px] h-8 flex items-center gap-2 px-3">
-          <Search size={13} className="text-[#9d9d9d] flex-shrink-0" />
+      <div className="pb-4">
+        <div className="flex h-11 items-center gap-2 rounded-[11px] border border-[#DFE1E3] bg-white px-3 transition-colors focus-within:border-[#AEB4B1]">
+          <Search size={15} strokeWidth={1.7} className="flex-shrink-0 text-[#454947]" />
           <input
             type="text"
             placeholder="Search stock or Orders"
-            className="text-[11px] text-[#1a1a1a] font-medium flex-1 bg-transparent outline-none placeholder:text-[#9d9d9d]"
+            className="min-w-0 flex-1 bg-transparent text-[12px] font-normal text-[#1a1a1a] outline-none placeholder:text-[#777c79]"
           />
-          <span className="bg-[#e7d7cc] rounded text-[9px] text-[#686868] px-1.5 py-0.5 flex-shrink-0">/</span>
+          <span className="flex shrink-0 items-center gap-0.5 text-[#9a9e9c]"><kbd className="flex size-5 items-center justify-center rounded-[4px] bg-[#F1F2F3] text-[10px]">⌘</kbd><kbd className="flex size-5 items-center justify-center rounded-[4px] bg-[#F1F2F3] text-[10px]">K</kbd></span>
         </div>
       </div>
 
-      <div className="h-px bg-[#dee3ea] mx-4 mb-4" />
-
       {/* Favorites */}
-      <div className="px-4 mb-4">
-        <p className="text-[11px] text-[#1a1a1a] opacity-40 font-medium mb-2.5">Favorites</p>
-        <div className="flex flex-col gap-1">
+      <div className="mb-4">
+        <p className="mb-1.5 px-2.5 text-[10px] font-medium uppercase tracking-[0.08em] text-[#A0A4A2]">Favorites</p>
+        <div className="flex flex-col gap-0.5">
           {favorites.map((item) => (
             <NavItem key={item.label} item={item} isPinned={true} isActive={item.page === "cart-multi" ? active === cartPage : item.page === "orders" ? active === "orders" || active === "order-detail" : active === item.page} section="fav" {...navItemProps} />
           ))}
@@ -481,9 +488,9 @@ function Sidebar({
       </div>
 
       {/* Main Menu */}
-      <div className="px-4">
-        <p className="text-[11px] text-[#1a1a1a] opacity-40 font-medium mb-2.5">Main Menu</p>
-        <div className="flex flex-col gap-1">
+      <div>
+        <p className="mb-1.5 px-2.5 text-[10px] font-medium uppercase tracking-[0.08em] text-[#A0A4A2]">Main Menu</p>
+        <div className="flex flex-col gap-0.5">
           {mainMenu.map((item) => {
             const isActive = active === item.page && item.label !== "Hard Refresh";
             return <NavItem key={item.label} item={item} isPinned={false} isActive={isActive} section="main" {...navItemProps} />;
@@ -492,8 +499,8 @@ function Sidebar({
       </div>
 
       <div className="mt-auto" />
-      <div className="px-4 py-4">
-        <UserChip onNavigate={onNavigate} onLogout={onLogout} />
+      <div className="pb-3 pt-4">
+        <UserChip onNavigate={onNavigate} onLogout={onLogout} appTheme={appTheme} setAppTheme={setAppTheme} />
       </div>
     </aside>
   );
@@ -501,39 +508,70 @@ function Sidebar({
 
 // ─── Header ──────────────────────────────────────────────────────────────────
 
-function UserChip({ onNavigate, onLogout }: { onNavigate: (p: Page) => void; onLogout: () => void }) {
+function UserChip({
+  onNavigate,
+  onLogout,
+  appTheme,
+  setAppTheme,
+}: {
+  onNavigate: (p: Page) => void;
+  onLogout: () => void;
+  appTheme: AppTheme;
+  setAppTheme: Dispatch<SetStateAction<AppTheme>>;
+}) {
   const [menuOpen, setMenuOpen] = useState(false);
+  const themeOptions: Array<{ value: AppTheme; label: string }> = [
+    { value: "default", label: "Default" },
+    { value: "orange", label: "Orange" },
+  ];
+
   return (
     <div className="relative">
       {menuOpen && <button className="fixed inset-0 z-30 cursor-default" onClick={() => setMenuOpen(false)} aria-label="Close account menu" />}
       {menuOpen && (
-        <div className="absolute bottom-[calc(100%+10px)] left-0 z-40 w-[214px] overflow-hidden rounded-[10px] border border-[#dddeda] bg-white shadow-[0_12px_35px_rgba(24,50,41,0.16)]">
+        <div className="account-menu absolute bottom-[calc(100%+10px)] left-0 z-40 w-[214px] overflow-hidden rounded-[10px] border border-[#dddeda] bg-white shadow-[0_12px_35px_rgba(24,50,41,0.16)]">
           <div className="border-b border-[#eceeea] px-3.5 py-3">
             <p className="text-[12px] font-semibold text-[#1a1a1a]">Zee</p>
             <p className="mt-0.5 text-[10px] text-[#7a837f]">Account menu</p>
           </div>
           <div className="p-1.5">
-            <button onClick={() => { onNavigate("dashboard"); setMenuOpen(false); }} className="flex h-9 w-full items-center gap-2 rounded-[7px] px-2.5 text-[12px] font-medium text-[#1a1a1a] hover:bg-[#f4f6f5]">
+            <button onClick={() => { onNavigate("dashboard"); setMenuOpen(false); }} className="flex h-9 w-full items-center gap-2 rounded-[7px] px-2.5 text-[12px] font-medium text-[#252525] hover:bg-[var(--app-menu-bg)]">
               <LayoutDashboard size={15} /> Dashboard
             </button>
-            <button onClick={onLogout} className="flex h-9 w-full items-center gap-2 rounded-[7px] px-2.5 text-[12px] font-semibold text-[#1a1a1a] hover:bg-[#f4f6f5]">
+            <div className="my-1.5 border-t border-[#eceeea] pt-1.5">
+              <p className="px-2.5 pb-1 text-[9px] font-semibold uppercase tracking-[0.11em] text-[#8c948f]">Theme</p>
+              {themeOptions.map((option) => (
+                <button
+                  key={option.value}
+                  onClick={() => setAppTheme(option.value)}
+                  className={`flex h-8 w-full items-center justify-between rounded-[7px] px-2.5 text-[11px] font-medium transition-colors hover:bg-[var(--app-menu-bg)] ${appTheme === option.value ? "bg-[var(--app-menu-bg)] text-[#183229]" : "text-[#252525]"}`}
+                >
+                  <span>{option.label}</span>
+                  {appTheme === option.value && <CheckCircle2 size={13} className="text-[#00B33C]" />}
+                </button>
+              ))}
+            </div>
+            <button onClick={onLogout} className="flex h-9 w-full items-center gap-2 rounded-[7px] px-2.5 text-[12px] font-medium text-[#252525] hover:bg-[var(--app-menu-bg)]">
               <LogOut size={15} /> Log out
             </button>
           </div>
         </div>
       )}
-      <div className="flex items-center rounded-[26px] bg-[#f6f4f5] px-2 py-2 transition-colors hover:bg-[#eee9e5]">
+      <div className="flex h-14 items-center rounded-[28px] bg-[var(--app-menu-bg)] px-3 transition-colors hover:bg-[var(--app-menu-bg)]">
         <button onClick={() => setMenuOpen(current => !current)} className="flex min-w-0 flex-1 items-center gap-2.5 text-left" aria-expanded={menuOpen} aria-label="Open account menu">
-          <div className="relative flex size-8 shrink-0 items-center justify-center rounded-full bg-[#b6a7ff] text-[#6947ef]">
+          <div className="relative flex size-9 shrink-0 items-center justify-center rounded-full bg-[#b9a8ff] text-[#6b46f2]">
             <span className="text-[14px] font-medium">Z</span>
-            <span className="absolute -right-0.5 -top-1 size-3.5 rounded-full border-2 border-[#f6f4f5] bg-[#ff7e86]" />
+            <span className="absolute -right-0.5 -top-0.5 size-3 rounded-full border-2 border-[var(--app-menu-bg)] bg-[#ff7b83]" />
           </div>
-          <div className="min-w-0 flex-1 leading-tight">
-            <div className="flex items-center gap-1.5"><span className="truncate text-[14px] font-medium text-[#151515]">Hi, Zee</span><img src={userVerifiedIcon} alt="Verified" className="size-3.5 shrink-0" /></div>
-            <span className="mt-0.5 block truncate text-[11px] text-[#777]">Verified User</span>
+          <div className="min-w-0 leading-[1.15]">
+            <div className="flex min-w-0 items-center gap-1.5">
+              <span className="truncate text-[14px] font-medium text-[#181a19]">Hi, Zee</span>
+              <img src={userVerifiedIcon} alt="Verified" className="size-3.5 shrink-0" />
+            </div>
+            <span className="mt-0.5 block truncate text-[11px] font-normal text-[#737875]">Verified User</span>
           </div>
         </button>
-        <button onClick={() => setMenuOpen(current => !current)} className={`ml-1 flex size-8 shrink-0 flex-col items-center justify-center gap-[3px] rounded-full text-[#777] transition-colors hover:bg-white hover:text-[#111] ${menuOpen ? "bg-white text-[#111]" : ""}`} aria-label="More account options"><span className="size-[3px] rounded-full bg-current" /><span className="size-[3px] rounded-full bg-current" /></button>
+        <button onClick={() => setMenuOpen(current => !current)} className={`ml-2 flex size-8 shrink-0 flex-col items-center justify-center gap-[3px] rounded-[7px] text-[#5e6460] transition-colors hover:bg-[var(--app-menu-bg)] hover:text-[#111] ${menuOpen ? "bg-[var(--app-menu-bg)] text-[#111]" : ""}`} aria-label="More account options"><span className="size-[3px] rounded-full bg-current" /><span className="size-[3px] rounded-full bg-current" /></button>
       </div>
     </div>
   );
@@ -598,7 +636,7 @@ function HeaderActions({
             <div className="max-h-[260px] overflow-y-auto px-3 py-2">
               {cartPreviewItems.length > 0 ? (
                 cartPreviewItems.map(item => (
-                  <div key={`${item.id}-${item.name}`} className="group grid grid-cols-[46px_minmax(0,1fr)_28px] items-start gap-3 rounded-[7px] px-1.5 py-3 transition-colors hover:bg-[#fffbf8]">
+                  <div key={`${item.id}-${item.name}`} className="group grid grid-cols-[46px_minmax(0,1fr)_28px] items-start gap-3 rounded-[7px] px-1.5 py-3 transition-colors hover:bg-[var(--app-soft-hover)]">
                     <span className="flex size-11 items-center justify-center overflow-hidden rounded-[8px] bg-[#fbfaf8]">
                       <img src={item.img} alt="" className="h-9 w-10 object-contain mix-blend-multiply" />
                     </span>
@@ -687,7 +725,7 @@ function HeaderActions({
                       setFavoritesOpen(false);
                       onNavigate("product-detail");
                     }}
-                    className="grid w-full grid-cols-[42px_minmax(0,1fr)] items-center gap-3 rounded-[6px] px-1 py-2.5 text-left transition-colors hover:bg-[#fffbf8]"
+                    className="grid w-full grid-cols-[42px_minmax(0,1fr)] items-center gap-3 rounded-[6px] px-1 py-2.5 text-left transition-colors hover:bg-[var(--app-soft-hover)]"
                   >
                     <span className="flex h-8 w-10 items-center justify-center overflow-hidden bg-[#fbfaf8]">
                       <img src={product.img} alt="" className="h-8 w-10 object-contain mix-blend-multiply" />
@@ -1305,17 +1343,18 @@ function ProductsPage({
             const isAreaOfTreatment = label === "Area of Treatment";
             const isCountCheckboxFilter = isDosage || isAreaOfTreatment;
             const buttonLabel = isShippingState && hasSelection ? values[0] : label;
+            const filterWidthClass = isShippingState ? "w-[142px]" : isAreaOfTreatment ? "w-[165px]" : "w-[94px]";
             return (
               <div key={label} className="relative">
                 <button
                   onClick={() => setOpenCatalogFilter(isOpen ? null : label)}
-                  className={`flex h-[34px] cursor-pointer items-center gap-2 rounded-[5px] border bg-white px-2.5 text-[13px] font-semibold leading-none shadow-[0_1px_2px_rgba(16,24,40,0.08)] transition-colors ${
+                  className={`flex h-[34px] ${filterWidthClass} cursor-pointer items-center justify-between gap-2 rounded-[5px] border bg-white px-2.5 text-[13px] font-semibold leading-none shadow-[0_1px_2px_rgba(16,24,40,0.08)] transition-colors ${
                     hasSelection
                       ? "border-[#cfd8d4] text-[#344054]"
                       : "border-[#d8dee8] text-[#344054] hover:border-[#c7d0dc]"
                   }`}
                 >
-                  {buttonLabel}
+                  <span className="min-w-0 truncate">{buttonLabel}</span>
                   <ChevronsUpDown size={14} strokeWidth={1.8} className="text-[#344054]" />
                 </button>
 
@@ -1405,32 +1444,30 @@ function ProductsPage({
         </div>
       </div>
 
-      <div className="mb-5">
-        <p className="mb-1 text-[10px] font-semibold uppercase tracking-widest text-[#9d9d9d]">Pharmacies</p>
-        <div className="flex items-end gap-4 overflow-x-auto border-b border-[#e3e3e3] px-1">
-          {PHARMACIES_MULTI.map(pharmacy => {
-            const isActive = activePharmacy === pharmacy.name;
-            return (
-              <button
-                key={pharmacy.name}
-                onClick={() => setActivePharmacy(pharmacy.name)}
-                className={`relative flex h-[46px] shrink-0 items-center whitespace-nowrap px-0.5 text-[11px] font-medium transition-colors after:absolute after:bottom-0 after:left-0 after:h-[2px] after:w-full ${isActive ? "text-[#171717] after:bg-[#183229]" : "text-[#555] after:bg-transparent hover:text-[#171717]"}`}
-              >
-                <span>{pharmacy.name}</span>
-                <span className={`ml-1.5 inline-flex min-w-[18px] items-center justify-center rounded-full px-1.5 py-1 text-[9px] font-semibold ${isActive ? "bg-[#183229] text-white" : "bg-[#eeeeec] text-[#777]"}`}>{pharmacy.count}</span>
-                {pharmacy.name !== "All Pharmacies" && supportsMultiPatientShipping(pharmacy.name) && (
-                  <span className="group relative ml-1.5 inline-flex size-[18px] items-center justify-center rounded-full bg-[#C5F5DD] text-[#31583F]">
-                    <CheckCircle2 size={10} />
-                    <span className="pointer-events-none absolute bottom-[calc(100%+8px)] left-1/2 z-40 hidden w-56 -translate-x-1/2 rounded-[7px] bg-[#183229] px-3 py-2 text-left text-[10px] font-medium leading-relaxed text-white shadow-lg group-hover:block">
-                      Multi-shipping: one shipping fee covers prescriptions for multiple patients ordered from this pharmacy.
-                      <span className="absolute left-1/2 top-full -translate-x-1/2 border-4 border-transparent border-t-[#183229]" />
-                    </span>
+      <div className="mb-5 flex flex-wrap items-center gap-2">
+        <p className="mr-1 text-[10px] font-semibold uppercase tracking-widest text-[#9d9d9d]">Pharmacies (6)</p>
+        {PHARMACIES_MULTI.map(pharmacy => {
+          const isActive = activePharmacy === pharmacy.name;
+          return (
+            <button
+              key={pharmacy.name}
+              onClick={() => setActivePharmacy(pharmacy.name)}
+              className={`flex items-center gap-2 rounded-full border-2 bg-white px-3 py-1.5 text-[12px] font-medium transition-colors ${isActive ? "border-[#183229] text-[#183229]" : "border-[#e0e0e0] text-[#1a1a1a] hover:border-[#183229]/40"}`}
+            >
+              {pharmacy.name}
+              <span className={`text-[11px] font-semibold ${isActive ? "text-[#183229]" : "text-[#9d9d9d]"}`}>{pharmacy.count}</span>
+              {pharmacy.name !== "All Pharmacies" && supportsMultiPatientShipping(pharmacy.name) && (
+                <span className="group relative inline-flex items-center gap-1 rounded-full bg-[#e7f5ec] px-2 py-0.5 text-[9px] font-semibold text-[#2f704c]">
+                  <CheckCircle2 size={10} /> Multi-shipping
+                  <span className="pointer-events-none absolute bottom-[calc(100%+8px)] left-1/2 z-40 hidden w-56 -translate-x-1/2 rounded-[7px] bg-[#183229] px-3 py-2 text-left text-[10px] font-medium leading-relaxed text-white shadow-lg group-hover:block">
+                    One shipping fee covers prescriptions for multiple patients ordered from this pharmacy.
+                    <span className="absolute left-1/2 top-full -translate-x-1/2 border-4 border-transparent border-t-[#183229]" />
                   </span>
-                )}
-              </button>
-            );
-          })}
-        </div>
+                </span>
+              )}
+            </button>
+          );
+        })}
       </div>
 
       {selectedCatalogFilterCount > 0 && (
@@ -1714,7 +1751,7 @@ function ProductDetailPage({
       </div>
       <div className={`grid items-start ${productDetailVariant === 1 ? "max-w-[1073px] gap-10 xl:grid-cols-[minmax(0,1.244fr)_minmax(0,1fr)]" : productDetailVariant === 2 ? "max-w-[1180px] gap-7 xl:grid-cols-[minmax(0,0.92fr)_minmax(0,1.08fr)]" : "max-w-[1280px] gap-12 xl:grid-cols-[minmax(0,1.42fr)_minmax(360px,0.78fr)]"}`}>
         <div className="min-w-0">
-          <div className={`flex items-center justify-center overflow-hidden p-16 ${productDetailVariant === 1 ? "h-[600px] rounded-[18px] border border-[#e4e4e4] bg-[#f8f8f8]" : productDetailVariant === 2 ? "h-[480px] rounded-[14px] bg-[#fffaf7]" : "h-[680px] rounded-[20px] bg-[#FBFBFB]"}`}>
+          <div className={`flex items-center justify-center overflow-hidden p-16 ${productDetailVariant === 1 ? "h-[600px] rounded-[18px] border border-[#e4e4e4] bg-[#f8f8f8]" : productDetailVariant === 2 ? "h-[480px] rounded-[14px] bg-[var(--app-soft)]" : "h-[680px] rounded-[20px] bg-[#FBFBFB]"}`}>
             <img src={product.img} alt={product.name} className="h-full max-h-[410px] w-full object-contain mix-blend-multiply" />
           </div>
           <div className="mt-7 flex flex-wrap gap-2">
@@ -2243,7 +2280,7 @@ function OrdersPage({ onNavigate, onOrderSelect }: { onNavigate: (p: Page) => vo
   });
   const [shippingMethod, setShippingMethod] = useState<"standard" | "overnight">("standard");
   const [reviewOpen, setReviewOpen] = useState(false);
-  const [orderCardVariant, setOrderCardVariant] = useState<"current" | "cart" | "optimized" | "silver">("current");
+  const [orderCardVariant, setOrderCardVariant] = useState<"current" | "cart" | "optimized" | "silver">("cart");
 
   const tabs = ["Overall", "Pending Payment", "Pending Approval", "Cancellation Requested", "Processing", "Pending eScript", "Shipped", "Delivered", "Flagged", "Cancelled"];
 
@@ -2258,6 +2295,27 @@ function OrdersPage({ onNavigate, onOrderSelect }: { onNavigate: (p: Page) => vo
     Flagged: "bg-[#7B003B] text-[#FFE8EE]",
     Cancelled: "bg-[#56203B] text-[#FFE7D6]",
   };
+
+  const silverStatusPillStyle: Record<string, string> = {
+    Processing: "bg-[#FFC55B] text-[#151515]",
+    "Pending Payment": "bg-[#F20D17] text-white",
+    "Pending Approval": "bg-[#F20D17] text-white",
+    Cancelled: "bg-[#F20D17] text-white",
+    Flagged: "bg-[#F20D17] text-white",
+    Shipped: "bg-[#3269E8] text-white",
+    Delivered: "bg-[#0AB53B] text-white",
+    Test: "bg-[#F6DF5C] text-[#151515]",
+  };
+
+  function silverStatusIcon(status: string) {
+    if (status === "Processing") return <RefreshCw size={13} />;
+    if (status === "Pending Payment" || status === "Pending Approval") return <CreditCard size={13} />;
+    if (status === "Cancelled") return <AlertCircle size={13} />;
+    if (status === "Flagged") return <Flag size={13} />;
+    if (status === "Shipped") return <Send size={13} />;
+    if (status === "Delivered") return <CheckCircle2 size={13} />;
+    return <Package size={13} />;
+  }
 
   const filtered = ORDERS.filter((order) => {
     const matchesTab = filter === "Overall" || order.status === filter;
@@ -2337,13 +2395,13 @@ function OrdersPage({ onNavigate, onOrderSelect }: { onNavigate: (p: Page) => vo
 
         <div className="flex items-center gap-2 pt-1">
           <span className="mr-1 text-[10px] font-semibold uppercase tracking-[0.1em] text-[#888]">Card style</span>
-          {(["current", "cart", "optimized", "silver"] as const).map(variant => (
+          {(["cart", "silver"] as const).map(variant => (
             <button
               key={variant}
               onClick={() => setOrderCardVariant(variant)}
               className={`h-8 rounded-full px-3 text-[11px] font-semibold capitalize transition-colors ${orderCardVariant === variant ? "bg-[#111] text-white" : "border border-[#ddd] bg-white text-[#555] hover:border-[#999]"}`}
             >
-              {variant === "current" ? "1. Current" : variant === "cart" ? "2. Cart style" : variant === "optimized" ? "3. Optimized" : "4. Silver"}
+              {variant === "cart" ? "Cart style" : "4. Silver"}
             </button>
           ))}
         </div>
@@ -2359,24 +2417,29 @@ function OrdersPage({ onNavigate, onOrderSelect }: { onNavigate: (p: Page) => vo
       ) : (
         <div className="grid gap-4">
           {filtered.map((order) => (
-            <section key={order.id} onClick={() => onOrderSelect(order)} className={`cursor-pointer overflow-hidden ${orderCardVariant === "current" ? "rounded-[13px] border border-[#e5ddd5] bg-white" : orderCardVariant === "silver" ? "rounded-[10px] bg-[#FBFBFB] p-3" : "rounded-[10px] bg-[#fffaf7] p-3"}`}>
-              <div className={`flex flex-wrap items-center justify-between gap-3 ${orderCardVariant === "current" ? "border-b border-[#eee8e3] bg-[#fffcf8] px-5 py-4" : orderCardVariant === "silver" ? "bg-[#FBFBFB] px-2 pb-4 pt-2" : "bg-[#fffaf7] px-2 pb-4 pt-2"}`}>
+            <section key={order.id} onClick={() => onOrderSelect(order)} className={`cursor-pointer overflow-hidden ${orderCardVariant === "current" ? "rounded-[13px] border border-[#e5ddd5] bg-white" : orderCardVariant === "silver" ? "rounded-[10px] bg-[#FBFBFB] p-3" : "rounded-[10px] bg-[var(--app-soft)] p-3"}`}>
+              <div className={`flex flex-wrap items-center justify-between gap-3 ${orderCardVariant === "current" ? "border-b border-[#eee8e3] bg-[#fffcf8] px-5 py-4" : orderCardVariant === "silver" ? "bg-[#FBFBFB] px-2 pb-4 pt-2" : "bg-[var(--app-soft)] px-2 pb-4 pt-2"}`}>
                 <div className="flex flex-wrap items-center gap-3">
                   <span className="text-[14px] font-bold text-[#1a1a1a]">{order.id}</span>
-                  <span className="inline-flex items-center gap-1 rounded-full bg-gradient-to-r from-[#C5F5DD] to-[#E7F5A5] px-2.5 py-1 text-[11px] font-bold text-[#31583F]">
-                    {labelCase(order.payMethod)}
-                    <span className={`rounded-full px-1.5 py-0.5 text-[9px] font-bold text-white ${
-                      order.payStatus === "PAID" ? "bg-[#31583F]" : "bg-[#7B003B]"
-                    }`}>
-                      {labelCase(order.payStatus)}
+                  {orderCardVariant === "silver" ? <>
+                    <span className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[11px] font-semibold ${order.payMethod === "Pay by Clinic" ? "bg-[#20D8DB] text-[#102c2d]" : "bg-[#ACEABB] text-[#173d25]"}`}>
+                      {labelCase(order.payMethod)} {order.payMethod === "Pay by Clinic" ? <Building2 size={13} /> : <User size={13} />}
+                      <span className={`inline-flex h-4 min-w-[34px] items-center justify-center self-center rounded-full px-2 text-center text-[8px] font-bold uppercase leading-none ${order.payStatus === "PAID" ? "bg-white text-[#17201b]" : "bg-[#FF4A87] text-white"}`}>{order.payStatus}</span>
                     </span>
-                  </span>
-                  <span className="inline-flex items-center gap-1 rounded-full bg-gradient-to-r from-[#CADDD9] to-[#E8E5B0] px-2.5 py-1 text-[11px] font-bold text-[#56203B]">
-                    {labelCase(order.shipMethod)}
-                  </span>
-                  <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-[11px] font-bold tracking-[0.01em] ${statusPillStyle[order.status] ?? "bg-[#56203B] text-white"}`}>
-                    {labelCase(order.status)}
-                  </span>
+                    <span className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[11px] font-semibold ${order.shipMethod === "Ship to Clinic" ? "bg-[#20D8DB] text-[#102c2d]" : "bg-[#ACEABB] text-[#173d25]"}`}>
+                      {labelCase(order.shipMethod)} {order.shipMethod === "Ship to Clinic" ? <Building2 size={13} /> : <User size={13} />}
+                    </span>
+                    <span className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[11px] font-semibold ${silverStatusPillStyle[order.status] ?? "bg-[#FFC55B] text-[#151515]"}`}>
+                      {labelCase(order.status)} {silverStatusIcon(order.status)}
+                    </span>
+                  </> : <>
+                    <span className="inline-flex items-center gap-1 rounded-full bg-gradient-to-r from-[#C5F5DD] to-[#E7F5A5] px-2.5 py-1 text-[11px] font-bold text-[#31583F]">
+                      {labelCase(order.payMethod)}
+                      <span className={`rounded-full px-1.5 py-0.5 text-[9px] font-bold text-white ${order.payStatus === "PAID" ? "bg-[#31583F]" : "bg-[#7B003B]"}`}>{labelCase(order.payStatus)}</span>
+                    </span>
+                    <span className="inline-flex items-center gap-1 rounded-full bg-gradient-to-r from-[#CADDD9] to-[#E8E5B0] px-2.5 py-1 text-[11px] font-bold text-[#56203B]">{labelCase(order.shipMethod)}</span>
+                    <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-[11px] font-bold tracking-[0.01em] ${statusPillStyle[order.status] ?? "bg-[#56203B] text-white"}`}>{labelCase(order.status)}</span>
+                  </>}
                 </div>
                 <div className="text-right">
                   <p className="text-[15px] font-bold text-[#183229]">{order.total}</p>
@@ -2447,7 +2510,7 @@ function OrdersPage({ onNavigate, onOrderSelect }: { onNavigate: (p: Page) => vo
                               <p className="text-[12px] font-semibold text-[#1a1a1a]">{item.name}</p>
                               <p className="mt-0.5 text-[11px] text-[#6f7782]">{item.description}</p>
                               <p className="mt-1 text-[10px] text-[#8c95a1]">{item.pharmacy}</p>
-                              <span className={`mt-1.5 inline-flex rounded-full px-2 py-0.5 text-[9px] font-semibold ${item.tracking === "Tracking Not Ready" ? "bg-[#E8E5B0] text-[#31583F]" : "bg-[#C5F5DD] text-[#31583F]"}`}>{labelCase(item.tracking)}</span>
+                              {orderCardVariant === "silver" ? <span className="mt-1.5 inline-flex items-center gap-1.5 text-[9px] font-medium text-[#98A2B3]"><Clock size={11} strokeWidth={1.5} />{labelCase(item.tracking)}</span> : <span className={`mt-1.5 inline-flex rounded-full px-2 py-0.5 text-[9px] font-semibold ${item.tracking === "Tracking Not Ready" ? "bg-[#E8E5B0] text-[#31583F]" : "bg-[#C5F5DD] text-[#31583F]"}`}>{labelCase(item.tracking)}</span>}
                               <p className="mt-1 text-[10px] text-[#8c95a1]">Qty {quantities[`${order.id}-${index}`] ?? item.qty} · Auth refills {item.authRefills} · Refills left {item.refillsLeft} · Days {item.daysSupply}</p>
                             </div>
                           </div>
@@ -2492,7 +2555,7 @@ function OrderDetailPage({ order, onNavigate }: { order: typeof ORDERS[number]; 
       <div className="grid items-start gap-5 xl:grid-cols-[minmax(0,1fr)_330px]">
         <div className="space-y-4">
           <section className={`${shell} overflow-hidden`}>
-            <div className="grid gap-4 rounded-[12px] bg-[#fffaf7] px-5 py-4 sm:grid-cols-3 lg:grid-cols-6">
+            <div className="grid gap-4 rounded-[12px] bg-[var(--app-soft)] px-5 py-4 sm:grid-cols-3 lg:grid-cols-6">
               {[['Order timestamp', order.timestamp], ['Order ID', order.id], ['Status', order.status], ['Ship to', order.shipMethod], ['Payment', order.payMethod], ['Final total', order.total]].map(([label,value]) => <div key={label}><p className="text-[9px] font-semibold uppercase tracking-wider text-[#8c95a1]">{label}</p>{label === 'Status' ? <span className="mt-1 inline-flex rounded-full bg-gradient-to-r from-[#FFE2D2] to-[#FFF45C] px-2 py-1 text-[9px] font-bold text-[#56203B]">{value.charAt(0).toUpperCase() + value.slice(1).toLowerCase()}</span> : label === 'Ship to' ? <span className="mt-1 inline-flex rounded-full bg-gradient-to-r from-[#CADDD9] to-[#E8E5B0] px-2 py-1 text-[9px] font-bold text-[#56203B]">{value.charAt(0).toUpperCase() + value.slice(1).toLowerCase()}</span> : label === 'Payment' ? <span className="mt-1 inline-flex items-center gap-1 rounded-full bg-gradient-to-r from-[#C5F5DD] to-[#E7F5A5] px-2 py-1 text-[9px] font-bold text-[#31583F]">{value.charAt(0).toUpperCase() + value.slice(1).toLowerCase()}<span className={`rounded-full px-1 py-0.5 text-[8px] text-white ${order.payStatus === 'PAID' ? 'bg-[#31583F]' : 'bg-[#7B003B]'}`}>{order.payStatus.charAt(0).toUpperCase() + order.payStatus.slice(1).toLowerCase()}</span></span> : <p className="mt-1 text-[12px] font-semibold">{value}</p>}</div>)}
             </div>
             <div className="grid gap-4 p-5 md:grid-cols-2">
@@ -2501,7 +2564,7 @@ function OrderDetailPage({ order, onNavigate }: { order: typeof ORDERS[number]; 
             </div>
           </section>
           <section className={shell}>
-            <div className="flex items-center justify-between rounded-t-[12px] bg-[#fffaf7] px-5 py-4"><div><p className="text-[14px] font-semibold">{order.items[0].pharmacy}</p><p className="mt-1 text-[11px] text-[#8c95a1]">Licensed compounding pharmacy</p></div><p className="text-[17px] font-bold text-[#183229]">{order.total}</p></div>
+            <div className="flex items-center justify-between rounded-t-[12px] bg-[var(--app-soft)] px-5 py-4"><div><p className="text-[14px] font-semibold">{order.items[0].pharmacy}</p><p className="mt-1 text-[11px] text-[#8c95a1]">Licensed compounding pharmacy</p></div><p className="text-[17px] font-bold text-[#183229]">{order.total}</p></div>
             <div className="mx-5 mt-3 grid gap-3 rounded-[10px] bg-[#FBFBFB] px-4 py-3 sm:grid-cols-3"><div><p className="text-[9px] font-semibold uppercase text-[#8c95a1]">Shipping method</p><p className="mt-1 text-[11px] font-semibold">FedEx Overnight Refrigerated</p></div><div><p className="text-[9px] font-semibold uppercase text-[#8c95a1]">Est. delivery</p><p className="mt-1 text-[11px] font-semibold">Pending</p></div><div><p className="text-[9px] font-semibold uppercase text-[#8c95a1]">Tracking</p><p className="mt-1 text-[11px] text-[#8c95a1]">Tracking not ready</p></div></div>
             <div>{order.items.map((item,index) => <div key={item.name} className="py-2"><div className="mx-5 flex flex-wrap items-center gap-2 rounded-[8px] bg-[#fbfffd] px-4 py-2 text-[10px] text-[#52645c]"><span className="font-semibold text-[#1a1a1a]">{patients[index]?.name ?? patients[0].name}</span><span>·</span><span>{patients[index]?.phone ?? patients[0].phone}</span><span>·</span><span>{patients[index]?.address ?? patients[0].address}</span></div><div className="grid gap-4 px-5 py-4 md:grid-cols-[minmax(0,1fr)_90px]"><div className="flex gap-3"><div className="flex size-12 shrink-0 items-center justify-center overflow-hidden bg-white"><img src={item.image} alt="" className="size-12 object-contain mix-blend-multiply" /></div><div><p className="text-[12px] font-semibold">{item.name}</p><p className="mt-1 text-[11px] text-[#667085]">{item.description}</p><span className="mt-2 inline-flex rounded-full bg-gradient-to-r from-[#FFE2D2] to-[#FFF45C] px-2 py-0.5 text-[9px] font-semibold text-[#56203B]">Open Rx</span><p className="mt-2 text-[10px] text-[#1a1a1a]"><strong>Sig:</strong> Use as directed by prescriber.</p><p className="mt-1 text-[10px] text-[#1a1a1a]"><strong>Reason:</strong> Patient requires a customized compounded formulation.</p><p className="mt-2 text-[10px] text-[#8c95a1]">Qty {item.qty} · Days {item.daysSupply} · Refills {item.authRefills}</p></div></div><p className="text-right text-[12px] font-bold">{item.price}</p></div><div className="flex items-center gap-3 px-5 pb-4"><div className="flex size-10 items-center justify-center bg-[#fafafa]"><Syringe size={15} className="text-[#8c95a1]" /></div><div><p className="text-[11px] font-semibold">Supplies pack — suitable needles, syringe and alcohol pads</p><p className="mt-0.5 text-[10px] text-[#8c95a1]">Suitable amount for the prescribed dosage</p></div></div></div>)}</div>
           </section>
@@ -2515,7 +2578,7 @@ function OrderDetailPage({ order, onNavigate }: { order: typeof ORDERS[number]; 
             ))}
           </div>
           {detailSideTab === "status" ? <>
-            <section className="rounded-[12px] bg-[#fffaf7] p-5">
+            <section className="rounded-[12px] bg-[var(--app-soft)] p-5">
               <h2 className="text-[17px] font-semibold">Order status</h2>
               <div className="mt-5">{['Order created','In progress','Shipped','Delivered'].map((step,index) => (
                 <div key={step} className="flex gap-3">
@@ -2832,16 +2895,18 @@ function PatientDetailsView({ patient, onBack, onEdit }: { patient: typeof PATIE
   const [savedPrescriptions, setSavedPrescriptions] = useState<Array<{ medication: string; strength: string; qty: string; days: string; refills: string; directions: string; injectionType?: string; reason?: string; description?: string }>>([]);
   const [orderedPrescriptions, setOrderedPrescriptions] = useState<Array<{ medication: string; strength: string; qty: string; days: string; refills: string; directions: string; injectionType?: string; reason?: string; description?: string }>>([]);
   const [selectedPatientPharmacy, setSelectedPatientPharmacy] = useState<"DCA Pharmacy" | "Rush Pharmacy FL">("DCA Pharmacy");
-  const initials = `${patient.firstName[0] ?? ""}${patient.lastName[0] ?? ""}`;
   const prescriptionComplete = Boolean(medication && strength && prescriptionQty && daysSupply && refills && directions && injectionType && compoundReason);
   const selectedMedicationImage = medication === "NAD+ Injection" ? imgNadInjection : imgAminoQuad;
   const prescriptionUnitPrice = (name: string) => name === "NAD+ Injection" ? 84.50 : name === "Tirzepatide/Pyridoxine (B6)" ? 125.43 : 35;
   return (
     <div className="max-w-[1180px]">
       <button onClick={onBack} className="mb-5 inline-flex items-center gap-2 text-[13px] font-semibold text-[#222] hover:underline"><ChevronLeft size={16} /> Patients</button>
-      <section className="rounded-[14px] bg-[#fffaf7] px-6 py-5">
+      <section className="rounded-[14px] bg-[var(--app-soft)] px-6 py-5">
         <div className="flex flex-wrap items-center justify-between gap-4">
-          <div className="flex items-center gap-4"><div className="flex size-12 items-center justify-center rounded-full bg-gradient-to-br from-[#C5F5DD] to-[#E7F5A5] text-[17px] font-semibold text-[#31583F]">{initials}</div><div><h1 className="text-[22px] font-semibold text-[#171717]">{patient.firstName} {patient.lastName}</h1><p className="mt-1 text-[11px] text-[#7a7a7a]">{patient.gender === "M" ? "Male" : patient.gender === "F" ? "Female" : patient.gender} · DOB {patient.birthDate}</p></div></div>
+          <div>
+            <h1 className="text-[22px] font-semibold text-[#171717]">{patient.firstName} {patient.lastName} <span className="text-[16px] font-semibold text-[#666]">({patient.gender})</span></h1>
+            <p className="mt-1 text-[11px] text-[#7a7a7a]">Date of birth {patient.birthDate}</p>
+          </div>
           <button onClick={onEdit} className="inline-flex h-9 items-center gap-2 rounded-full bg-white px-4 text-[11px] font-semibold text-[#31583F] shadow-sm"><Edit3 size={13} /> Edit patient</button>
         </div>
       </section>
@@ -2850,13 +2915,13 @@ function PatientDetailsView({ patient, onBack, onEdit }: { patient: typeof PATIE
         <button onClick={() => setDetailsOpen(current => !current)} className="flex w-full items-center justify-between px-5 py-4 text-left"><div><h2 className="text-[14px] font-semibold text-[#202020]">Patient information</h2><p className="mt-0.5 text-[10px] text-[#858585]">Contact, address, and medical details</p></div><span className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-[#333]">{detailsOpen ? "Hide details" : "Show details"}<ChevronDown size={14} className={detailsOpen ? "rotate-180" : ""} /></span></button>
         {detailsOpen && <div className="grid gap-3 px-5 pb-5 md:grid-cols-3">
           <div className="rounded-[10px] bg-[#FBFBFB] p-4"><p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-[#9298a0]">Contact</p><p className="mt-3 text-[11px] text-[#777]">Primary phone</p><p className="mt-1 text-[12px] font-semibold text-[#222]">{patient.primaryPhone}</p><p className="mt-3 text-[11px] text-[#777]">Email</p><p className="mt-1 text-[12px] text-[#222]">—</p></div>
-          <div className="rounded-[10px] bg-[#fffaf7] p-4"><p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-[#9298a0]">Address</p><p className="mt-3 text-[12px] font-semibold text-[#222]">{patient.address1}</p>{patient.address2 && <p className="mt-1 text-[12px] text-[#555]">{patient.address2}</p>}<p className="mt-1 text-[12px] text-[#555]">{patient.city}, {patient.state} {patient.zip}</p></div>
-          <div className="rounded-[10px] bg-[#fbfffd] p-4"><p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-[#9298a0]">Medical</p><p className="mt-3 text-[11px] text-[#777]">Birth date</p><p className="mt-1 text-[12px] font-semibold text-[#222]">{patient.birthDate}</p><p className="mt-3 text-[11px] text-[#777]">Allergies</p><p className="mt-1 text-[12px] text-[#222]">None recorded</p></div>
+          <div className="rounded-[10px] bg-[var(--app-soft)] p-4"><p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-[#9298a0]">Address</p><p className="mt-3 text-[12px] font-semibold text-[#222]">{patient.address1}</p>{patient.address2 && <p className="mt-1 text-[12px] text-[#555]">{patient.address2}</p>}<p className="mt-1 text-[12px] text-[#555]">{patient.city}, {patient.state} {patient.zip}</p></div>
+          <div className="rounded-[10px] bg-[#fbfffd] p-4"><p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-[#9298a0]">Medical</p><p className="mt-3 text-[11px] text-[#777]">Allergies</p><p className="mt-1 text-[12px] text-[#222]">None recorded</p></div>
         </div>}
       </section>
 
 
-      <section ref={ordersSectionRef} className="mt-4 scroll-mt-5 rounded-[14px] bg-[#fffaf7] p-5">
+      <section ref={ordersSectionRef} className="mt-4 scroll-mt-5 rounded-[14px] bg-[var(--app-soft)] p-5">
         <div className="flex items-center justify-between"><div><h2 className="text-[16px] font-semibold text-[#202020]">Orders <span className="ml-1 text-[12px] font-normal text-[#999]">({orderedPrescriptions.length + 1})</span></h2><p className="mt-1 text-[10px] text-[#858585]">Prescription and order history</p></div><div className="flex h-[38px] w-[220px] items-center gap-2 rounded-[9px] border border-[#efefef] bg-white px-3"><Search size={14} strokeWidth={1.8} className="shrink-0 text-[#686868]" /><input placeholder="Search orders" className="min-w-0 flex-1 bg-transparent text-[11px] font-medium text-[#1a1a1a] outline-none placeholder:font-medium placeholder:text-[#686868]" /><span className="shrink-0 text-[10px] text-[#686868]">⌘ F</span></div></div>
         {orderedPrescriptions.map((prescription, index) => <article key={`ordered-${prescription.medication}-${index}`} className="mt-3 flex flex-wrap items-center gap-4 rounded-[10px] bg-white px-4 py-4"><div className="flex size-12 items-center justify-center overflow-hidden"><img src={prescription.medication === "NAD+ Injection" ? imgNadInjection : imgAminoQuad} alt="" className="size-12 object-contain mix-blend-multiply" /></div><div className="min-w-0 flex-1"><div className="flex items-center gap-2"><p className="text-[12px] font-semibold text-[#222]">{prescription.medication}</p><span className="rounded-full bg-gradient-to-r from-[#FFE2D2] to-[#FFF45C] px-2 py-1 text-[8px] font-bold text-[#56203B]">Pending approval</span></div><p className="mt-1 text-[10px] text-[#777]">Qty {prescription.qty} · {prescription.days} days · {prescription.refills} refills · {selectedPatientPharmacy}</p></div><p className="text-[13px] font-semibold">${(prescriptionUnitPrice(prescription.medication) * Number(prescription.qty)).toFixed(2)}</p></article>)}
         <article className="mt-3 rounded-[10px] bg-white">
@@ -2881,7 +2946,7 @@ function UsersPage({ onNavigate }: { onNavigate: (p: Page) => void }) {
       p.primaryPhone.includes(search)
   );
 
-  const COLS = ["Patient", "Birth date", "Gender", "Phone", "Address", "Location", ""];
+  const COLS = ["Patient", "Phone", "Address", ""];
 
   if (selectedPatientIndex !== null && patients[selectedPatientIndex]) {
     return <><PatientDetailsView patient={patients[selectedPatientIndex]} onBack={() => setSelectedPatientIndex(null)} onEdit={() => setCreatePatientOpen(true)} /><PatientCreateModal open={createPatientOpen} onClose={() => setCreatePatientOpen(false)} /></>;
@@ -2889,85 +2954,95 @@ function UsersPage({ onNavigate }: { onNavigate: (p: Page) => void }) {
 
   return (
     <>
-      {/* Page header row */}
-      <div className="flex items-center justify-between mb-5">
-        <h1 className="text-[22px] font-semibold text-[#1a1a1a] leading-tight">
-          Patients{" "}
-          <span className="text-[16px] font-normal text-[#9d9d9d]">({patients.length})</span>
-        </h1>
-        <div className="flex items-center gap-2">
-          <button className="flex items-center gap-1.5 rounded-full border border-[#d8dedb] bg-white px-4 py-2 text-[11px] font-semibold text-[#31583F] transition-colors hover:bg-[#f7f8f7]">
-            <Upload size={12} />
-            Upload Patients
-          </button>
-          <button onClick={() => setCreatePatientOpen(true)} className="flex items-center gap-1.5 rounded-full bg-[#111] px-4 py-2 text-[11px] font-semibold text-white transition-colors hover:bg-black">
-            <Plus size={12} />
-            Create Patient
-          </button>
+      <div className="max-w-[1300px]">
+        {/* Page header row */}
+        <div className="flex items-center justify-between mb-5">
+          <h1 className="text-[22px] font-semibold text-[#1a1a1a] leading-tight">
+            Patients{" "}
+            <span className="text-[16px] font-normal text-[#9d9d9d]">({patients.length})</span>
+          </h1>
+          <div className="flex items-center gap-2">
+            <button className="flex items-center gap-1.5 rounded-full border border-[#d8dedb] bg-white px-4 py-2 text-[11px] font-semibold text-[#31583F] transition-colors hover:bg-[#f7f8f7]">
+              <Upload size={12} />
+              Upload Patients
+            </button>
+            <button onClick={() => setCreatePatientOpen(true)} className="flex items-center gap-1.5 rounded-full bg-[#111] px-4 py-2 text-[11px] font-semibold text-white transition-colors hover:bg-black">
+              <Plus size={12} />
+              Create Patient
+            </button>
+          </div>
         </div>
-      </div>
 
-      {/* Search bar */}
-      <div className="mb-4">
-        <div className="flex h-[38px] w-[220px] items-center gap-2 rounded-[9px] border border-[#efefef] bg-white px-3">
-          <Search size={14} strokeWidth={1.8} className="flex-shrink-0 text-[#686868]" />
-          <input
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="min-w-0 flex-1 bg-transparent text-[11px] font-medium text-[#1a1a1a] outline-none placeholder:font-medium placeholder:text-[#686868]"
-            placeholder="Search"
-          />
-          <span className="shrink-0 text-[10px] text-[#686868]">⌘ F</span>
+        {/* Search bar */}
+        <div className="mb-4">
+          <div className="flex h-[38px] w-[220px] items-center gap-2 rounded-[9px] border border-[#efefef] bg-white px-3">
+            <Search size={14} strokeWidth={1.8} className="flex-shrink-0 text-[#686868]" />
+            <input
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="min-w-0 flex-1 bg-transparent text-[11px] font-medium text-[#1a1a1a] outline-none placeholder:font-medium placeholder:text-[#686868]"
+              placeholder="Search"
+            />
+            <span className="shrink-0 text-[10px] text-[#686868]">⌘ F</span>
+          </div>
         </div>
-      </div>
 
-      {/* Table */}
-      <div className="overflow-x-auto rounded-[12px] bg-[#fffaf7] p-2">
-        <table className="w-full min-w-[820px] overflow-hidden rounded-[9px] bg-white">
-          <thead>
-            <tr className="bg-[#FBFBFB]">
-              {COLS.map((h) => (
-                <th
-                  key={h}
-                  className="whitespace-nowrap px-4 py-3 text-left text-[10px] font-semibold uppercase tracking-[0.08em] text-[#858b88]"
-                >
-                  {h}
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {filtered.map((p, i) => {
-              const patientIndex = patients.indexOf(p);
-              return (
-              <tr
-                key={i}
-                onClick={() => setSelectedPatientIndex(patientIndex)}
-                className="group cursor-pointer transition-colors hover:bg-[#fffbf8]"
-              >
-                <td className="px-4 py-3.5"><div className="flex items-center gap-3"><span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-[#C5F5DD] to-[#E7F5A5] text-[11px] font-bold text-[#31583F]">{p.firstName[0]}{p.lastName[0]}</span><div><p className="whitespace-nowrap text-[12px] font-semibold text-[#1a1a1a]">{p.firstName} {p.lastName}</p><p className="mt-0.5 text-[9px] text-[#8c95a1]">Patient profile</p></div></div></td>
-                <td className="whitespace-nowrap px-4 py-3.5 text-[11px] text-[#4b4b4b]">{p.birthDate}</td>
-                <td className="px-4 py-3.5"><span className="inline-flex rounded-full bg-[#eeeeec] px-2 py-1 text-[9px] font-semibold text-[#666]">{p.gender === "M" ? "Male" : p.gender === "F" ? "Female" : p.gender}</span></td>
-                <td className="whitespace-nowrap px-4 py-3.5 text-[11px] text-[#4b4b4b]">{p.primaryPhone}</td>
-                <td className="max-w-[230px] px-4 py-3.5 text-[11px] leading-4 text-[#4b4b4b]">{p.address1}{p.address2 ? `, ${p.address2}` : ""}</td>
-                <td className="whitespace-nowrap px-4 py-3.5 text-[11px] text-[#4b4b4b]">{p.city}, {p.state} {p.zip}</td>
-                <td onClick={event => event.stopPropagation()} className="relative px-3 py-3.5 text-right">
-                  <button onClick={() => setOpenPatientMenu(current => current === patientIndex ? null : patientIndex)} className={`flex size-7 items-center justify-center rounded-[7px] text-[#777] transition-all hover:bg-[#eceae7] hover:text-[#111] ${openPatientMenu === patientIndex ? "bg-[#eceae7] opacity-100" : "opacity-0 group-hover:opacity-100"}`} aria-label={`Actions for ${p.firstName} ${p.lastName}`}>
-                    <MoreHorizontal size={16} />
-                  </button>
-                  {openPatientMenu === patientIndex && (
-                    <div className="absolute right-2 top-10 z-30 w-[150px] overflow-hidden rounded-[9px] border border-[#e2dfdb] bg-white p-1.5 text-left shadow-[0_10px_30px_rgba(0,0,0,0.14)]">
-                      <button onClick={() => { setCreatePatientOpen(true); setOpenPatientMenu(null); }} className="flex h-8 w-full items-center gap-2 rounded-[6px] px-2.5 text-[11px] font-medium text-[#222] hover:bg-[#f4f2ef]"><Edit3 size={13} /> Edit</button>
-                      <button onClick={() => setOpenPatientMenu(null)} className="flex h-8 w-full items-center gap-2 rounded-[6px] px-2.5 text-[11px] font-medium text-[#222] hover:bg-[#f4f2ef]"><RefreshCw size={13} /> DoseSpot Sync</button>
-                      <button onClick={() => { setPatients(current => current.filter((_, index) => index !== patientIndex)); setOpenPatientMenu(null); }} className="flex h-8 w-full items-center gap-2 rounded-[6px] px-2.5 text-[11px] font-medium text-[#9f3f39] hover:bg-[#fbefee]"><Trash2 size={13} /> Delete</button>
-                    </div>
-                  )}
-                </td>
+        {/* Table */}
+        <div className="overflow-x-auto rounded-[12px] bg-[var(--app-soft)] p-2">
+          <table className="w-full min-w-[860px] overflow-hidden rounded-[9px] bg-white">
+            <thead>
+              <tr className="bg-[#FBFBFB]">
+                {COLS.map((h) => (
+                  <th
+                    key={h}
+                    className="whitespace-nowrap px-5 py-3 text-left text-[10px] font-semibold uppercase tracking-[0.08em] text-[#858b88]"
+                  >
+                    {h}
+                  </th>
+                ))}
               </tr>
-              );
-            })}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {filtered.map((p, i) => {
+                const patientIndex = patients.indexOf(p);
+                return (
+                <tr
+                  key={i}
+                  onClick={() => setSelectedPatientIndex(patientIndex)}
+                  className="group cursor-pointer transition-colors hover:bg-[var(--app-soft-hover)]"
+                >
+                  <td className="px-5 py-4">
+                    <div className="min-w-0">
+                      <p className="whitespace-nowrap text-[14px] font-semibold text-[#1a1a1a]">{p.firstName} {p.lastName} <span className="font-semibold text-[#666]">({p.gender})</span></p>
+                      <p className="mt-1 text-[12px] font-medium text-[#8c95a1]">Date of birth {p.birthDate}</p>
+                    </div>
+                  </td>
+                  <td className="whitespace-nowrap px-5 py-4 text-[13px] font-medium text-[#4b4b4b]">{p.primaryPhone}</td>
+                  <td className="px-5 py-4">
+                    <div className="max-w-[360px] text-[13px] leading-[19px] text-[#4b4b4b]">
+                      <p className="font-medium">{p.address1}</p>
+                      {p.address2 && <p className="text-[#6f7780]">{p.address2}</p>}
+                      <p className="text-[#6f7780]">{p.city}, {p.state} {p.zip}</p>
+                    </div>
+                  </td>
+                  <td onClick={event => event.stopPropagation()} className="relative px-4 py-4 text-right">
+                    <button onClick={() => setOpenPatientMenu(current => current === patientIndex ? null : patientIndex)} className={`flex size-7 items-center justify-center rounded-[7px] text-[#777] transition-all hover:bg-[#eceae7] hover:text-[#111] ${openPatientMenu === patientIndex ? "bg-[#eceae7] opacity-100" : "opacity-0 group-hover:opacity-100"}`} aria-label={`Actions for ${p.firstName} ${p.lastName}`}>
+                      <MoreHorizontal size={16} />
+                    </button>
+                    {openPatientMenu === patientIndex && (
+                      <div className="absolute right-2 top-10 z-30 w-[150px] overflow-hidden rounded-[9px] border border-[#e2dfdb] bg-white p-1.5 text-left shadow-[0_10px_30px_rgba(0,0,0,0.14)]">
+                        <button onClick={() => { setCreatePatientOpen(true); setOpenPatientMenu(null); }} className="flex h-8 w-full items-center gap-2 rounded-[6px] px-2.5 text-[11px] font-medium text-[#222] hover:bg-[#f4f2ef]"><Edit3 size={13} /> Edit</button>
+                        <button onClick={() => setOpenPatientMenu(null)} className="flex h-8 w-full items-center gap-2 rounded-[6px] px-2.5 text-[11px] font-medium text-[#222] hover:bg-[#f4f2ef]"><RefreshCw size={13} /> DoseSpot Sync</button>
+                        <button onClick={() => { setPatients(current => current.filter((_, index) => index !== patientIndex)); setOpenPatientMenu(null); }} className="flex h-8 w-full items-center gap-2 rounded-[6px] px-2.5 text-[11px] font-medium text-[#9f3f39] hover:bg-[#fbefee]"><Trash2 size={13} /> Delete</button>
+                      </div>
+                    )}
+                  </td>
+                </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
       </div>
       <PatientCreateModal open={createPatientOpen} onClose={() => setCreatePatientOpen(false)} />
     </>
@@ -3029,7 +3104,7 @@ function SettingsPage({ onNavigate }: { onNavigate: (p: Page) => void }) {
           ))}
         </div>
         {rows.map(row => (
-          <div key={`${type}-${row[0]}`} className="grid grid-cols-[40px_1.25fr_1fr_1.55fr_1fr_92px_38px] items-center bg-white px-4 py-3.5 text-[12px] text-[#1a1a1a] transition-colors hover:bg-[#fffbf8]">
+          <div key={`${type}-${row[0]}`} className="grid grid-cols-[40px_1.25fr_1fr_1.55fr_1fr_92px_38px] items-center bg-white px-4 py-3.5 text-[12px] text-[#1a1a1a] transition-colors hover:bg-[var(--app-soft-hover)]">
             {row.map((cell, index) => index === 1 ? <span key={cell} className="flex min-w-0 items-center gap-2.5"><span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-[#FFE9D8] to-[#FFD8B8] text-[9px] font-bold text-[#8A4A24]">{cell.split(" ").map(part => part[0]).join("").slice(0,2).toUpperCase()}</span><span className="truncate font-semibold">{cell}</span></span> : <span key={`${index}-${cell}`} className={`min-w-0 truncate ${index === 0 ? "text-[#999]" : ""}`}>{cell}</span>)}
             <span className="inline-flex w-fit rounded-full bg-gradient-to-r from-[#C5F5DD] to-[#E7F5A5] px-3 py-1.5 text-[10px] font-semibold text-[#31583F]">Active</span>
             <button className="flex size-7 items-center justify-center rounded-[7px] text-[#8c95a1] transition-colors hover:bg-[#f2f7f4] hover:text-[#183229]" aria-label="More actions">
@@ -3447,7 +3522,7 @@ function SinglePatientCartPage({
 
             <div className="divide-y divide-[#eee8e3]">
               {pharmacy.items.map(item => (
-                <div key={item.id} className="px-5 py-4 transition-colors hover:bg-[#fffbf8]">
+                <div key={item.id} className="px-5 py-4 transition-colors hover:bg-[var(--app-soft-hover)]">
                   <div className="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1fr)_240px_110px_106px_110px_40px] lg:items-start">
                     <div className="flex min-w-0 gap-3">
                       <SingleCartThumb item={item} />
@@ -3470,7 +3545,7 @@ function SinglePatientCartPage({
                           </div>
                           <button onClick={() => { setActivePharmacy(pharmacy.name); setShowPatientPicker(true); }} className="text-[10px] font-semibold text-[#183229] hover:underline">Change</button>
                         </div>
-                        <div className="rounded-[8px] border border-[#eee8e3] bg-[#fffbf8] px-3 py-2.5 text-[11px] font-medium leading-relaxed text-[#6f7782]">
+                        <div className="rounded-[8px] border border-[#eee8e3] bg-[var(--app-soft-hover)] px-3 py-2.5 text-[11px] font-medium leading-relaxed text-[#6f7782]">
                           <div className="flex items-center gap-1.5"><Phone size={12} strokeWidth={1.8} className="shrink-0 text-[#183229]" /><span>{cardPatient.phone}</span></div>
                           <div className="mt-1 flex items-start gap-1.5"><MapPin size={12} strokeWidth={1.8} className="mt-0.5 shrink-0 text-[#183229]" /><span>{cardPatient.address}</span></div>
                         </div>
@@ -3605,7 +3680,7 @@ function SinglePatientCartPage({
                   <button
                     key={pharmacy.name}
                     onClick={() => { setActivePharmacy(pharmacy.name); setShowPatientPicker(true); }}
-                    className={`w-full rounded-[9px] border px-3 py-2.5 text-left transition-colors ${patient ? "border-[#eee8e3] bg-[#fffbf8]" : "border-dashed border-[#aebbb5] bg-[#f8faf9]"}`}
+                    className={`w-full rounded-[9px] border px-3 py-2.5 text-left transition-colors ${patient ? "border-[#eee8e3] bg-[var(--app-soft-hover)]" : "border-dashed border-[#aebbb5] bg-[#f8faf9]"}`}
                   >
                     <p className="truncate text-[10px] font-semibold uppercase tracking-[0.1em] text-[#667085]">{pharmacy.name}</p>
                     {patient ? (
@@ -3671,7 +3746,7 @@ function SinglePatientCartPage({
                   const patient = patientForPharmacy(pharmacy.name);
                   if (!patient) return null;
                   return (
-                    <div key={pharmacy.name} className="rounded-[10px] border border-[#e8e3df] bg-[#fffbf8] px-4 py-3">
+                    <div key={pharmacy.name} className="rounded-[10px] border border-[#e8e3df] bg-[var(--app-soft-hover)] px-4 py-3">
                       <p className="text-[13px] font-semibold text-[#1a1a1a]">{patient.name} ({patient.gender})</p>
                       <p className="mt-1 text-[12px] text-[#6f7782]">{patient.phone}</p>
                       <p className="mt-1 text-[12px] leading-relaxed text-[#6f7782]">{patient.address}</p>
@@ -4047,7 +4122,7 @@ function MultiPatientCartPage({
   const [selectedShippingByPharmacy, setSelectedShippingByPharmacy] = useState<Record<string, number>>({});
   const [removed, setRemoved] = useState<Set<number>>(new Set());
   const [showAllSummaryItems, setShowAllSummaryItems] = useState(false);
-  const [cartCardVariant, setCartCardVariant] = useState<1 | 2 | 3>(1);
+  const [cartCardVariant, setCartCardVariant] = useState<1 | 2 | 3 | 4>(4);
   const [expandedSupplies, setExpandedSupplies] = useState<Set<number>>(new Set([1]));
   const [previewOpen, setPreviewOpen] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState<"patient" | "clinic">("patient");
@@ -4055,6 +4130,7 @@ function MultiPatientCartPage({
   const [prescriptionDetails, setPrescriptionDetails] = useState<Record<number, { days: string; refills: string; directions: string; reason: string }>>({});
   const [prescriptionValidationAttempted, setPrescriptionValidationAttempted] = useState(false);
   const [addedPrescriptionIds, setAddedPrescriptionIds] = useState<Set<number>>(new Set());
+  const [openPrescriptionNoteIds, setOpenPrescriptionNoteIds] = useState<Set<number>>(new Set());
   const [expandedPrescriptionIds, setExpandedPrescriptionIds] = useState<Set<number>>(() => {
     const firstPrescription = cartData.patients.flatMap(patient => patient.items).find(item => item.kind !== "supply");
     return new Set(firstPrescription ? [firstPrescription.id] : []);
@@ -4092,6 +4168,14 @@ function MultiPatientCartPage({
 
   function toggleSupplies(id: number) {
     setExpandedSupplies(prev => {
+      const next = new Set(prev);
+      next.has(id) ? next.delete(id) : next.add(id);
+      return next;
+    });
+  }
+
+  function togglePrescriptionNote(id: number) {
+    setOpenPrescriptionNoteIds(prev => {
       const next = new Set(prev);
       next.has(id) ? next.delete(id) : next.add(id);
       return next;
@@ -4142,18 +4226,23 @@ function MultiPatientCartPage({
   const prescriptionCount = cartData.patients.length;
   const prescriptionsComplete = cartRows.every(({ item }) => {
     const details = prescriptionDetails[item.id];
-    return Boolean(details?.days.trim() && details?.refills.trim() && details?.directions.trim() && details?.reason.trim());
+    return cartCardVariant === 3
+      ? Boolean(details?.days.trim() && details?.refills.trim() && details?.directions.trim())
+      : Boolean(details?.days.trim() && details?.refills.trim() && details?.directions.trim() && details?.reason.trim());
   });
 
   function isPrescriptionComplete(id: number) {
     const details = prescriptionDetails[id];
-    return Boolean(details?.days.trim() && details?.refills.trim() && details?.directions.trim() && details?.reason.trim());
+    return cartCardVariant === 3
+      ? Boolean(details?.days.trim() && details?.refills.trim() && details?.directions.trim())
+      : Boolean(details?.days.trim() && details?.refills.trim() && details?.directions.trim() && details?.reason.trim());
   }
 
   function requiredFieldClass(value: string | undefined) {
-    return prescriptionValidationAttempted && !value?.trim()
-      ? "border-[#c94f43] bg-[#fff8f7] focus:border-[#c94f43]"
-      : "border-[#EAE8E1] bg-white focus:border-[#183229]";
+    if (!value?.trim()) {
+      return "border-[#DD9463] bg-white focus:border-[#DD9463]";
+    }
+    return "border-[#EAE8E1] bg-white focus:border-[#183229]";
   }
 
   function handleCheckout() {
@@ -4168,9 +4257,13 @@ function MultiPatientCartPage({
   const cartCardThemes = {
     1: { label: "Current", shell: "#fffaf7", border: "#fffaf7", item: "#ffffff" },
     2: { label: "Silver", shell: "#FBFBFB", border: "#FBFBFB", item: "#ffffff" },
-    3: { label: "Clean", shell: "#fffaf7", border: "#EAE8E1", item: "#FBFBFB" },
+    3: { label: "Boom", shell: "#ffffff", border: "#E8E8E8", item: "#ffffff" },
+    4: { label: "Compact", shell: "#FAFAFA", border: "#FAFAFA", item: "#ffffff" },
   } as const;
   const activeCardTheme = cartCardThemes[cartCardVariant];
+  const hasBoomOpenForm = cartCardVariant === 3 && cartRows.some(({ item }) => expandedPrescriptionIds.has(item.id) && !addedPrescriptionIds.has(item.id));
+  const hasCompactOpenForm = cartCardVariant === 4 && cartRows.some(({ item }) => expandedPrescriptionIds.has(item.id) && !addedPrescriptionIds.has(item.id));
+  const hasFocusedOpenForm = hasBoomOpenForm || hasCompactOpenForm;
 
   return (
     <>
@@ -4179,13 +4272,13 @@ function MultiPatientCartPage({
       <div className="max-w-[1300px]">
         <div className="mb-5 flex flex-wrap items-center gap-2">
           <span className="mr-1 text-[11px] font-semibold uppercase tracking-[0.1em] text-[#777]">Card style</span>
-          {([1, 2, 3] as const).map(variant => (
+          {([1, 4, 3] as const).map(variant => (
             <button
               key={variant}
               onClick={() => setCartCardVariant(variant)}
               className={`h-8 rounded-full px-3 text-[11px] font-semibold transition-colors ${cartCardVariant === variant ? "bg-[#111] text-white" : "border border-[#ddd] bg-white text-[#555] hover:border-[#999]"}`}
             >
-              {variant}. {cartCardThemes[variant].label}
+              {variant === 1 ? "1. Current" : variant === 4 ? "2. Adnan Suggestion" : "3. Boom"}
             </button>
           ))}
         </div>
@@ -4197,6 +4290,11 @@ function MultiPatientCartPage({
               const isLastInPharmacy = rowIndex === cartRowsWithNumbers.length - 1 || (cartRowsWithNumbers[rowIndex + 1].item.pharmacy ?? cartData.pharmacy) !== pharmacy;
               const includedSupplies = patient.items.filter(supply => supply.kind === "supply" && !removed.has(supply.id));
               const isExpanded = expandedPrescriptionIds.has(item.id);
+              const showBoomCompletedCard = cartCardVariant === 3 && addedPrescriptionIds.has(item.id) && !isExpanded;
+              const isBoomDimmed = cartCardVariant === 3 && hasBoomOpenForm && !(isExpanded && !addedPrescriptionIds.has(item.id));
+              const isCompactActive = cartCardVariant === 4 && isExpanded && !addedPrescriptionIds.has(item.id);
+              const isCompactDimmed = cartCardVariant === 4 && hasCompactOpenForm && !isCompactActive;
+              const isCompactCompleted = cartCardVariant === 4 && addedPrescriptionIds.has(item.id) && !isExpanded;
               const details = prescriptionDetails[item.id];
               const selectedShipping = selectedShippingByPharmacy[pharmacy] ?? 0;
               const pharmacyPatientCount = new Set(cartRowsWithNumbers.filter(row => (row.item.pharmacy ?? cartData.pharmacy) === pharmacy).map(row => row.patient.name)).size;
@@ -4207,10 +4305,10 @@ function MultiPatientCartPage({
               return (
                 <Fragment key={item.id}>
                   {isFirstInPharmacy && (
-                    <div style={{ backgroundColor: activeCardTheme.shell, borderColor: activeCardTheme.border }} className={(rowIndex === 0 ? "" : "mt-7 ") + `rounded-t-[10px] px-5 ${cartCardVariant === 3 ? "border-x border-t pb-3 pt-4" : "pb-4 pt-5"}`}>
+                    <div style={{ backgroundColor: activeCardTheme.shell, borderColor: activeCardTheme.border }} className={(rowIndex === 0 ? "" : "mt-8 ") + `${cartCardVariant === 3 ? "border-b px-0 pb-3 pt-1" : "rounded-t-[10px] px-5 pb-4 pt-5"}`}>
                       <div className="flex items-center justify-between gap-4">
-                        <h2 className="text-[16px] font-medium text-[#171717]">{pharmacy} Cart</h2>
-                        <div className="flex flex-wrap items-center justify-end gap-2">
+                        <h2 className={cartCardVariant === 3 ? "text-[13px] font-medium text-[#171717]" : "text-[16px] font-medium text-[#171717]"}>{pharmacy} Cart</h2>
+                        <div className={`flex flex-wrap items-center justify-end gap-2 ${cartCardVariant === 3 ? "hidden" : ""}`}>
                           <span className="inline-flex items-center gap-1.5 rounded-full bg-white px-3 py-1.5 text-[10px] font-semibold text-[#303030]">
                             {pharmacyPatientCount > 1 ? <Building2 size={13} /> : <User size={13} />}
                             {pharmacyPatientCount > 1 ? "Ship to clinic" : "Ship to patient"}
@@ -4222,9 +4320,15 @@ function MultiPatientCartPage({
 
                   <article
                     style={{ backgroundColor: activeCardTheme.item, borderColor: activeCardTheme.border }}
-                    className={`relative px-5 ${cartCardVariant === 3 ? "border-x border-b py-5" : `border-x-[12px] border-b-[12px] ${isExpanded ? "pb-5 pt-5" : "py-7"}`}`}
+                    className={`relative transition-opacity ${
+                      cartCardVariant === 3
+                        ? `${isExpanded ? "border-l-2 border-l-[#183229] bg-[#FCFCFC] px-5" : "px-3"} border-b py-7 ${isBoomDimmed ? "opacity-45 hover:opacity-75" : ""}`
+                        : cartCardVariant === 4
+                          ? `px-5 border-x-[12px] border-b-[12px] ${isExpanded ? "pb-5 pt-5" : "py-7"} ${isCompactActive ? "z-10 rounded-[12px] shadow-[0_18px_42px_rgba(24,50,41,0.12)] ring-1 ring-[#DDE8E2]" : ""} ${isCompactDimmed ? "opacity-55 hover:opacity-85" : ""}`
+                          : `px-5 border-x-[12px] border-b-[12px] ${isExpanded ? "pb-5 pt-5" : "py-7"}`
+                    }`}
                   >
-                    <div className="grid grid-cols-1 gap-5 lg:grid-cols-[minmax(270px,1fr)_210px_112px_90px] lg:items-start">
+                    {!showBoomCompletedCard && <div className={cartCardVariant === 3 ? "grid grid-cols-1 gap-5 lg:grid-cols-[minmax(250px,1fr)_210px_90px_66px] lg:items-start" : "grid grid-cols-1 gap-5 lg:grid-cols-[minmax(270px,1fr)_210px_112px_90px] lg:items-start"}>
                       <div className="flex min-w-0 gap-4">
                         <CartItemImage item={item} />
                         <div className="min-w-0">
@@ -4239,47 +4343,104 @@ function MultiPatientCartPage({
                         </div>
                       </div>
 
-                      <div className="text-[12px] leading-[18px] text-[#555]">
-                        <p className="text-[14px] font-medium text-[#292929]">{patient.name}</p>
-                        <p className="mt-1 whitespace-pre-line">{patient.address}</p>
+                      <div className={cartCardVariant === 3 ? "text-[10px] leading-[14px] text-[#333]" : "text-[12px] leading-[18px] text-[#555]"}>
+                        <p className={cartCardVariant === 3 ? "text-[12px] font-medium text-[#202020]" : "text-[14px] font-medium text-[#292929]"}>{patient.name}</p>
+                        <p className={cartCardVariant === 3 ? "mt-1 whitespace-pre-line" : "mt-1 whitespace-pre-line"}>{patient.address}</p>
                         <p>{patient.phone}</p>
                       </div>
 
-                      <div className="inline-flex h-10 w-fit items-center overflow-hidden rounded-full border border-[#e2e2e2] bg-white">
+                      <div className={cartCardVariant === 3 ? "inline-flex h-8 w-fit items-center overflow-hidden rounded-full border border-[#e2e2e2] bg-white" : "inline-flex h-10 w-fit items-center overflow-hidden rounded-full border border-[#e2e2e2] bg-white"}>
                         {(quantities[item.id] ?? 1) === 1 ? (
-                          <button onClick={() => setRemoved(current => new Set([...current, item.id]))} className="flex h-10 w-10 items-center justify-center text-[#202020] hover:bg-[#f7f7f7]" aria-label={"Remove " + item.name}><Trash2 size={15} /></button>
+                          <button onClick={() => setRemoved(current => new Set([...current, item.id]))} className={cartCardVariant === 3 ? "flex h-8 w-8 items-center justify-center text-[#202020] hover:bg-[#f7f7f7]" : "flex h-10 w-10 items-center justify-center text-[#202020] hover:bg-[#f7f7f7]"} aria-label={"Remove " + item.name}><Trash2 size={cartCardVariant === 3 ? 12 : 15} /></button>
                         ) : (
-                          <button onClick={() => adjust(item.id, -1)} className="flex h-10 w-10 items-center justify-center text-[#202020] hover:bg-[#f7f7f7]" aria-label={"Decrease " + item.name}><Minus size={16} /></button>
+                          <button onClick={() => adjust(item.id, -1)} className={cartCardVariant === 3 ? "flex h-8 w-8 items-center justify-center text-[#202020] hover:bg-[#f7f7f7]" : "flex h-10 w-10 items-center justify-center text-[#202020] hover:bg-[#f7f7f7]"} aria-label={"Decrease " + item.name}><Minus size={cartCardVariant === 3 ? 12 : 16} /></button>
                         )}
-                        <span className="flex h-10 w-8 items-center justify-center text-[13px] font-medium">{quantities[item.id] ?? 1}</span>
-                        <button onClick={() => adjust(item.id, 1)} className="flex h-10 w-10 items-center justify-center text-[#202020] hover:bg-[#f7f7f7]" aria-label={"Increase " + item.name}><Plus size={16} /></button>
+                        <span className={cartCardVariant === 3 ? "flex h-8 w-6 items-center justify-center text-[11px] font-medium" : "flex h-10 w-8 items-center justify-center text-[13px] font-medium"}>{quantities[item.id] ?? 1}</span>
+                        <button onClick={() => adjust(item.id, 1)} className={cartCardVariant === 3 ? "flex h-8 w-8 items-center justify-center text-[#202020] hover:bg-[#f7f7f7]" : "flex h-10 w-10 items-center justify-center text-[#202020] hover:bg-[#f7f7f7]"} aria-label={"Increase " + item.name}><Plus size={cartCardVariant === 3 ? 12 : 16} /></button>
                       </div>
 
-                      <p className="pt-2 text-right text-[14px] font-medium text-[#171717]">{item.price === 0 ? "Free" : "$" + (item.price * (quantities[item.id] ?? 1)).toFixed(2)}</p>
-                    </div>
+                      <p className={cartCardVariant === 3 ? "pt-1 text-right text-[12px] font-medium text-[#171717]" : "pt-2 text-right text-[14px] font-medium text-[#171717]"}>{item.price === 0 ? "Free" : "$" + (item.price * (quantities[item.id] ?? 1)).toFixed(2)}</p>
+                    </div>}
 
-                    {expandedSupplies.has(item.id) && includedSupplies.length > 0 && (
+                    {!showBoomCompletedCard && expandedSupplies.has(item.id) && includedSupplies.length > 0 && (
                       <div className="ml-16 mt-3 space-y-2 border-l border-[#dedede] pl-4">
                         {includedSupplies.map(supply => <p key={supply.id} className="text-[11px] text-[#777]">{supply.name} · {supply.detail}</p>)}
                       </div>
                     )}
 
-                    <div className="mt-5">
+                    <div className={showBoomCompletedCard ? "mt-0" : "mt-5"}>
                       {!isExpanded ? (
                         addedPrescriptionIds.has(item.id) ? (
-                          <div className="ml-16 flex items-center gap-4">
-                            <button onClick={() => setExpandedPrescriptionIds(current => new Set([...current, item.id]))} className="text-[12px] font-medium text-[#202020] hover:underline hover:underline-offset-4">
-                              Show Details
-                            </button>
-                            <span className="inline-flex items-center gap-2 rounded-[8px] bg-[#eaf4ed] px-3 py-2 text-[11px] font-semibold text-[#315f49]">
-                              <CheckCircle2 size={14} />
-                              Prescription complete
-                            </span>
-                          </div>
+                          cartCardVariant === 3 ? (
+                            <div className="rounded-[6px] border border-[#E1E3E6] bg-white">
+                              <div className="grid grid-cols-1 gap-5 px-5 py-5 md:grid-cols-[minmax(210px,1fr)_minmax(210px,1fr)_150px_54px] md:items-start">
+                                <div className="flex min-w-0 gap-3">
+                                  <CartItemImage item={item} />
+                                  <div className="min-w-0">
+                                    <p className="text-[13px] font-semibold leading-tight text-[#1f2933]">{item.name}</p>
+                                    <p className="mt-1 text-[11px] text-[#69727d]">{item.detail}</p>
+                                    {includedSupplies.length > 0 && (
+                                      <button onClick={() => toggleSupplies(item.id)} className="mt-2 text-[12px] text-[#666] underline underline-offset-4">
+                                        Included Supplies
+                                      </button>
+                                    )}
+                                  </div>
+                                </div>
+                                <div className="text-[11px] leading-[16px] text-[#69727d]">
+                                  <p className="text-[13px] font-medium text-[#1f2933]">{patient.name}</p>
+                                  <p className="mt-1 whitespace-pre-line">{patient.address}</p>
+                                  <p>{patient.phone}</p>
+                                </div>
+                                <div className="flex items-center justify-end gap-3 pt-7">
+                                  <p className="text-[13px] font-semibold text-[#171717]">{item.price === 0 ? "Free" : "$" + item.price.toFixed(2)}</p>
+                                  <span className="text-[12px] font-semibold text-[#171717]">×</span>
+                                  <div className="inline-flex h-8 w-fit items-center overflow-hidden rounded-[5px] bg-[#EEF0F2]">
+                                    <button onClick={() => adjust(item.id, -1)} className="flex h-8 w-8 items-center justify-center text-[#333] hover:bg-[#e2e4e7]" aria-label={"Decrease " + item.name}><Minus size={12} /></button>
+                                    <span className="flex h-8 w-8 items-center justify-center text-[11px] font-medium">{quantities[item.id] ?? 1}</span>
+                                    <button onClick={() => adjust(item.id, 1)} className="flex h-8 w-8 items-center justify-center text-[#333] hover:bg-[#e2e4e7]" aria-label={"Increase " + item.name}><Plus size={12} /></button>
+                                  </div>
+                                </div>
+                                <div className="flex items-start justify-end gap-3">
+                                  <button onClick={() => setExpandedPrescriptionIds(current => cartCardVariant === 3 || cartCardVariant === 4 ? new Set([item.id]) : new Set([...current, item.id]))} className="text-[#183229] hover:text-black" aria-label="Edit prescription">
+                                    <Edit3 size={14} />
+                                  </button>
+                                  <button onClick={() => setAddedPrescriptionIds(current => { const next = new Set(current); next.delete(item.id); return next; })} className="text-[#183229] hover:text-black" aria-label="Remove prescription">
+                                    <X size={15} />
+                                  </button>
+                                </div>
+                              </div>
+                              <button onClick={() => setExpandedPrescriptionIds(current => cartCardVariant === 3 || cartCardVariant === 4 ? new Set([item.id]) : new Set([...current, item.id]))} className="flex w-full items-center gap-1 border-t border-[#ECECEC] px-3 py-2 text-left text-[11px] font-medium text-[#1f2933] hover:bg-[#FAFAFA]">
+                                <span className="text-[9px]">▶</span>
+                                Show details
+                              </button>
+                            </div>
+                          ) : (
+                            isCompactCompleted ? (
+                              <div className="ml-16 flex max-w-[520px] items-center justify-between gap-4 rounded-[8px] bg-[#F6FAF7] px-4 py-3">
+                                <span className="inline-flex items-center gap-2 text-[11px] font-semibold text-[#315f49]">
+                                  <CheckCircle2 size={14} />
+                                  Prescription complete
+                                </span>
+                                <button onClick={() => setExpandedPrescriptionIds(current => cartCardVariant === 3 || cartCardVariant === 4 ? new Set([item.id]) : new Set([...current, item.id]))} className="text-[11px] font-semibold text-[#202020] hover:underline hover:underline-offset-4">
+                                  Show Details
+                                </button>
+                              </div>
+                            ) : (
+                              <div className="ml-16 flex items-center gap-4">
+                                <button onClick={() => setExpandedPrescriptionIds(current => cartCardVariant === 3 || cartCardVariant === 4 ? new Set([item.id]) : new Set([...current, item.id]))} className="text-[12px] font-medium text-[#202020] hover:underline hover:underline-offset-4">
+                                  Show Details
+                                </button>
+                                <span className="inline-flex items-center gap-2 rounded-[8px] bg-[#eaf4ed] px-3 py-2 text-[11px] font-semibold text-[#315f49]">
+                                  <CheckCircle2 size={14} />
+                                  Prescription complete
+                                </span>
+                              </div>
+                            )
+                          )
                         ) : (
                           <button
-                            onClick={() => setExpandedPrescriptionIds(current => new Set([...current, item.id]))}
-                            className="ml-16 inline-flex items-center gap-2 rounded-[8px] bg-[#f0f0ee] px-3 py-2 text-[11px] font-semibold text-[#202020] transition-colors hover:bg-[#e5e5e2]"
+                            onClick={() => setExpandedPrescriptionIds(current => cartCardVariant === 3 || cartCardVariant === 4 ? new Set([item.id]) : new Set([...current, item.id]))}
+                            className={cartCardVariant === 3 ? "ml-16 inline-flex items-center gap-2 rounded-[5px] bg-[#f3f3f3] px-3 py-2 text-[11px] font-semibold text-[#202020] transition-colors hover:bg-[#e8e8e8]" : cartCardVariant === 4 ? "ml-16 inline-flex items-center gap-2 rounded-[8px] bg-[#f5f5f3] px-3 py-2 text-[11px] font-semibold text-[#4d4d4d] transition-colors hover:bg-[#ececea] hover:text-[#202020]" : "ml-16 inline-flex items-center gap-2 rounded-[8px] bg-[#f0f0ee] px-3 py-2 text-[11px] font-semibold text-[#202020] transition-colors hover:bg-[#e5e5e2]"}
                           >
                             <Plus size={14} />
                             Add a prescription
@@ -4293,7 +4454,7 @@ function MultiPatientCartPage({
                               <Edit3 size={14} /> Edit
                             </button>
                           </div>
-                          <div className="ml-16 mt-3 grid gap-5 rounded-[7px] bg-[#fffaf7] px-5 py-4 md:grid-cols-[2fr_1.8fr_0.42fr_0.58fr]">
+                          <div className="ml-16 mt-3 grid gap-5 rounded-[7px] bg-[var(--app-soft)] px-5 py-4 md:grid-cols-[2fr_1.8fr_0.42fr_0.58fr]">
                             <div>
                               <p className="text-[10px] font-medium text-[#343434]">Directions of Use</p>
                               <p className="mt-1 text-[11px] leading-[16px] text-[#777]">{details?.directions}</p>
@@ -4313,13 +4474,190 @@ function MultiPatientCartPage({
                           </div>
                         </div>
                       ) : (
-                        <div className="rounded-[6px] bg-[#fffdfb] px-6 py-5">
-                          <div className="mb-5 flex items-center justify-between gap-3">
-                            <h3 className="text-[14px] font-medium text-[#202020]">Create Prescription</h3>
+                        <div className={cartCardVariant === 3 ? "px-0 py-0" : `rounded-[8px] px-6 py-5 ${cartCardVariant === 2 || cartCardVariant === 4 ? "bg-[#FAFAFA]" : "bg-[#fffdfb]"}`}>
+                          <div className={cartCardVariant === 3 ? "hidden" : "mb-5 flex items-center justify-between gap-3"}>
+                            <div className="flex items-center gap-2">
+                              <h3 className="text-[14px] font-medium text-[#202020]">{cartCardVariant === 4 ? `Prescription for ${item.name}` : "Create Prescription"}</h3>
+                              {cartCardVariant === 4 && (
+                                <span className="rounded-full bg-[#183229] px-2.5 py-1 text-[9px] font-semibold text-white">Active</span>
+                              )}
+                            </div>
                             {rowIndex > 0 && <button onClick={() => setExpandedPrescriptionIds(current => { const next = new Set(current); next.delete(item.id); return next; })} className="text-[11px] text-[#777] underline">Hide Details</button>}
                           </div>
 
-                          <div className="grid gap-x-5 gap-y-4 md:grid-cols-[minmax(145px,0.24fr)_minmax(0,1fr)]">
+                          {cartCardVariant === 3 ? (
+                            <div className="rounded-[8px] bg-white px-5 py-5 ring-1 ring-[#E6E6E6]">
+                              <div className="grid gap-x-5 gap-y-4 md:grid-cols-[1.1fr_1.1fr_0.56fr_0.56fr]">
+                                <label className="block">
+                                  <span className="mb-1.5 block text-[11px] font-semibold text-[#858585]">Strength + Size</span>
+                                  <input disabled value={item.detail.split("|")[0]?.trim() ?? item.detail} className="h-[34px] w-full rounded-[4px] border border-[#EAE8E1] bg-white px-3 text-[12px] font-medium text-[#cfcfcd] outline-none" />
+                                </label>
+                                <label className="block">
+                                  <span className="mb-1.5 block text-[11px] font-semibold text-[#858585]">Size</span>
+                                  <input disabled value={item.detail.split("|")[1]?.trim() ?? item.detail} className="h-[34px] w-full rounded-[4px] border border-[#EAE8E1] bg-white px-3 text-[12px] font-medium text-[#cfcfcd] outline-none" />
+                                </label>
+                                <label className="block">
+                                  <span className="mb-1.5 block text-[11px] font-semibold text-[#171717]">Authorized Refills <span className="text-[#b44b42]">*</span></span>
+                                  <input type="number" min="0" placeholder="Refills" value={details?.refills ?? ""} onChange={event => updatePrescriptionDetail(item.id, "refills", event.target.value)} className={"h-[34px] w-full rounded-[4px] border px-3 text-[12px] text-[#171717] outline-none " + requiredFieldClass(details?.refills)} />
+                                </label>
+                                <label className="block">
+                                  <span className="mb-1.5 block text-[11px] font-semibold text-[#171717]">Days Supply <span className="text-[#b44b42]">*</span></span>
+                                  <input type="number" min="1" placeholder="Days" value={details?.days ?? ""} onChange={event => updatePrescriptionDetail(item.id, "days", event.target.value)} className={"h-[34px] w-full rounded-[4px] border px-3 text-[12px] text-[#171717] outline-none " + requiredFieldClass(details?.days)} />
+                                </label>
+                                <div className="grid gap-x-5 gap-y-4 md:col-span-4 md:grid-cols-2">
+                                  <label className="block min-w-0">
+                                    <span className="mb-1.5 block text-[11px] font-semibold text-[#171717]">Reason to Compound <span className="text-[#b44b42]">*</span></span>
+                                    <select value={details?.reason ?? ""} onChange={event => updatePrescriptionDetail(item.id, "reason", event.target.value)} className={"h-[34px] w-full rounded-[4px] border px-3 text-[12px] text-[#171717] outline-none " + requiredFieldClass(details?.reason)}>
+                                      <option value="" disabled>Select reason below or type out your own</option>
+                                      <option>Patient requires a dosage form not commercially available.</option>
+                                      <option>Patient requires excipient avoidance.</option>
+                                      <option>Prescriber requested custom strength.</option>
+                                    </select>
+                                  </label>
+                                  <label className="block min-w-0">
+                                    <span className="mb-1.5 block text-[11px] font-semibold text-[#171717]">Directions of Use <span className="text-[#b44b42]">*</span></span>
+                                    <select value={details?.directions ?? ""} onChange={event => updatePrescriptionDetail(item.id, "directions", event.target.value)} className={"h-[34px] w-full rounded-[4px] border px-3 text-[12px] text-[#171717] outline-none " + requiredFieldClass(details?.directions)}>
+                                      <option value="" disabled>Select directions</option>
+                                      <option>Inject (10 mg) subcutaneously once weekly.</option>
+                                      <option>Inject (2.5 mg) subcutaneously once weekly.</option>
+                                      <option>Inject (5 mg) subcutaneously once weekly.</option>
+                                      <option>Use as directed by prescriber</option>
+                                    </select>
+                                  </label>
+                                </div>
+                              </div>
+                              {openPrescriptionNoteIds.has(item.id) && (
+                                <label className="mt-4 block rounded-[4px] bg-[#FAFAFA] px-4 py-3">
+                                  <span className="mb-2 block text-[11px] font-semibold text-[#171717]">Prescription Note (Optional)</span>
+                                  <textarea placeholder="Enter Prescription Note" className="min-h-[64px] w-full resize-y rounded-[4px] border border-[#EAE8E1] bg-white px-3 py-3 text-[12px] outline-none placeholder:text-[#b7b7b4] focus:border-[#183229]" />
+                                </label>
+                              )}
+                              <div className="mt-5 flex items-center justify-between gap-4">
+                                  <button onClick={() => togglePrescriptionNote(item.id)} className="text-[12px] font-semibold text-[#171717]">
+                                    {openPrescriptionNoteIds.has(item.id) ? "- Hide prescription note" : "+ Add a prescription note"}
+                                  </button>
+                                <div className="flex items-center gap-4">
+                                  <button
+                                    onClick={() => {
+                                      if (!isPrescriptionComplete(item.id)) return;
+                                      setAddedPrescriptionIds(current => new Set([...current, item.id]));
+                                      setExpandedPrescriptionIds(current => {
+                                        const next = new Set(current);
+                                        next.delete(item.id);
+                                        const currentIndex = cartRows.findIndex(row => row.item.id === item.id);
+                                        const nextPrescription = cartRows[currentIndex + 1];
+                                        if (nextPrescription) next.add(nextPrescription.item.id);
+                                        return next;
+                                      });
+                                    }}
+                                    disabled={!isPrescriptionComplete(item.id)}
+                                    className="h-8 min-w-[86px] rounded-[5px] bg-[#183229] px-4 text-[12px] font-medium text-white transition-colors hover:bg-[#0d211b] disabled:cursor-not-allowed disabled:bg-[#dfdfdc] disabled:text-[#92928f]"
+                                  >
+                                    Add Order
+                                  </button>
+                                  <button onClick={() => setExpandedPrescriptionIds(current => { const next = new Set(current); next.delete(item.id); return next; })} className="text-[12px] font-medium text-[#202020]">
+                                    Cancel
+                                  </button>
+                                </div>
+                              </div>
+                            </div>
+                          ) : cartCardVariant === 4 ? (
+                            <div className="rounded-[10px] bg-white px-5 py-5 ring-1 ring-[#DDE8E2]">
+                              <div className="grid gap-x-5 gap-y-4 md:grid-cols-[1.1fr_1.1fr_0.56fr_0.56fr]">
+                                <label className="block">
+                                  <span className="mb-1.5 block text-[11px] font-semibold text-[#858585]">Strength + Size</span>
+                                  <input disabled value={item.detail.split("|")[0]?.trim() ?? item.detail} className="h-[34px] w-full rounded-[8px] border border-[#EAE8E1] bg-white px-3 text-[12px] font-medium text-[#cfcfcd] outline-none" />
+                                </label>
+                                <label className="block">
+                                  <span className="mb-1.5 block text-[11px] font-semibold text-[#858585]">Size</span>
+                                  <input disabled value={item.detail.split("|")[1]?.trim() ?? item.detail} className="h-[34px] w-full rounded-[8px] border border-[#EAE8E1] bg-white px-3 text-[12px] font-medium text-[#cfcfcd] outline-none" />
+                                </label>
+                                <label className="block">
+                                  <span className="mb-1.5 block text-[11px] font-semibold text-[#171717]">Authorized Refills <span className="text-[#b44b42]">*</span></span>
+                                  <input type="number" min="0" placeholder="Days" value={details?.refills ?? ""} onChange={event => updatePrescriptionDetail(item.id, "refills", event.target.value)} className={"h-[34px] w-full rounded-[8px] border px-3 text-[12px] outline-none " + requiredFieldClass(details?.refills)} />
+                                </label>
+                                <label className="block">
+                                  <span className="mb-1.5 block text-[11px] font-semibold text-[#171717]">Days Supply <span className="text-[#b44b42]">*</span></span>
+                                  <input type="number" min="1" placeholder="Days" value={details?.days ?? ""} onChange={event => updatePrescriptionDetail(item.id, "days", event.target.value)} className={"h-[34px] w-full rounded-[8px] border px-3 text-[12px] outline-none " + requiredFieldClass(details?.days)} />
+                                </label>
+                                <div className="grid gap-x-5 gap-y-4 md:col-span-4 md:grid-cols-2">
+                                  <label className="block min-w-0">
+                                    <span className="mb-1.5 block text-[11px] font-semibold text-[#171717]">Reason to Compound <span className="text-[#b44b42]">*</span></span>
+                                    <select value={details?.reason ?? ""} onChange={event => updatePrescriptionDetail(item.id, "reason", event.target.value)} className={"h-[34px] w-full rounded-[8px] border px-3 text-[12px] outline-none " + requiredFieldClass(details?.reason)}>
+                                      <option value="" disabled>Select reason below or type out your own</option>
+                                      <option>Patient requires a dosage form not commercially available.</option>
+                                      <option>Patient requires excipient avoidance.</option>
+                                      <option>Prescriber requested custom strength.</option>
+                                    </select>
+                                  </label>
+                                  <label className="block min-w-0">
+                                    <span className="mb-1.5 block text-[11px] font-semibold text-[#171717]">Directions of Use <span className="text-[#b44b42]">*</span></span>
+                                    <select value={details?.directions ?? ""} onChange={event => updatePrescriptionDetail(item.id, "directions", event.target.value)} className={"h-[34px] w-full rounded-[8px] border px-3 text-[12px] outline-none " + requiredFieldClass(details?.directions)}>
+                                      <option value="" disabled>Select directions</option>
+                                      <option>Inject (10 mg) subcutaneously once weekly.</option>
+                                      <option>Inject (2.5 mg) subcutaneously once weekly.</option>
+                                      <option>Inject (5 mg) subcutaneously once weekly.</option>
+                                      <option>Use as directed by prescriber</option>
+                                    </select>
+                                  </label>
+                                </div>
+                              </div>
+                              {openPrescriptionNoteIds.has(item.id) && (
+                                <label className="mt-4 block rounded-[10px] bg-[#FAFAFA] px-4 py-3">
+                                  <span className="mb-2 block text-[11px] font-semibold text-[#171717]">Prescription Note (Optional)</span>
+                                  <textarea placeholder="Enter Prescription Note" className="min-h-[72px] w-full resize-y rounded-[8px] border border-[#EAE8E1] bg-white px-3 py-3 text-[12px] outline-none placeholder:text-[#b7b7b4] focus:border-[#183229]" />
+                                </label>
+                              )}
+                              <div className="mt-5 flex items-center justify-between gap-4">
+                                <button onClick={() => togglePrescriptionNote(item.id)} className="text-[12px] font-semibold text-[#171717]">
+                                  {openPrescriptionNoteIds.has(item.id) ? "- Hide prescription note" : "+ Add a prescription note"}
+                                </button>
+                                <div className="flex items-center gap-4">
+                                  <button
+                                    onClick={() => {
+                                      if (!isPrescriptionComplete(item.id)) return;
+                                      setAddedPrescriptionIds(current => new Set([...current, item.id]));
+                                      setExpandedPrescriptionIds(current => {
+                                        const next = new Set(current);
+                                        next.delete(item.id);
+                                        const currentIndex = cartRows.findIndex(row => row.item.id === item.id);
+                                        const nextPrescription = cartRows[currentIndex + 1];
+                                        if (nextPrescription) next.add(nextPrescription.item.id);
+                                        return next;
+                                      });
+                                    }}
+                                    disabled={!isPrescriptionComplete(item.id)}
+                                    className="h-8 min-w-[86px] rounded-[7px] bg-[#111] px-4 text-[12px] font-medium text-white transition-colors hover:bg-black disabled:cursor-not-allowed disabled:bg-[#dfdfdc] disabled:text-[#92928f]"
+                                  >
+                                    Add Order
+                                  </button>
+                                  <button
+                                    onClick={() => setExpandedPrescriptionIds(current => {
+                                      const next = new Set(current);
+                                      next.delete(item.id);
+                                      return next;
+                                    })}
+                                    className="text-[12px] font-medium text-[#202020]"
+                                  >
+                                    Cancel
+                                  </button>
+                                </div>
+                              </div>
+                            </div>
+                          ) : (
+                            <>
+                              <div className="grid gap-x-5 gap-y-4 md:grid-cols-[minmax(145px,0.24fr)_minmax(0,1fr)]">
+                              <label className="block">
+                                <span className="mb-1.5 block text-[10px] font-semibold text-[#303030]">Strength + Size</span>
+                                <input disabled value={item.detail} className="h-[34px] w-full rounded-[8px] border border-[#EAE8E1] bg-white px-3 text-[12px] font-medium text-[#9a9a9a] outline-none" />
+                              </label>
+                              <label className="block">
+                                <span className="mb-1.5 block text-[10px] font-semibold text-[#303030]">Size</span>
+                                <input disabled value={item.detail.split("|")[1]?.trim() ?? item.detail} className="h-[34px] w-full rounded-[8px] border border-[#EAE8E1] bg-white px-3 text-[12px] font-medium text-[#9a9a9a] outline-none" />
+                              </label>
+                            </div>
+
+                              <div className="grid gap-x-5 gap-y-4 md:grid-cols-[minmax(145px,0.24fr)_minmax(0,1fr)]">
                             <label className="block">
                               <span className="mb-1.5 block text-[11px] font-semibold text-[#303030]">Days Supply <span className="text-[#b44b42]">*</span></span>
                               <input type="number" min="1" placeholder="Enter Days" value={details?.days ?? ""} onChange={event => updatePrescriptionDetail(item.id, "days", event.target.value)} className={"h-[34px] w-full rounded-[10px] border px-3 text-[12px] outline-none " + requiredFieldClass(details?.days)} />
@@ -4349,14 +4687,14 @@ function MultiPatientCartPage({
                                 <option>Prescriber requested custom strength.</option>
                               </select>
                             </label>
-                          </div>
+                              </div>
 
-                          <label className="mt-4 block">
+                              <label className="mt-4 block">
                             <span className="mb-1.5 block text-[11px] font-semibold text-[#303030]">Prescription Note (Optional)</span>
                             <textarea placeholder="Enter Prescription Note" className="min-h-[64px] w-full resize-y rounded-[7px] border border-[#dedede] bg-white px-3 py-3 text-[12px] outline-none focus:border-[#183229]" />
-                          </label>
+                              </label>
 
-                          <div className="mt-4 flex justify-end gap-2">
+                              <div className="mt-4 flex justify-end gap-2">
                             <button
                               onClick={() => setExpandedPrescriptionIds(current => {
                                 const next = new Set(current);
@@ -4385,14 +4723,16 @@ function MultiPatientCartPage({
                             >
                               {addedPrescriptionIds.has(item.id) ? "Added to order" : "Add to order"}
                             </button>
-                          </div>
+                              </div>
+                            </>
+                          )}
                         </div>
                       )}
                     </div>
                   </article>
 
                   {isLastInPharmacy && (
-                    <div style={{ backgroundColor: activeCardTheme.shell, borderColor: activeCardTheme.border }} className={`rounded-b-[10px] px-5 pt-2 ${cartCardVariant === 3 ? "border-x border-b pb-4" : "pb-5"}`}>
+                    <div style={{ backgroundColor: activeCardTheme.shell, borderColor: activeCardTheme.border }} className={`rounded-b-[10px] px-5 transition-opacity ${hasFocusedOpenForm ? "opacity-55 hover:opacity-85" : ""} ${cartCardVariant === 3 ? "border-x border-b pb-4 pt-2" : cartCardVariant === 4 ? "pb-5 pt-1" : "pb-5 pt-2"}`}>
                       <div className="flex flex-wrap items-center justify-between gap-3">
                         <p className="max-w-[620px] text-[10px] font-medium leading-[16px] text-[#303030]">
                           {multiPatientShipping ? "Multi-patient shipping is supported — one shipping fee covers all patients." : "Multi-patient shipping is not supported — shipping is charged separately for each patient (" + shipmentCount + " shipping fees)."}
@@ -4411,7 +4751,7 @@ function MultiPatientCartPage({
             })}
           </section>
 
-          <aside className="self-start bg-white xl:sticky xl:top-6">
+          <aside className={`self-start bg-white transition-opacity xl:sticky xl:top-6 ${hasFocusedOpenForm ? "opacity-55 hover:opacity-85" : ""}`}>
             <h2 className="text-[24px] font-normal text-[#171717]">Order Total</h2>
 
             <div className="mt-5">
@@ -4708,7 +5048,7 @@ function CheckoutPrescriptionPage({ onNavigate }: { onNavigate: (p: Page) => voi
   function PrescriptionCard({ rx }: { rx: (typeof prescriptions)[number] }) {
     const isOpen = expanded[rx.id] ?? false;
     return (
-      <article className="rounded-[10px] border border-[#e8e3df] bg-white p-4 shadow-sm transition-colors hover:bg-[#fffbf8]">
+      <article className="rounded-[10px] border border-[#e8e3df] bg-white p-4 shadow-sm transition-colors hover:bg-[var(--app-soft-hover)]">
         <div className="flex items-start justify-between gap-4">
           <div className="flex min-w-0 gap-3">
             <ProductThumb badge={rx.badge} />
@@ -4758,7 +5098,7 @@ function CheckoutPrescriptionPage({ onNavigate }: { onNavigate: (p: Page) => voi
   }
 
   return (
-    <div className="-m-8 min-h-screen bg-[#fffbf8] px-6 py-8">
+    <div className="-m-8 min-h-screen bg-[var(--app-soft-hover)] px-6 py-8">
       <button onClick={() => onNavigate("cart-multi")} className="fixed left-[calc(16rem+6px)] top-20 z-10 flex h-9 w-7 items-center justify-center rounded-r-[8px] bg-[#f7efe9] text-[#183229] shadow-sm" aria-label="Back to cart">
         <ChevronLeft size={18} />
       </button>
@@ -4836,7 +5176,7 @@ function CheckoutPrescriptionPage({ onNavigate }: { onNavigate: (p: Page) => voi
 
             <section className="mt-7">
               <h3 className="border-b border-[#eee8e3] pb-3 text-[15px] font-semibold text-[#1a1a1a]">Order for</h3>
-              <div className="mt-4 rounded-[10px] border border-[#e8e3df] bg-[#fffbf8] px-4 py-3">
+              <div className="mt-4 rounded-[10px] border border-[#e8e3df] bg-[var(--app-soft-hover)] px-4 py-3">
                 <p className="text-[13px] font-semibold text-[#1a1a1a]">{patient.name}</p>
                 <p className="mt-1 whitespace-pre-line text-[12px] text-[#6f7782]">{patient.address}</p>
               </div>
@@ -4958,6 +5298,10 @@ function LoginPage({ onLogin }: { onLogin: () => void }) {
 
 export default function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(() => window.localStorage.getItem("scriptlinkrx-authenticated") === "true");
+  const [appTheme, setAppTheme] = useState<AppTheme>(() => {
+    const savedTheme = window.localStorage.getItem("scriptlinkrx-theme");
+    return savedTheme === "orange" ? "orange" : "default";
+  });
   const [page, setPage] = useState<Page>(DEFAULT_PAGE);
   const [cartMode, setCartMode] = useState<CartMode>("single");
   const [multiCartPatientIds, setMultiCartPatientIds] = useState<number[]>([]);
@@ -4993,6 +5337,10 @@ export default function App() {
   useEffect(() => {
     window.localStorage.setItem("scriptlinkrx-authenticated", String(isAuthenticated));
   }, [isAuthenticated]);
+
+  useEffect(() => {
+    window.localStorage.setItem("scriptlinkrx-theme", appTheme);
+  }, [appTheme]);
 
   useEffect(() => {
     if (!chatOpen) return;
@@ -5246,12 +5594,12 @@ export default function App() {
     <AppLoadingContext.Provider value={{ runWithAppLoader }}>
       <CartSummaryContext.Provider value={{ cartItemCount, cartPreviewItems, addCartItems, updateCartItemQty, removeCartItem, clearCartItems }}>
         <ProductFavoritesContext.Provider value={{ favoriteProductIds, setFavoriteProductIds, favoriteProducts }}>
-          <div className="flex h-screen overflow-hidden bg-[#fffbf8] font-['Inter',sans-serif]">
+          <div className={`app-theme app-theme-${appTheme} flex h-screen overflow-hidden bg-[var(--app-soft-hover)] font-['Inter',sans-serif]`}>
             {/* Sidebar Navigation */}
-            <Sidebar active={page} onNavigate={setPage} cartPage={cartPage} onLogout={() => setIsAuthenticated(false)} />
+            <Sidebar active={page} onNavigate={setPage} cartPage={cartPage} onLogout={() => setIsAuthenticated(false)} appTheme={appTheme} setAppTheme={setAppTheme} />
 
             {/* Main content area */}
-            <main className="h-screen min-w-0 flex-1 overflow-y-auto p-3 pl-1.5">
+            <main className="app-main-scroll h-screen min-w-0 flex-1 overflow-y-scroll p-3 pl-1.5">
               <div className="bg-card rounded-[10px] min-h-full p-7 shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
                 {renderPage()}
               </div>
