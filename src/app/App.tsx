@@ -2070,104 +2070,76 @@ function DashboardPage({ onNavigate }: { onNavigate: (p: Page) => void }) {
     <>
       <Header title="Dashboard" onNavigate={onNavigate} />
 
-      {/* Stats */}
-      <div className="grid grid-cols-4 gap-4 mb-7">
-        <StatCard label="Total Orders" value="1,284" delta="12.5%" positive icon={Package} color="bg-[#1a1a1a]" />
-        <StatCard label="Active Patients" value="348" delta="3.2%" positive icon={Users} color="bg-[#183229]" />
-        <StatCard label="Revenue (MTD)" value="$24,192" delta="8.7%" positive icon={CreditCard} color="bg-[#7547ff]" />
-        <StatCard label="Open Tickets" value="17" delta="2" icon={MessageSquare} color="bg-[#ff5454]" />
-      </div>
+      <section className="mb-6 grid grid-cols-4 gap-3 max-xl:grid-cols-2 max-sm:grid-cols-1">
+        {[
+          { label: "Total orders", value: "1,284", delta: "+12.5% this month", icon: Package, gradient: "from-[#CADDD9] to-[#E4EFEA]", color: "text-[#31584A]" },
+          { label: "Active patients", value: "348", delta: "+3.2% this month", icon: Users, gradient: "from-[#FFE9D8] to-[#FFD8B8]", color: "text-[#8A4A24]" },
+          { label: "Revenue this month", value: "$24,192", delta: "+8.7% this month", icon: CreditCard, gradient: "from-[#E1E4B8] to-[#FFF0C5]", color: "text-[#665E28]" },
+          { label: "Open tickets", value: "17", delta: "2 need attention", icon: MessageSquare, gradient: "from-[#F2D7E4] to-[#FFE1DA]", color: "text-[#6A2948]" },
+        ].map(({ label, value, delta, icon: Icon, gradient, color }) => (
+          <article key={label} className="flex min-h-[116px] items-center gap-4 rounded-[14px] border border-[#efefec] bg-white p-4">
+            <span className={`flex size-12 shrink-0 items-center justify-center rounded-[13px] bg-gradient-to-br ${gradient} ${color}`}><Icon size={19} strokeWidth={1.7} /></span>
+            <div><p className="text-[11px] font-medium text-[#858b88]">{label}</p><p className="mt-1 text-[23px] font-semibold tracking-[-0.03em] text-[#1a1a1a]">{value}</p><p className={`mt-1 text-[10px] font-medium ${color}`}>{delta}</p></div>
+          </article>
+        ))}
+      </section>
 
-      {/* Two-column: Recent Orders + Quick Stats */}
-      <div className="grid grid-cols-[1fr_320px] gap-5 mb-6">
-        {/* Recent Orders */}
-        <div className="bg-card border border-[#eaeaea] rounded-xl p-5">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-[15px] font-semibold text-[#1a1a1a]">Recent Orders</h3>
-            <button
-              onClick={() => onNavigate("orders")}
-              className="text-[12px] text-[#9d9d9d] hover:text-[#1a1a1a] transition-colors"
-            >
-              View all →
-            </button>
+      <div className="mb-6 grid grid-cols-[minmax(0,1fr)_310px] gap-4 max-lg:grid-cols-1">
+        <section className="rounded-[14px] bg-[#FBFBFB] p-2">
+          <div className="flex items-center justify-between px-3 py-3">
+            <div><h2 className="text-[15px] font-semibold text-[#1a1a1a]">Recent orders</h2><p className="mt-1 text-[10px] text-[#929694]">Latest prescriptions submitted by your clinic.</p></div>
+            <button onClick={() => onNavigate("orders")} className="flex items-center gap-1 text-[11px] font-semibold text-[#183229] transition-opacity hover:opacity-70">View all <ChevronRight size={13} /></button>
           </div>
-          <table className="w-full">
-            <thead>
-              <tr>
-                {["Order ID", "Patient", "Product", "Status", "Date", "Total"].map((h) => (
-                  <th key={h} className="text-left text-[11px] text-[#9d9d9d] font-medium pb-3">
-                    {h}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {RECENT_ORDERS.map((o) => (
-                <tr key={o.id} className="border-t border-[#f0f0f0]">
-                  <td className="py-3 text-[12px] font-medium text-[#1a1a1a]">{o.id}</td>
-                  <td className="py-3 text-[12px] text-[#1a1a1a]">{o.patient}</td>
-                  <td className="py-3 text-[12px] text-[#9d9d9d]">{o.product}</td>
-                  <td className="py-3">
-                    <span className="flex items-center gap-1.5 text-[11px]">
-                      <StatusDot status={o.status} />
-                      {o.status}
-                    </span>
-                  </td>
-                  <td className="py-3 text-[12px] text-[#9d9d9d]">{o.date}</td>
-                  <td className="py-3 text-[12px] font-medium text-[#1a1a1a]">{o.total}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+          <div className="space-y-2">
+            {RECENT_ORDERS.map((order) => {
+              const initials = order.patient.split(" ").map(part => part[0]).join("").slice(0, 2);
+              const statusClass = order.status === "Delivered" ? "from-[#C5F5DD] to-[#E7F5A5] text-[#31583F]" : order.status === "Pending" ? "from-[#FFE1DA] to-[#FFF0D6] text-[#8A4338]" : "from-[#CADDD9] to-[#E4EFEA] text-[#31584A]";
+              return (
+                <button key={order.id} onClick={() => onNavigate("orders")} className="grid w-full grid-cols-[44px_minmax(160px,1fr)_minmax(130px,.9fr)_104px_70px_72px_20px] items-center gap-3 rounded-[11px] bg-white px-3 py-3 text-left transition-colors hover:bg-[#fffcfa] max-md:grid-cols-[40px_1fr_auto_18px]">
+                  <span className="flex size-9 items-center justify-center rounded-full bg-gradient-to-br from-[#DCE9E5] to-[#CADDD9] text-[9px] font-bold text-[#31584A]">{initials}</span>
+                  <span className="min-w-0"><span className="block truncate text-[11px] font-semibold text-[#252525]">{order.patient}</span><span className="mt-0.5 block text-[9px] text-[#999]">{order.id}</span></span>
+                  <span className="truncate text-[11px] text-[#5f6461] max-md:hidden">{order.product}</span>
+                  <span className={`w-fit rounded-full bg-gradient-to-r px-2.5 py-1.5 text-[9px] font-semibold ${statusClass}`}>{order.status}</span>
+                  <span className="text-[10px] text-[#999] max-md:hidden">{order.date}</span>
+                  <span className="text-right text-[11px] font-semibold text-[#252525] max-md:hidden">{order.total}</span>
+                  <ChevronRight size={14} className="text-[#a2a5a3]" />
+                </button>
+              );
+            })}
+          </div>
+        </section>
 
-        {/* Activity */}
-        <div className="bg-card border border-[#eaeaea] rounded-xl p-5">
-          <h3 className="text-[15px] font-semibold text-[#1a1a1a] mb-4">Activity</h3>
-          <div className="space-y-3">
+        <aside className="rounded-[14px] border border-[#efefec] bg-white p-5">
+          <div className="flex items-center justify-between"><div><h2 className="text-[15px] font-semibold text-[#1a1a1a]">Activity</h2><p className="mt-1 text-[10px] text-[#929694]">What changed recently.</p></div><span className="flex size-8 items-center justify-center rounded-full bg-white text-[#183229]"><Bell size={14} /></span></div>
+          <div className="mt-5 space-y-1">
             {[
-              { icon: CheckCircle2, text: "Order ORD-0041 delivered", time: "2h ago", color: "text-emerald-500" },
-              { icon: Truck, text: "Order ORD-0040 shipped", time: "5h ago", color: "text-blue-500" },
-              { icon: AlertCircle, text: "Low stock: BPC-157", time: "1d ago", color: "text-amber-500" },
-              { icon: User, text: "New patient: Mark T.", time: "1d ago", color: "text-purple-500" },
-              { icon: MessageSquare, text: "Ticket #89 opened", time: "2d ago", color: "text-[#9d9d9d]" },
-            ].map(({ icon: Icon, text, time, color }) => (
-              <div key={text} className="flex items-start gap-3">
-                <Icon size={14} className={`mt-0.5 flex-shrink-0 ${color}`} />
-                <div className="flex-1">
-                  <p className="text-[12px] text-[#1a1a1a]">{text}</p>
-                  <p className="text-[10px] text-[#9d9d9d]">{time}</p>
-                </div>
+              { icon: CheckCircle2, text: "Order ORD-0041 delivered", time: "2h ago", bg: "from-[#C5F5DD] to-[#E7F5A5]", color: "text-[#31583F]" },
+              { icon: Truck, text: "Order ORD-0040 shipped", time: "5h ago", bg: "from-[#CADDD9] to-[#E4EFEA]", color: "text-[#31584A]" },
+              { icon: AlertCircle, text: "Low stock: BPC-157", time: "1d ago", bg: "from-[#FFF0C5] to-[#F4F2C7]", color: "text-[#6E642A]" },
+              { icon: User, text: "New patient: Mark T.", time: "1d ago", bg: "from-[#FFE9D8] to-[#FFD8B8]", color: "text-[#8A4A24]" },
+              { icon: MessageSquare, text: "Ticket #89 opened", time: "2d ago", bg: "from-[#F2D7E4] to-[#FFE1DA]", color: "text-[#6A2948]" },
+            ].map(({ icon: Icon, text, time, bg, color }) => (
+              <div key={text} className="flex items-center gap-3 rounded-[10px] px-1 py-2.5">
+                <span className={`flex size-8 shrink-0 items-center justify-center rounded-[9px] bg-gradient-to-br ${bg} ${color}`}><Icon size={14} /></span>
+                <div className="min-w-0"><p className="truncate text-[11px] font-medium text-[#252525]">{text}</p><p className="mt-0.5 text-[9px] text-[#999]">{time}</p></div>
               </div>
             ))}
           </div>
-        </div>
+        </aside>
       </div>
 
-      {/* Popular Products Row */}
-      <div className="bg-card border border-[#eaeaea] rounded-xl p-5">
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-[15px] font-semibold text-[#1a1a1a]">Top Products</h3>
-          <button onClick={() => onNavigate("products")} className="text-[12px] text-[#9d9d9d] hover:text-[#1a1a1a]">
-            Browse catalog →
-          </button>
-        </div>
-        <div className="flex gap-4">
-          {ALL_PRODUCTS.slice(0, 6).map((p) => (
-            <button
-              key={p.id}
-              onClick={() => onNavigate("product-detail")}
-              className="flex flex-col items-center gap-2 p-3 rounded-xl hover:bg-[#f9f0ea]/60 transition-colors group"
-            >
-              <div className="w-16 h-16 flex items-center justify-center">
-                <img src={p.img} alt={p.name} className="h-full object-contain mix-blend-multiply" />
-              </div>
-              <p className="text-[10px] font-medium text-[#1a1a1a] text-center leading-tight w-20">{p.name}</p>
-              <p className="text-[11px] font-semibold text-[#1a1a1a]">{p.price}</p>
+      <section className="rounded-[14px] bg-[#FBFBFB] p-2">
+        <div className="flex items-center justify-between px-3 py-3"><div><h2 className="text-[15px] font-semibold text-[#1a1a1a]">Top products</h2><p className="mt-1 text-[10px] text-[#929694]">Frequently ordered by your clinic.</p></div><button onClick={() => onNavigate("products")} className="flex items-center gap-1 text-[11px] font-semibold text-[#183229] hover:opacity-70">Browse catalog <ChevronRight size={13} /></button></div>
+        <div className="grid grid-cols-6 gap-2 max-xl:grid-cols-3 max-md:grid-cols-2">
+          {ALL_PRODUCTS.slice(0, 6).map((product) => (
+            <button key={product.id} onClick={() => onNavigate("product-detail")} className="group rounded-[11px] bg-white px-3 pb-2.5 pt-2 text-left transition-colors hover:bg-[#fffefd]">
+              <div className="flex h-[84px] items-center justify-center overflow-hidden rounded-[9px] bg-[#FCFCFC]"><img src={product.img} alt={product.name} className="h-[92%] max-w-full object-contain mix-blend-multiply transition-transform duration-200 group-hover:scale-[1.04]" /></div>
+              <p className="mt-2 truncate text-[10px] font-semibold leading-4 text-[#252525]">{product.name}</p>
+              <div className="mt-1 flex items-center justify-between"><span className="text-[11px] font-semibold text-[#1a1a1a]">{product.price}</span><span className="flex size-5 items-center justify-center rounded-full bg-[#f2f1ee] text-[#183229]"><ChevronRight size={11} /></span></div>
             </button>
           ))}
         </div>
-      </div>
+      </section>
     </>
   );
 }
@@ -2677,98 +2649,103 @@ const TICKETS = [
 
 function SupportPage({ onNavigate }: { onNavigate: (p: Page) => void }) {
   const [tab, setTab] = useState("All");
+  const [query, setQuery] = useState("");
   const tabs = ["All", "Open", "Resolved", "Urgent"];
 
   const filtered = TICKETS.filter((t) => {
-    if (tab === "All") return true;
-    if (tab === "Urgent") return t.priority === "Urgent";
-    return t.status === tab;
+    const matchesTab = tab === "All" ? true : tab === "Urgent" ? t.priority === "Urgent" : t.status === tab;
+    const search = query.trim().toLowerCase();
+    const matchesSearch = !search || [t.id, t.subject, t.patient, t.assigned].some(value => value.toLowerCase().includes(search));
+    return matchesTab && matchesSearch;
   });
+
+  const tabCount = (name: string) => name === "All"
+    ? TICKETS.length
+    : name === "Urgent"
+      ? TICKETS.filter(ticket => ticket.priority === "Urgent").length
+      : TICKETS.filter(ticket => ticket.status === name).length;
 
   return (
     <>
-      <Header title="Support" onNavigate={onNavigate} />
+      <Header title="Support tickets" onNavigate={onNavigate} />
 
-      {/* Stats */}
-      <div className="grid grid-cols-4 gap-4 mb-6">
+      <section className="mb-6 grid grid-cols-4 gap-3 max-lg:grid-cols-2 max-sm:grid-cols-1">
         {[
-          { label: "Open Tickets", value: "17", icon: MessageSquare, color: "bg-blue-500" },
-          { label: "Urgent", value: "3", icon: AlertCircle, color: "bg-red-500" },
-          { label: "Avg Response", value: "4.2h", icon: Clock, color: "bg-amber-500" },
-          { label: "Resolved Today", value: "8", icon: CheckCircle2, color: "bg-emerald-500" },
-        ].map(({ label, value, icon: Icon, color }) => (
-          <div key={label} className="bg-card border border-[#eaeaea] rounded-xl p-4 flex items-center gap-3">
-            <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${color}`}>
-              <Icon size={14} className="text-white" />
+          { label: "Open tickets", value: "17", note: "2 need attention", icon: MessageSquare, gradient: "from-[#CADDD9] to-[#E4EFEA]", color: "text-[#31584A]" },
+          { label: "Urgent", value: "3", note: "Review today", icon: AlertCircle, gradient: "from-[#FFE1DA] to-[#FFF0D6]", color: "text-[#8A4338]" },
+          { label: "Average response", value: "4.2h", note: "Within target", icon: Clock, gradient: "from-[#FFF0C5] to-[#F4F2C7]", color: "text-[#6E642A]" },
+          { label: "Resolved today", value: "8", note: "6 more this week", icon: CheckCircle2, gradient: "from-[#C5F5DD] to-[#E7F5A5]", color: "text-[#31583F]" },
+        ].map(({ label, value, note, icon: Icon, gradient, color }) => (
+          <div key={label} className="flex min-h-[108px] items-center gap-4 rounded-[14px] border border-[#efefec] bg-white p-4">
+            <div className={`flex size-11 shrink-0 items-center justify-center rounded-[12px] bg-gradient-to-br ${gradient} ${color}`}>
+              <Icon size={18} strokeWidth={1.7} />
             </div>
-            <div>
-              <p className="text-[11px] text-[#9d9d9d]">{label}</p>
-              <p className="text-[20px] font-semibold text-[#1a1a1a]">{value}</p>
+            <div className="min-w-0">
+              <p className="text-[11px] font-medium text-[#858b88]">{label}</p>
+              <p className="mt-0.5 text-[22px] font-semibold tracking-[-0.02em] text-[#1a1a1a]">{value}</p>
+              <p className="mt-0.5 truncate text-[10px] text-[#9b9e9c]">{note}</p>
             </div>
           </div>
         ))}
-      </div>
+      </section>
 
-      {/* Tabs + New */}
-      <div className="flex items-center gap-2 mb-4">
-        <div className="flex gap-1 bg-[#f6f4f5] p-1 rounded-[8px]">
-          {tabs.map((t) => (
-            <button
-              key={t}
-              onClick={() => setTab(t)}
-              className={`px-3 py-1 rounded-[6px] text-[12px] font-medium transition-all ${
-                tab === t ? "bg-white shadow-sm text-[#1a1a1a]" : "text-[#9d9d9d]"
-              }`}
-            >
-              {t}
+      <section className="overflow-hidden rounded-[14px] bg-[#FBFBFB] p-2">
+        <div className="flex flex-wrap items-end justify-between gap-4 px-3 pb-3 pt-2">
+          <div>
+            <h2 className="text-[15px] font-semibold text-[#1a1a1a]">Ticket inbox</h2>
+            <p className="mt-1 text-[11px] text-[#8c8c8c]">Track questions, order issues, and patient requests.</p>
+          </div>
+          <div className="flex items-center gap-2 max-sm:w-full">
+            <label className="flex h-9 w-[245px] items-center gap-2 rounded-[9px] border border-[#EAE8E1] bg-white px-3 max-sm:flex-1">
+              <Search size={14} className="text-[#858b88]" />
+              <input value={query} onChange={event => setQuery(event.target.value)} placeholder="Search tickets" className="min-w-0 flex-1 bg-transparent text-[11px] outline-none placeholder:text-[#aaa]" />
+            </label>
+            <button className="flex h-9 items-center gap-1.5 rounded-full bg-black px-4 text-[12px] font-medium text-white transition-colors hover:bg-[#252525]">
+              <Plus size={14} /> New ticket
+            </button>
+          </div>
+        </div>
+
+        <div className="flex gap-5 border-b border-[#eeeae6] px-3">
+          {tabs.map((name) => (
+            <button key={name} onClick={() => setTab(name)} className={`relative flex h-10 items-center gap-1.5 text-[11px] font-semibold transition-colors ${tab === name ? "text-[#183229]" : "text-[#929794] hover:text-[#1a1a1a]"}`}>
+              {name}
+              <span className={`flex min-w-5 items-center justify-center rounded-full px-1.5 py-0.5 text-[9px] ${tab === name ? "bg-[#183229] text-white" : "bg-[#eeefed] text-[#747976]"}`}>{tabCount(name)}</span>
+              {tab === name && <span className="absolute inset-x-0 bottom-0 h-[2px] rounded-full bg-[#183229]" />}
             </button>
           ))}
         </div>
-        <div className="ml-auto">
-          <button className="flex items-center gap-1.5 bg-black text-white rounded-[8px] px-3 py-2 text-[12px] font-medium hover:bg-[#1a1a1a]/90 transition-colors">
-            <Plus size={13} /> New Ticket
-          </button>
-        </div>
-      </div>
 
-      <div className="bg-card border border-[#eaeaea] rounded-xl overflow-hidden">
-        <table className="w-full">
-          <thead>
-            <tr className="border-b border-[#f0f0f0]">
-              {["Ticket", "Subject", "Patient", "Priority", "Status", "Created", "Assigned", ""].map((h) => (
-                <th key={h} className="text-left text-[11px] text-[#9d9d9d] font-medium px-4 py-3">
-                  {h}
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {filtered.map((t) => (
-              <tr key={t.id} className="border-b border-[#f5f5f5] hover:bg-[#fafafa] transition-colors">
-                <td className="px-4 py-3 text-[12px] font-medium text-[#1a1a1a]">{t.id}</td>
-                <td className="px-4 py-3 text-[12px] text-[#1a1a1a] max-w-[200px] truncate">{t.subject}</td>
-                <td className="px-4 py-3 text-[12px] text-[#9d9d9d]">{t.patient}</td>
-                <td className="px-4 py-3">
-                  <Badge variant={t.priority === "Urgent" ? "error" : "neutral"}>{t.priority}</Badge>
-                </td>
-                <td className="px-4 py-3">
-                  <Badge variant={t.status === "Open" ? "info" : "success"}>
-                    <StatusDot status={t.status} />
-                    {t.status}
-                  </Badge>
-                </td>
-                <td className="px-4 py-3 text-[12px] text-[#9d9d9d]">{t.created}</td>
-                <td className="px-4 py-3 text-[12px] text-[#9d9d9d]">{t.assigned}</td>
-                <td className="px-4 py-3">
-                  <button className="text-[#9d9d9d] hover:text-[#1a1a1a]">
-                    <Eye size={14} />
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+        <div className="space-y-2 p-2">
+          {filtered.map((ticket) => {
+            const initials = ticket.patient.split(" ").map(part => part[0]).join("").slice(0, 2);
+            return (
+              <article key={ticket.id} className="group grid grid-cols-[minmax(260px,1.7fr)_minmax(160px,.85fr)_105px_105px_95px_36px] items-center gap-4 rounded-[11px] bg-white px-4 py-3.5 transition-colors hover:bg-[#fffcfa] max-xl:grid-cols-[minmax(250px,1.7fr)_minmax(150px,.9fr)_100px_95px_36px] max-xl:[&_.created-column]:hidden max-md:grid-cols-[1fr_auto]">
+                <div className="min-w-0">
+                  <div className="flex items-center gap-2">
+                    <span className="text-[10px] font-semibold text-[#8A4A24]">{ticket.id}</span>
+                    {ticket.priority === "Urgent" && <span className="rounded-full bg-gradient-to-r from-[#FFE1DA] to-[#FFF0D6] px-2 py-1 text-[9px] font-semibold text-[#8A4338]">Urgent</span>}
+                  </div>
+                  <p className="mt-1.5 truncate text-[12px] font-semibold text-[#1a1a1a]">{ticket.subject}</p>
+                  <p className="mt-1 text-[10px] text-[#989b99]">Created {ticket.created}</p>
+                </div>
+                <div className="flex min-w-0 items-center gap-2.5 max-md:hidden">
+                  <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-[#FFE9D8] to-[#FFD8B8] text-[9px] font-bold text-[#8A4A24]">{initials}</span>
+                  <div className="min-w-0"><p className="truncate text-[11px] font-semibold text-[#292929]">{ticket.patient}</p><p className="mt-0.5 text-[9px] text-[#999]">Patient</p></div>
+                </div>
+                <div className="max-md:hidden">
+                  <p className="text-[9px] uppercase tracking-[0.08em] text-[#a0a3a1]">Assigned</p>
+                  <p className="mt-1 truncate text-[11px] font-medium text-[#4e514f]">{ticket.assigned}</p>
+                </div>
+                <span className={`w-fit rounded-full px-2.5 py-1.5 text-[10px] font-semibold ${ticket.status === "Open" ? "bg-gradient-to-r from-[#CADDD9] to-[#E4EFEA] text-[#31584A]" : "bg-gradient-to-r from-[#C5F5DD] to-[#E7F5A5] text-[#31583F]"}`}>{ticket.status}</span>
+                <p className="created-column text-[10px] text-[#989b99]">{ticket.created}</p>
+                <button className="flex size-8 items-center justify-center rounded-[8px] text-[#8c8f8d] transition-colors hover:bg-[#f1efec] hover:text-[#1a1a1a]" aria-label={`Open ticket ${ticket.id}`}><ChevronRight size={15} /></button>
+              </article>
+            );
+          })}
+          {filtered.length === 0 && <div className="flex min-h-[180px] flex-col items-center justify-center rounded-[11px] bg-white text-center"><Search size={22} className="text-[#b3b5b3]" /><p className="mt-3 text-[12px] font-semibold text-[#333]">No tickets found</p><p className="mt-1 text-[10px] text-[#999]">Try a different search or filter.</p></div>}
+        </div>
+      </section>
     </>
   );
 }
@@ -3050,7 +3027,7 @@ function SettingsPage({ onNavigate }: { onNavigate: (p: Page) => void }) {
       ? ["#", "Full Name", "User Phone", "User Email", "User Title", "Status", ""]
       : ["#", "Full Name", "Prescriber Phone", "Prescriber Email", "NPI Number", "Status", ""];
     return (
-      <div className="overflow-hidden rounded-[12px] bg-[#fffaf7] p-2">
+      <div className="overflow-hidden rounded-[12px] bg-[#FBFBFB] p-2">
         <div className="grid grid-cols-[40px_1.25fr_1fr_1.55fr_1fr_92px_38px] rounded-t-[9px] bg-[#FBFBFB] px-4 py-3">
           {headers.map(h => (
             <span key={h} className="text-[10px] font-semibold uppercase tracking-[0.08em] text-[#8c8c8c]">{h}</span>
@@ -3097,7 +3074,7 @@ function SettingsPage({ onNavigate }: { onNavigate: (p: Page) => void }) {
 
         <div className="space-y-5">
           {activeTab === "Business Account" && (
-            <div className="rounded-[14px] bg-[#fffaf7] p-6">
+            <div className="rounded-[14px] bg-[#FBFBFB] p-6">
               <div className="mb-4 flex items-center justify-between">
                 <h3 className="text-[14px] font-semibold text-[#1a1a1a]">Business Account</h3>
                 <button className="rounded-full bg-black px-4 py-2 text-[12px] font-medium text-white transition-colors hover:bg-[#1a1a1a]/90">
@@ -3121,7 +3098,7 @@ function SettingsPage({ onNavigate }: { onNavigate: (p: Page) => void }) {
           )}
 
           {activeTab === "Users" && (
-            <div className="rounded-[14px] bg-[#fffaf7] p-6">
+            <div className="rounded-[14px] bg-[#FBFBFB] p-6">
             <div className="mb-4 flex items-center justify-between">
               <h3 className="text-[14px] font-semibold text-[#1a1a1a]">Users</h3>
               <div className="flex gap-2">
@@ -3136,7 +3113,7 @@ function SettingsPage({ onNavigate }: { onNavigate: (p: Page) => void }) {
           )}
 
           {activeTab === "Prescribers" && (
-            <div className="rounded-[14px] bg-[#fffaf7] p-6">
+            <div className="rounded-[14px] bg-[#FBFBFB] p-6">
             <div className="mb-4 flex items-center justify-between">
               <h3 className="text-[14px] font-semibold text-[#1a1a1a]">Prescribers</h3>
               <div className="flex gap-2">
@@ -3151,7 +3128,7 @@ function SettingsPage({ onNavigate }: { onNavigate: (p: Page) => void }) {
           )}
 
           {activeTab === "Pay by Clinic" && (
-            <div className="rounded-[14px] bg-[#fffaf7] p-6">
+            <div className="rounded-[14px] bg-[#FBFBFB] p-6">
             <div className="mb-5 flex items-center border-b border-[#f5f5f5] pb-4">
               <button
                 onClick={() => setPayByClinicTab("cards")}
@@ -3233,7 +3210,7 @@ function SettingsPage({ onNavigate }: { onNavigate: (p: Page) => void }) {
           )}
 
           {activeTab === "Agreements" && (
-            <div className="rounded-[14px] bg-[#fffaf7] p-6">
+            <div className="rounded-[14px] bg-[#FBFBFB] p-6">
             <h3 className="mb-4 text-[14px] font-semibold text-[#1a1a1a]">Agreements</h3>
             <div className="grid grid-cols-2 gap-5 max-lg:grid-cols-1">
               <div className="rounded-[10px] border border-[#eaeaea] bg-white p-6">
