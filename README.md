@@ -7,7 +7,7 @@
 
   Run `npm run dev` to start the development server.
 
-  Open the URL printed by Vite (normally `http://localhost:5173/scriptlinkrx/`).
+  Open the URL printed by Vite (normally `http://localhost:5173/Dashboard/`).
   Do not open `index.html` directly because the source entry point must be
   compiled by Vite.
 
