@@ -68,6 +68,9 @@ import img440 from "@/imports/ScriptlinkrxDashboard/71b3a03610647f4c97f26448ddda
 import imgPT141 from "@/imports/ScriptlinkrxProductPage/76629cbe854957543c2416420a71b8b9d0316bd3.png";
 import imgAminoQuad from "@/assets/amino-quad.png";
 import imgNadInjection from "@/assets/nad-injection.png";
+import imgOrderAminoQuad from "@/assets/order-amino-quad.png";
+import imgOrderOxytocin from "@/assets/order-oxytocin.png";
+import imgOrderOxytocinAlt from "@/assets/order-oxytocin-alt.png";
 import imgProduct452 from "@/imports/ScriptlinkrxProductPage/a7404d4186f9383142485474193c8c2ca1b2259c.png";
 import scriptlinkrxLogo from "@/assets/scriptlinkrx-logo.svg";
 import userVerifiedIcon from "@/assets/user-verified.svg";
@@ -386,6 +389,8 @@ function Sidebar({
   onLogout,
   appTheme,
   setAppTheme,
+  extraVariants,
+  setExtraVariants,
 }: {
   active: Page;
   onNavigate: (p: Page) => void;
@@ -393,6 +398,8 @@ function Sidebar({
   onLogout: () => void;
   appTheme: AppTheme;
   setAppTheme: Dispatch<SetStateAction<AppTheme>>;
+  extraVariants: boolean;
+  setExtraVariants: Dispatch<SetStateAction<boolean>>;
 }) {
   const [favorites, setFavorites] = useState<MenuItem[]>(INITIAL_FAVORITES);
   const [mainMenu, setMainMenu] = useState<MenuItem[]>(INITIAL_MAIN);
@@ -500,7 +507,7 @@ function Sidebar({
 
       <div className="mt-auto" />
       <div className="pb-3 pt-4">
-        <UserChip onNavigate={onNavigate} onLogout={onLogout} appTheme={appTheme} setAppTheme={setAppTheme} />
+        <UserChip onNavigate={onNavigate} onLogout={onLogout} appTheme={appTheme} setAppTheme={setAppTheme} extraVariants={extraVariants} setExtraVariants={setExtraVariants} />
       </div>
     </aside>
   );
@@ -513,11 +520,15 @@ function UserChip({
   onLogout,
   appTheme,
   setAppTheme,
+  extraVariants,
+  setExtraVariants,
 }: {
   onNavigate: (p: Page) => void;
   onLogout: () => void;
   appTheme: AppTheme;
   setAppTheme: Dispatch<SetStateAction<AppTheme>>;
+  extraVariants: boolean;
+  setExtraVariants: Dispatch<SetStateAction<boolean>>;
 }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const themeOptions: Array<{ value: AppTheme; label: string }> = [
@@ -550,6 +561,18 @@ function UserChip({
                   {appTheme === option.value && <CheckCircle2 size={13} className="text-[#00B33C]" />}
                 </button>
               ))}
+            </div>
+            <div className="my-1.5 border-t border-[#eceeea] pt-1.5">
+              <p className="px-2.5 pb-1 text-[9px] font-semibold uppercase tracking-[0.11em] text-[#8c948f]">Variants</p>
+              <button
+                onClick={() => setExtraVariants(current => !current)}
+                className={`flex h-9 w-full items-center justify-between rounded-[7px] px-2.5 text-[11px] font-medium transition-colors hover:bg-[var(--app-menu-bg)] ${extraVariants ? "bg-[var(--app-menu-bg)] text-[#183229]" : "text-[#252525]"}`}
+              >
+                <span>Extra variants</span>
+                <span className={`relative h-[18px] w-[32px] rounded-full transition-colors ${extraVariants ? "bg-[#00B33C]" : "bg-[#d9dedb]"}`}>
+                  <span className={`absolute top-0.5 size-[14px] rounded-full bg-white transition-transform ${extraVariants ? "translate-x-[16px]" : "translate-x-0.5"}`} />
+                </span>
+              </button>
             </div>
             <button onClick={onLogout} className="flex h-9 w-full items-center gap-2 rounded-[7px] px-2.5 text-[12px] font-medium text-[#252525] hover:bg-[var(--app-menu-bg)]">
               <LogOut size={15} /> Log out
@@ -1587,12 +1610,14 @@ function ProductDetailPage({
   setCartMode,
   onAddToPatientCart,
   product,
+  extraVariants,
 }: {
   onNavigate: (p: Page) => void;
   cartMode: CartMode;
   setCartMode: (mode: CartMode) => void;
   onAddToPatientCart: (entries: PatientCartEntry[]) => void;
   product: CardDef;
+  extraVariants: boolean;
 }) {
   const defaultSize = product.dosage === "Gel" ? "30g Tube" : product.dosage === "Capsule" ? "30 Capsules" : "1 (5mL) Vial";
   const defaultStrength = product.price.includes("mg") ? product.price : product.dosage === "Gel" ? "0.025%" : "5mg/mL";
@@ -1631,6 +1656,10 @@ function ProductDetailPage({
     setExpandedPatientIds(new Set());
     setAddedItemCount(null);
   }, [defaultSize, defaultStrength, product.dosage, product.id, product.pharmacy]);
+
+  useEffect(() => {
+    if (!extraVariants) setProductDetailVariant(3);
+  }, [extraVariants]);
 
   useLayoutEffect(() => {
     if (configurationCardRef.current) {
@@ -1752,14 +1781,14 @@ function ProductDetailPage({
           <button onClick={() => onNavigate("products")} className="text-[11px] font-normal hover:underline">Home</button>, <button onClick={() => onNavigate("products")} className="text-[11px] font-normal hover:underline">Catalog</button>, <span className="text-[11px] font-normal">{product.name}</span>
         </p>
       </div>
-      <div className="mb-5 flex flex-wrap items-center gap-2">
+      {extraVariants && <div className="mb-5 flex flex-wrap items-center gap-2">
         <span className="mr-1 text-[10px] font-semibold uppercase tracking-[0.1em] text-[#777]">Page style</span>
         {([1, 2, 3] as const).map(variant => (
           <button key={variant} onClick={() => setProductDetailVariant(variant)} className={`h-8 rounded-full px-3 text-[11px] font-semibold transition-colors ${productDetailVariant === variant ? "bg-[#111] text-white" : "border border-[#ddd] bg-white text-[#555] hover:border-[#999]"}`}>
             {variant}. {variant === 1 ? "Current" : variant === 2 ? "Selection" : "Card Selection"}
           </button>
         ))}
-      </div>
+      </div>}
       <div className="grid max-w-[1073px] items-start gap-10 xl:grid-cols-[minmax(0,1.244fr)_minmax(0,1fr)]">
         <div className="min-w-0">
           <div className={`flex h-[600px] items-center justify-center overflow-hidden rounded-[18px] border border-[#e4e4e4] p-16 ${productDetailVariant === 2 ? "bg-[#fbfdfc]" : "bg-[#f8f8f8]"}`}>
@@ -2118,13 +2147,13 @@ function DashboardPage({ onNavigate }: { onNavigate: (p: Page) => void }) {
 
       <section className="mb-6 grid grid-cols-4 gap-3 max-xl:grid-cols-2 max-sm:grid-cols-1">
         {[
-          { label: "Total orders", value: "1,284", delta: "+12.5% this month", icon: Package, gradient: "from-[#CADDD9] to-[#E4EFEA]", color: "text-[#31584A]" },
-          { label: "Active patients", value: "348", delta: "+3.2% this month", icon: Users, gradient: "from-[#FFE9D8] to-[#FFD8B8]", color: "text-[#8A4A24]" },
-          { label: "Revenue this month", value: "$24,192", delta: "+8.7% this month", icon: CreditCard, gradient: "from-[#E1E4B8] to-[#FFF0C5]", color: "text-[#665E28]" },
-          { label: "Open tickets", value: "17", delta: "2 need attention", icon: MessageSquare, gradient: "from-[#F2D7E4] to-[#FFE1DA]", color: "text-[#6A2948]" },
-        ].map(({ label, value, delta, icon: Icon, gradient, color }) => (
+          { label: "Total orders", value: "1,284", delta: "+12.5% this month", icon: Package, bg: "bg-[#f5f8f6]", color: "text-[#31584A]" },
+          { label: "Active patients", value: "348", delta: "+3.2% this month", icon: Users, bg: "bg-[#fafafa]", color: "text-[#31584A]" },
+          { label: "Revenue this month", value: "$24,192", delta: "+8.7% this month", icon: CreditCard, bg: "bg-[#f7f8f6]", color: "text-[#665E28]" },
+          { label: "Open tickets", value: "17", delta: "2 need attention", icon: MessageSquare, bg: "bg-[#fff7f2]", color: "text-[#8A4338]" },
+        ].map(({ label, value, delta, icon: Icon, bg, color }) => (
           <article key={label} className="flex min-h-[116px] items-center gap-4 rounded-[14px] border border-[#efefec] bg-white p-4">
-            <span className={`flex size-12 shrink-0 items-center justify-center rounded-[13px] bg-gradient-to-br ${gradient} ${color}`}><Icon size={19} strokeWidth={1.7} /></span>
+            <span className={`flex size-12 shrink-0 items-center justify-center rounded-[13px] ${bg} ${color}`}><Icon size={19} strokeWidth={1.7} /></span>
             <div><p className="text-[11px] font-medium text-[#858b88]">{label}</p><p className="mt-1 text-[23px] font-semibold tracking-[-0.03em] text-[#1a1a1a]">{value}</p><p className={`mt-1 text-[10px] font-medium ${color}`}>{delta}</p></div>
           </article>
         ))}
@@ -2138,14 +2167,12 @@ function DashboardPage({ onNavigate }: { onNavigate: (p: Page) => void }) {
           </div>
           <div className="space-y-2">
             {RECENT_ORDERS.map((order) => {
-              const initials = order.patient.split(" ").map(part => part[0]).join("").slice(0, 2);
-              const statusClass = order.status === "Delivered" ? "from-[#C5F5DD] to-[#E7F5A5] text-[#31583F]" : order.status === "Pending" ? "from-[#FFE1DA] to-[#FFF0D6] text-[#8A4338]" : "from-[#CADDD9] to-[#E4EFEA] text-[#31584A]";
+              const statusClass = order.status === "Delivered" ? "bg-[#ecf8ef] text-[#31583F]" : order.status === "Pending" ? "bg-[#fff4eb] text-[#8A4338]" : "bg-[#edf6f2] text-[#31584A]";
               return (
-                <button key={order.id} onClick={() => onNavigate("orders")} className="grid w-full grid-cols-[44px_minmax(160px,1fr)_minmax(130px,.9fr)_104px_70px_72px_20px] items-center gap-3 rounded-[11px] bg-white px-3 py-3 text-left transition-colors hover:bg-[#fffcfa] max-md:grid-cols-[40px_1fr_auto_18px]">
-                  <span className="flex size-9 items-center justify-center rounded-full bg-gradient-to-br from-[#DCE9E5] to-[#CADDD9] text-[9px] font-bold text-[#31584A]">{initials}</span>
+                <button key={order.id} onClick={() => onNavigate("orders")} className="grid w-full grid-cols-[minmax(160px,1fr)_minmax(130px,.9fr)_104px_70px_72px_20px] items-center gap-3 rounded-[11px] bg-white px-3 py-3 text-left transition-colors hover:bg-[#fffcfa] max-md:grid-cols-[1fr_auto_18px]">
                   <span className="min-w-0"><span className="block truncate text-[11px] font-semibold text-[#252525]">{order.patient}</span><span className="mt-0.5 block text-[9px] text-[#999]">{order.id}</span></span>
                   <span className="truncate text-[11px] text-[#5f6461] max-md:hidden">{order.product}</span>
-                  <span className={`w-fit rounded-full bg-gradient-to-r px-2.5 py-1.5 text-[9px] font-semibold ${statusClass}`}>{order.status}</span>
+                  <span className={`w-fit rounded-full px-2.5 py-1.5 text-[9px] font-semibold ${statusClass}`}>{order.status}</span>
                   <span className="text-[10px] text-[#999] max-md:hidden">{order.date}</span>
                   <span className="text-right text-[11px] font-semibold text-[#252525] max-md:hidden">{order.total}</span>
                   <ChevronRight size={14} className="text-[#a2a5a3]" />
@@ -2159,14 +2186,14 @@ function DashboardPage({ onNavigate }: { onNavigate: (p: Page) => void }) {
           <div className="flex items-center justify-between"><div><h2 className="text-[15px] font-semibold text-[#1a1a1a]">Activity</h2><p className="mt-1 text-[10px] text-[#929694]">What changed recently.</p></div><span className="flex size-8 items-center justify-center rounded-full bg-white text-[#183229]"><Bell size={14} /></span></div>
           <div className="mt-5 space-y-1">
             {[
-              { icon: CheckCircle2, text: "Order ORD-0041 delivered", time: "2h ago", bg: "from-[#C5F5DD] to-[#E7F5A5]", color: "text-[#31583F]" },
-              { icon: Truck, text: "Order ORD-0040 shipped", time: "5h ago", bg: "from-[#CADDD9] to-[#E4EFEA]", color: "text-[#31584A]" },
-              { icon: AlertCircle, text: "Low stock: BPC-157", time: "1d ago", bg: "from-[#FFF0C5] to-[#F4F2C7]", color: "text-[#6E642A]" },
-              { icon: User, text: "New patient: Mark T.", time: "1d ago", bg: "from-[#FFE9D8] to-[#FFD8B8]", color: "text-[#8A4A24]" },
-              { icon: MessageSquare, text: "Ticket #89 opened", time: "2d ago", bg: "from-[#F2D7E4] to-[#FFE1DA]", color: "text-[#6A2948]" },
+              { icon: CheckCircle2, text: "Order ORD-0041 delivered", time: "2h ago", bg: "bg-[#ecf8ef]", color: "text-[#31583F]" },
+              { icon: Truck, text: "Order ORD-0040 shipped", time: "5h ago", bg: "bg-[#edf6f2]", color: "text-[#31584A]" },
+              { icon: AlertCircle, text: "Low stock: BPC-157", time: "1d ago", bg: "bg-[#fafafa]", color: "text-[#6E642A]" },
+              { icon: User, text: "New patient: Mark T.", time: "1d ago", bg: "bg-[#f7f8f6]", color: "text-[#31584A]" },
+              { icon: MessageSquare, text: "Ticket #89 opened", time: "2d ago", bg: "bg-[#fff7f2]", color: "text-[#8A4338]" },
             ].map(({ icon: Icon, text, time, bg, color }) => (
               <div key={text} className="flex items-center gap-3 rounded-[10px] px-1 py-2.5">
-                <span className={`flex size-8 shrink-0 items-center justify-center rounded-[9px] bg-gradient-to-br ${bg} ${color}`}><Icon size={14} /></span>
+                <span className={`flex size-8 shrink-0 items-center justify-center rounded-[9px] ${bg} ${color}`}><Icon size={14} /></span>
                 <div className="min-w-0"><p className="truncate text-[11px] font-medium text-[#252525]">{text}</p><p className="mt-0.5 text-[9px] text-[#999]">{time}</p></div>
               </div>
             ))}
@@ -2282,7 +2309,7 @@ function CopyButton({ text }: { text: string }) {
   );
 }
 
-function OrdersPage({ onNavigate, onOrderSelect }: { onNavigate: (p: Page) => void; onOrderSelect: (order: typeof ORDERS[number]) => void }) {
+function OrdersPage({ onNavigate, onOrderSelect, extraVariants }: { onNavigate: (p: Page) => void; onOrderSelect: (order: typeof ORDERS[number]) => void; extraVariants: boolean }) {
   const [filter, setFilter] = useState("Overall");
   const [search, setSearch] = useState("");
   const [selectedOrderId, setSelectedOrderId] = useState(ORDERS[0]?.id ?? "");
@@ -2295,6 +2322,10 @@ function OrdersPage({ onNavigate, onOrderSelect }: { onNavigate: (p: Page) => vo
   const [shippingMethod, setShippingMethod] = useState<"standard" | "overnight">("standard");
   const [reviewOpen, setReviewOpen] = useState(false);
   const [orderCardVariant, setOrderCardVariant] = useState<"current" | "cart" | "optimized" | "silver">("silver");
+
+  useEffect(() => {
+    if (!extraVariants) setOrderCardVariant("cart");
+  }, [extraVariants]);
 
   const tabs = ["Overall", "Pending Payment", "Pending Approval", "Cancellation Requested", "Processing", "Pending eScript", "Shipped", "Delivered", "Flagged", "Cancelled"];
 
@@ -2331,7 +2362,8 @@ function OrdersPage({ onNavigate, onOrderSelect }: { onNavigate: (p: Page) => vo
     return <Package size={13} />;
   }
 
-  const filtered = ORDERS.filter((order) => {
+  const overallOrders = ORDERS.slice(0, 3);
+  const filtered = (filter === "Overall" ? overallOrders : ORDERS).filter((order) => {
     const matchesTab = filter === "Overall" || order.status === filter;
     const query = search.toLowerCase();
     const matchesSearch = !query || order.id.toLowerCase().includes(query) || order.patient.name.toLowerCase().includes(query) || order.items.some((item) => item.name.toLowerCase().includes(query));
@@ -2355,7 +2387,7 @@ function OrdersPage({ onNavigate, onOrderSelect }: { onNavigate: (p: Page) => vo
   const total = subtotal + shipping + convenienceFee;
 
   function tabCount(tab: string) {
-    return tab === "Overall" ? ORDERS.length : ORDERS.filter((order) => order.status === tab).length;
+    return tab === "Overall" ? overallOrders.length : ORDERS.filter((order) => order.status === tab).length;
   }
 
   function updateQty(key: string, delta: number) {
@@ -2407,7 +2439,7 @@ function OrdersPage({ onNavigate, onOrderSelect }: { onNavigate: (p: Page) => vo
           })}
         </div>
 
-        <div className="flex items-center gap-2 pt-1">
+        {extraVariants && <div className="flex items-center gap-2 pt-1">
           <span className="mr-1 text-[10px] font-semibold uppercase tracking-[0.1em] text-[#888]">Card style</span>
           {(["silver", "cart"] as const).map(variant => (
             <button
@@ -2418,7 +2450,7 @@ function OrdersPage({ onNavigate, onOrderSelect }: { onNavigate: (p: Page) => vo
               {variant === "cart" ? "Cart style" : "Current"}
             </button>
           ))}
-        </div>
+        </div>}
 
       </div>
 
@@ -2430,7 +2462,70 @@ function OrdersPage({ onNavigate, onOrderSelect }: { onNavigate: (p: Page) => vo
         </div>
       ) : (
         <div className="grid gap-4">
-          {filtered.map((order) => (
+          {filtered.map((order) => {
+            if (orderCardVariant === "cart") {
+              const orderPatients = "patients" in order ? order.patients : [order.patient];
+              const compactImages = [imgOrderAminoQuad, imgOrderOxytocin, imgOrderOxytocinAlt, imgOrderAminoQuad];
+              const compactRows = orderPatients.length > 1
+                ? orderPatients.map((patient, index) => ({
+                    patient,
+                    item: order.items[index] ?? order.items[0],
+                    image: compactImages[index] ?? order.items[index]?.image ?? order.items[0].image,
+                    index,
+                  }))
+                : order.items.map((item, index) => ({
+                    patient: orderPatients[0],
+                    item,
+                    image: compactImages[index] ?? item.image,
+                    index,
+                  }));
+              return (
+                <section key={order.id} onClick={() => onOrderSelect(order)} className="cursor-pointer rounded-[10px] bg-[#FBFBFB] p-6 transition-colors hover:bg-[#f8f8f7]">
+                  <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
+                    <div className="flex flex-wrap items-center gap-2.5">
+                      <span className="text-[12px] font-bold text-[#161a18]">{order.id}</span>
+                      <span className={`inline-flex h-6 items-center gap-1.5 rounded-full px-3 text-[10px] font-bold ${silverStatusPillStyle[order.status] ?? "bg-[#FFC55B] text-[#151515]"}`}>
+                        {labelCase(order.status)} {silverStatusIcon(order.status)}
+                      </span>
+                      <span className={`inline-flex h-6 items-center gap-1.5 rounded-full px-3 text-[10px] font-bold ${order.payMethod === "Pay by Clinic" ? "bg-[#20D8DB] text-[#102c2d]" : "bg-[#ACEABB] text-[#173d25]"}`}>
+                        {labelCase(order.payMethod)}
+                        <span className={`inline-flex h-4 min-w-[34px] items-center justify-center rounded-full px-1.5 text-[8px] font-bold uppercase leading-none ${order.payStatus === "PAID" ? "bg-white text-[#173d25]" : "bg-[#FF4A87] text-white"}`}>{order.payStatus}</span>
+                      </span>
+                      <span className="inline-flex h-6 items-center rounded-full bg-[#20D8DB] px-3 text-[10px] font-bold text-[#102c2d]">{labelCase(order.shipMethod)}</span>
+                    </div>
+                    <span className="text-[12px] font-bold text-[#161a18]">{order.total}</span>
+                  </div>
+
+                  <div className="space-y-5">
+                    {compactRows.map(({ item, patient, image, index }) => {
+                      return (
+                        <div key={`${order.id}-${patient.name}-${item.name}-${index}`} className="grid min-h-[120px] items-center gap-6 rounded-[8px] bg-white px-8 py-6 md:grid-cols-[72px_minmax(230px,1.1fr)_minmax(260px,1.15fr)_minmax(210px,.9fr)_78px]">
+                          <div className="flex h-[72px] w-[58px] items-center justify-center overflow-visible">
+                            <img src={image} alt="" className="max-h-[72px] max-w-[58px] object-contain" />
+                          </div>
+                          <div className="min-w-0">
+                            <p className="truncate text-[12px] font-semibold text-[#161a18]">{item.name}</p>
+                            <p className="mt-2 truncate text-[11px] text-[#667085]">{item.description}</p>
+                          </div>
+                          <div className="min-w-0">
+                            <p className="truncate text-[12px] font-medium text-[#161a18]">{patient.name} ({patient.gender})</p>
+                            <p className="mt-1 truncate text-[10px] text-[#303633]">{patient.phone}</p>
+                            <p className="mt-0.5 truncate text-[10px] text-[#303633]">{patient.address}</p>
+                          </div>
+                          <div className="min-w-0">
+                            <span className="inline-flex rounded-full bg-[#e9e5dc] px-2.5 py-1 text-[9px] font-semibold text-[#2f3d35]">{labelCase(item.tracking)}</span>
+                            <p className="mt-2 truncate text-[11px] text-[#7a7f7c]">{item.pharmacy}</p>
+                          </div>
+                          <p className="self-start pt-1 text-right text-[12px] font-bold text-[#161a18]">{item.price}</p>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </section>
+              );
+            }
+
+            return (
             <section key={order.id} onClick={() => onOrderSelect(order)} className={`cursor-pointer overflow-hidden ${orderCardVariant === "current" ? "rounded-[13px] border border-[#e5ddd5] bg-white" : orderCardVariant === "silver" ? "rounded-[10px] bg-[#FBFBFB] p-3" : "rounded-[10px] bg-[var(--app-soft)] p-3"}`}>
               <div className={`flex flex-wrap items-center justify-between gap-3 ${orderCardVariant === "current" ? "border-b border-[#eee8e3] bg-[#fffcf8] px-5 py-4" : orderCardVariant === "silver" ? "bg-[#FBFBFB] px-2 pb-4 pt-2" : "bg-[var(--app-soft)] px-2 pb-4 pt-2"}`}>
                 <div className="flex flex-wrap items-center gap-3">
@@ -2464,7 +2559,7 @@ function OrdersPage({ onNavigate, onOrderSelect }: { onNavigate: (p: Page) => vo
               {orderCardVariant === "optimized" ? (
                 <div className="rounded-[8px] bg-white px-5 pb-5 pt-4">
                   <div className="flex flex-wrap gap-2 rounded-[9px] bg-[#fbfffd] px-4 py-3">
-                    {(order.payMethod === "Pay by Clinic" && "patients" in order ? order.patients : [order.patient]).map(patient => (
+                    {("patients" in order ? order.patients : [order.patient]).map(patient => (
                       <div key={patient.name} className="min-w-[220px] flex-1">
                         <p className="text-[12px] font-semibold text-[#1a1a1a]">{patient.name} <span className="font-normal text-[#8c95a1]">({patient.gender})</span></p>
                         <p className="mt-1 text-[10px] text-[#6f7782]">{patient.phone} · {patient.address}</p>
@@ -2502,7 +2597,7 @@ function OrdersPage({ onNavigate, onOrderSelect }: { onNavigate: (p: Page) => vo
               ) : (
               <div className={orderCardVariant === "current" ? "px-7 py-3" : "rounded-[8px] bg-white px-5 py-2"}>
                   {(expandedItems[order.id] ? order.items : order.items.slice(0, 2)).map((item, index) => {
-                    const orderPatients = order.payMethod === "Pay by Clinic" && "patients" in order ? order.patients : [order.patient];
+                    const orderPatients = "patients" in order ? order.patients : [order.patient];
                     const patient = orderPatients[index] ?? orderPatients[orderPatients.length - 1];
                     return (
                       <div key={`${patient.name}-${item.name}`} className={`grid min-h-[126px] grid-cols-1 lg:grid-cols-[0.78fr_1.32fr] ${orderCardVariant === "current" ? `py-4 ${index === (expandedItems[order.id] ? order.items.length : Math.min(2, order.items.length)) - 1 ? "" : "border-b border-[#e8e5e2]"}` : "py-5"}`}>
@@ -2542,7 +2637,8 @@ function OrdersPage({ onNavigate, onOrderSelect }: { onNavigate: (p: Page) => vo
                 </div>
               )}
             </section>
-          ))}
+            );
+          })}
         </div>
       )}
       </div>
@@ -2552,72 +2648,156 @@ function OrdersPage({ onNavigate, onOrderSelect }: { onNavigate: (p: Page) => vo
 }
 
 function OrderDetailPage({ order, onNavigate }: { order: typeof ORDERS[number]; onNavigate: (page: Page) => void }) {
-  const variant = 2;
   const [trackingLinkCopied, setTrackingLinkCopied] = useState(false);
-  const [prescriberAssigned, setPrescriberAssigned] = useState(true);
   const [detailSideTab, setDetailSideTab] = useState<"status" | "receipt">("status");
   const patients = "patients" in order ? order.patients : [order.patient];
   const patientTrackingLink = `https://scriptlinkrx.com/track/${order.id.replace('#','')}`;
-  const shell = "rounded-[12px] bg-white";
-  const section = "rounded-[12px] bg-white p-5";
+  const detailLabelCase = (value: string) => {
+    const lower = value.toLowerCase();
+    return lower.charAt(0).toUpperCase() + lower.slice(1);
+  };
+  const statusSteps = ["Order Created", "In Progress", "Shipped", "Delivered"];
+  const activeStep = order.status === "Delivered" ? 3 : order.status === "Shipped" ? 2 : order.status === "Processing" ? 1 : 0;
+  const compactLabel = "text-[9px] font-semibold uppercase tracking-[0.1em] text-[#8c95a1]";
+  const statusBadgeClass = order.status === "Pending Approval"
+    ? "bg-[#6D7280] text-white"
+    : order.status === "Processing"
+      ? "bg-[#F4B64A] text-[#161a18]"
+      : order.status === "Shipped"
+        ? "bg-[#3269E8] text-white"
+        : order.status === "Delivered"
+          ? "bg-[#05AF3B] text-white"
+          : "bg-[#6D7280] text-white";
   return (
     <>
+      <div className="max-w-[1300px]">
       <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
         <button onClick={() => onNavigate("orders")} className="flex items-center gap-2 text-[22px] font-semibold text-[#1a1a1a]"><ChevronLeft size={22} /> Orders</button>
-        <div className="flex flex-wrap gap-2"><button className="inline-flex items-center gap-1.5 rounded-full border border-[#d8dedb] bg-white px-4 py-2 text-[11px] font-semibold text-[#31583F]"><Download size={13} /> Download receipt</button><button onClick={() => onNavigate("support")} className="inline-flex items-center gap-1.5 rounded-full bg-[#111] px-4 py-2 text-[11px] font-semibold text-white"><Plus size={13} /> Create ticket</button><button className="inline-flex items-center gap-1.5 rounded-full bg-[#FFE7D6] px-4 py-2 text-[11px] font-semibold text-[#7B003B]"><XCircle size={13} /> Request cancellation</button></div>
+        <div className="flex flex-wrap gap-2">
+          <button className="inline-flex h-9 items-center gap-1.5 rounded-full border border-[#d8dedb] bg-white px-4 text-[11px] font-semibold text-[#31583F] transition-colors hover:bg-[#f7f8f7]"><Download size={13} /> Download receipt</button>
+          <button onClick={() => onNavigate("support")} className="inline-flex h-9 items-center gap-1.5 rounded-[8px] bg-[#272727] px-4 text-[11px] font-semibold text-white transition-colors hover:bg-[#111]"><Plus size={13} /> Create Ticket</button>
+          <button className="inline-flex h-9 items-center gap-1.5 rounded-full bg-[#FFE7D6] px-4 text-[11px] font-semibold text-[#7B003B] transition-colors hover:bg-[#ffdcc4]"><XCircle size={13} /> Request cancellation</button>
+        </div>
       </div>
-      <div className="grid items-start gap-5 xl:grid-cols-[minmax(0,1fr)_330px]">
+      <div className="grid items-start gap-6 xl:grid-cols-[minmax(0,1fr)_340px]">
         <div className="space-y-4">
-          <section className={`${shell} overflow-hidden`}>
-            <div className="grid gap-4 rounded-[12px] bg-[var(--app-soft)] px-5 py-4 sm:grid-cols-3 lg:grid-cols-6">
-              {[['Order timestamp', order.timestamp], ['Order ID', order.id], ['Status', order.status], ['Ship to', order.shipMethod], ['Payment', order.payMethod], ['Final total', order.total]].map(([label,value]) => <div key={label}><p className="text-[9px] font-semibold uppercase tracking-wider text-[#8c95a1]">{label}</p>{label === 'Status' ? <span className="mt-1 inline-flex rounded-full bg-gradient-to-r from-[#FFE2D2] to-[#FFF45C] px-2 py-1 text-[9px] font-bold text-[#56203B]">{value.charAt(0).toUpperCase() + value.slice(1).toLowerCase()}</span> : label === 'Ship to' ? <span className="mt-1 inline-flex rounded-full bg-gradient-to-r from-[#CADDD9] to-[#E8E5B0] px-2 py-1 text-[9px] font-bold text-[#56203B]">{value.charAt(0).toUpperCase() + value.slice(1).toLowerCase()}</span> : label === 'Payment' ? <span className="mt-1 inline-flex items-center gap-1 rounded-full bg-gradient-to-r from-[#C5F5DD] to-[#E7F5A5] px-2 py-1 text-[9px] font-bold text-[#31583F]">{value.charAt(0).toUpperCase() + value.slice(1).toLowerCase()}<span className={`rounded-full px-1 py-0.5 text-[8px] text-white ${order.payStatus === 'PAID' ? 'bg-[#31583F]' : 'bg-[#7B003B]'}`}>{order.payStatus.charAt(0).toUpperCase() + order.payStatus.slice(1).toLowerCase()}</span></span> : <p className="mt-1 text-[12px] font-semibold">{value}</p>}</div>)}
+          <section className="overflow-hidden rounded-[14px] border border-[#e6e7e5] bg-white">
+            <div className="grid gap-x-5 gap-y-4 border-b border-[#eceeeb] bg-[#FBFBFB] px-5 py-4 sm:grid-cols-3 lg:grid-cols-[1.15fr_.8fr_1fr_1.05fr_1.35fr_.85fr]">
+              <div><p className={compactLabel}>Order Timestamp</p><p className="mt-1 text-[12px] font-semibold text-[#161a18]">{order.timestamp}</p></div>
+              <div><p className={compactLabel}>Order ID</p><p className="mt-1 text-[12px] font-semibold text-[#161a18]">{order.id}</p></div>
+              <div><p className={compactLabel}>Status</p><span className={`mt-1 inline-flex h-6 items-center rounded-full px-3 text-[10px] font-bold uppercase ${statusBadgeClass}`}>{detailLabelCase(order.status)}</span></div>
+              <div><p className={compactLabel}>Ship To</p><span className="mt-1 inline-flex h-6 items-center gap-1.5 rounded-full bg-[#20D8DB] px-3 text-[10px] font-bold text-[#102c2d]">{detailLabelCase(order.shipMethod)} {order.shipMethod === "Ship to Clinic" ? <Building2 size={12} /> : <User size={12} />}</span></div>
+              <div><p className={compactLabel}>Payment Method</p><span className="mt-1 inline-flex h-6 items-center gap-1.5 rounded-full bg-[#ACEABB] px-3 text-[10px] font-bold text-[#173d25]">{detailLabelCase(order.payMethod)} <User size={12} /><span className={`inline-flex h-4 min-w-[42px] items-center justify-center rounded-full px-2 text-[8px] font-bold uppercase leading-none ${order.payStatus === "PAID" ? "bg-white text-[#173d25]" : "bg-[#FF4A87] text-white"}`}>{order.payStatus}</span></span></div>
+              <div><p className={compactLabel}>Final Total</p><p className="mt-1 text-[12px] font-bold text-[#161a18]">{order.total}</p></div>
             </div>
-            <div className="grid gap-4 p-5 md:grid-cols-2">
-              <div><p className="mb-2 text-[10px] font-semibold uppercase tracking-wider text-[#8c95a1]">Patients</p><div className="space-y-2">{patients.map(patient => <div key={patient.name} className="rounded-[9px] bg-[#f6f8f7] p-3"><p className="text-[12px] font-semibold">{patient.name} <span className="font-normal text-[#8c95a1]">({patient.gender})</span></p><p className="mt-1 text-[11px] text-[#667085]">{patient.phone}</p><p className="mt-1 text-[11px] text-[#667085]">{patient.address}</p></div>)}</div></div>
-              <div><p className="mb-2 text-[10px] font-semibold uppercase tracking-wider text-[#8c95a1]">Prescriber</p><div className="rounded-[9px] bg-[#f6f8f7] p-3">{prescriberAssigned ? <><p className="text-[12px] font-semibold">Dr. Maya Chen</p><p className="mt-1 text-[10px] leading-relaxed text-[#667085]">2823 Middletown Road<br />Bronx, NY 10461<br />(646) 617-9881<br />NPI: 1234523452</p><span className="mt-2 inline-flex items-center gap-1 rounded-full bg-[#e7f5ec] px-2 py-1 text-[9px] font-bold text-[#2f704c]"><CheckCircle2 size={10} /> Assigned</span></> : <><p className="text-[11px] text-[#667085]">No prescriber has approved this order yet.</p><button onClick={() => setPrescriberAssigned(true)} className="mt-2 inline-flex items-center gap-1 rounded-[6px] border border-[#b9c7c0] bg-white px-2 py-1.5 text-[10px] font-semibold text-[#183229]"><User size={11} /> Assign prescriber</button></>}</div></div>
+            <div className="grid divide-y divide-[#eceeeb] lg:grid-cols-[1.15fr_.85fr] lg:divide-x lg:divide-y-0">
+              <div className="px-5 py-4">
+                <div className="mb-2 flex items-center gap-2"><p className={compactLabel}>Patient</p>{patients.length > 1 && <span className="rounded-full bg-[#eaf8fb] px-2 py-0.5 text-[9px] font-semibold text-[#21707d]">Multi Patient</span>}</div>
+                <div className="space-y-3">
+                  {patients.map(patient => (
+                    <div key={patient.name} className="text-[11px] leading-[1.45] text-[#5f6863]">
+                      <div className="flex items-center gap-1.5"><p className="font-semibold text-[#161a18]">{patient.name} <span className="font-medium text-[#777]">({patient.gender})</span></p><CopyButton text={patient.name} /></div>
+                      <p className="mt-0.5">{patient.address}</p>
+                      <div className="mt-0.5 flex items-center gap-1.5"><span>{patient.phone}</span><CopyButton text={patient.phone} /></div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <div className="px-5 py-4">
+                <p className={compactLabel}>Prescriber</p>
+                <p className="mt-2 text-[11px] italic leading-[1.45] text-[#667085]">No prescriber has approved this order yet.</p>
+              </div>
             </div>
           </section>
-          <section className={shell}>
-            <div className="flex items-center justify-between rounded-t-[12px] bg-[var(--app-soft)] px-5 py-4"><div><p className="text-[14px] font-semibold">{order.items[0].pharmacy}</p><p className="mt-1 text-[11px] text-[#8c95a1]">Licensed compounding pharmacy</p></div><p className="text-[17px] font-bold text-[#183229]">{order.total}</p></div>
-            <div className="mx-5 mt-3 grid gap-3 rounded-[10px] bg-[#FBFBFB] px-4 py-3 sm:grid-cols-3"><div><p className="text-[9px] font-semibold uppercase text-[#8c95a1]">Shipping method</p><p className="mt-1 text-[11px] font-semibold">FedEx Overnight Refrigerated</p></div><div><p className="text-[9px] font-semibold uppercase text-[#8c95a1]">Est. delivery</p><p className="mt-1 text-[11px] font-semibold">Pending</p></div><div><p className="text-[9px] font-semibold uppercase text-[#8c95a1]">Tracking</p><p className="mt-1 text-[11px] text-[#8c95a1]">Tracking not ready</p></div></div>
-            <div>{order.items.map((item,index) => <div key={item.name} className="py-2"><div className="mx-5 flex flex-wrap items-center gap-2 rounded-[8px] bg-[#fbfffd] px-4 py-2 text-[10px] text-[#52645c]"><span className="font-semibold text-[#1a1a1a]">{patients[index]?.name ?? patients[0].name}</span><span>·</span><span>{patients[index]?.phone ?? patients[0].phone}</span><span>·</span><span>{patients[index]?.address ?? patients[0].address}</span></div><div className="grid gap-4 px-5 py-4 md:grid-cols-[minmax(0,1fr)_90px]"><div className="flex gap-3"><div className="flex size-12 shrink-0 items-center justify-center overflow-hidden bg-white"><img src={item.image} alt="" className="size-12 object-contain mix-blend-multiply" /></div><div><p className="text-[12px] font-semibold">{item.name}</p><p className="mt-1 text-[11px] text-[#667085]">{item.description}</p><span className="mt-2 inline-flex rounded-full bg-gradient-to-r from-[#FFE2D2] to-[#FFF45C] px-2 py-0.5 text-[9px] font-semibold text-[#56203B]">Open Rx</span><p className="mt-2 text-[10px] text-[#1a1a1a]"><strong>Sig:</strong> Use as directed by prescriber.</p><p className="mt-1 text-[10px] text-[#1a1a1a]"><strong>Reason:</strong> Patient requires a customized compounded formulation.</p><p className="mt-2 text-[10px] text-[#8c95a1]">Qty {item.qty} · Days {item.daysSupply} · Refills {item.authRefills}</p></div></div><p className="text-right text-[12px] font-bold">{item.price}</p></div><div className="flex items-center gap-3 px-5 pb-4"><div className="flex size-10 items-center justify-center bg-[#fafafa]"><Syringe size={15} className="text-[#8c95a1]" /></div><div><p className="text-[11px] font-semibold">Supplies pack — suitable needles, syringe and alcohol pads</p><p className="mt-0.5 text-[10px] text-[#8c95a1]">Suitable amount for the prescribed dosage</p></div></div></div>)}</div>
+
+          <section className="overflow-hidden rounded-[14px] border border-[#e6e7e5] bg-white">
+            <div className="flex flex-wrap items-center justify-between gap-4 border-b border-[#eceeeb] bg-[#FBFBFB] px-5 py-4">
+              <div className="flex items-center gap-3">
+                <span className="flex size-10 items-center justify-center rounded-[9px] bg-white text-[#667085]"><Building2 size={17} /></span>
+                <div><p className="text-[14px] font-semibold text-[#161a18]">{order.items[0].pharmacy}</p><p className="mt-0.5 text-[11px] text-[#667085]">Licensed compounding pharmacy</p></div>
+              </div>
+              <p className="text-[16px] font-bold text-[#161a18]">{order.total}</p>
+            </div>
+            <div className="grid gap-3 border-b border-[#eceeeb] px-5 py-3 sm:grid-cols-4">
+              <div><p className={compactLabel}>Shipping Method</p><p className="mt-1 text-[11px] font-semibold text-[#161a18]">UPS Overnight Refrigerated</p></div>
+              <div><p className={compactLabel}>Est. Delivery</p><p className="mt-1 text-[11px] font-semibold text-[#161a18]">Pending</p></div>
+              <div><p className={compactLabel}>Tracking</p><p className="mt-1 text-[11px] text-[#8c95a1]">Tracking Not Ready</p></div>
+              <div><p className={compactLabel}>Handling</p><span className="mt-1 inline-flex rounded-full bg-[#edf8fb] px-2 py-0.5 text-[9px] font-semibold text-[#21707d]">Refrigerated</span></div>
+            </div>
+            <div className="divide-y divide-[#eceeeb]">
+              {order.items.map((item, index) => {
+                const patient = patients[index] ?? patients[patients.length - 1] ?? patients[0];
+                const isSupply = item.name.toLowerCase().includes("supplies") || item.name.toLowerCase().includes("needle");
+                return (
+                  <div key={`${item.name}-${index}`}>
+                    <div className="flex flex-wrap items-center gap-2 bg-[#FBFBFB] px-5 py-2 text-[10px] text-[#667085]">
+                      <User size={12} className="text-[#05AF3B]" />
+                      <span className="font-semibold text-[#161a18]">{patient.name} ({patient.gender})</span>
+                      <span>|</span><span>{patient.phone}</span>
+                      <span>|</span><span>{patient.address}</span>
+                    </div>
+                    <div className="grid gap-4 px-5 py-4 md:grid-cols-[minmax(0,1fr)_70px_70px_70px_90px]">
+                      <div className="flex gap-3">
+                        <div className="flex size-12 shrink-0 items-center justify-center overflow-hidden rounded-[7px] border border-[#eeeeec] bg-white">
+                          <img src={item.image} alt="" className="size-11 object-contain mix-blend-multiply" />
+                        </div>
+                        <div className="min-w-0">
+                          <div className="flex flex-wrap items-center gap-2">
+                            <p className="text-[12px] font-semibold text-[#161a18]">{item.name}</p>
+                            {!isSupply && <span className="inline-flex rounded-full bg-gradient-to-r from-[#FFE2D2] to-[#FFF45C] px-2 py-0.5 text-[9px] font-semibold text-[#56203B]">Open Rx</span>}
+                          </div>
+                          <p className="mt-1 text-[11px] text-[#667085]">{item.description}</p>
+                          {!isSupply && <><p className="mt-2 text-[10px] text-[#161a18]"><strong>Sig:</strong> Use as directed by prescriber.</p><p className="mt-1 text-[10px] text-[#161a18]"><strong>Reason:</strong> Patient requires a customized compounded formulation.</p></>}
+                          {isSupply && <p className="mt-1 text-[10px] text-[#8c95a1]">Suitable amount</p>}
+                        </div>
+                      </div>
+                      <div className="max-md:hidden"><p className={compactLabel}>Days Supply</p><p className="mt-2 text-[11px] font-semibold">{item.daysSupply}</p></div>
+                      <div className="max-md:hidden"><p className={compactLabel}>Refills</p><p className="mt-2 text-[11px] font-semibold">{item.authRefills}</p></div>
+                      <div className="max-md:hidden"><p className={compactLabel}>Qty</p><p className="mt-2 text-[11px] font-semibold">{item.qty}</p></div>
+                      <p className="text-right text-[12px] font-bold text-[#161a18]">{item.price}</p>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
           </section>
         </div>
-        <aside className="sticky top-6 space-y-4">
-          <div className="flex border-b border-[#e4e4e1] bg-white">
+        <aside className="sticky top-6 space-y-6">
+          <div className="flex border-b border-[#d8ddd9] bg-white">
             {(["status", "receipt"] as const).map(tab => (
-              <button key={tab} onClick={() => setDetailSideTab(tab)} className={`relative h-11 flex-1 text-[11px] font-semibold after:absolute after:bottom-0 after:left-0 after:h-[2px] after:w-full ${detailSideTab === tab ? "text-[#171717] after:bg-[#183229]" : "text-[#777] after:bg-transparent"}`}>
+              <button key={tab} onClick={() => setDetailSideTab(tab)} className={`relative h-12 flex-1 text-[12px] font-semibold transition-colors after:absolute after:bottom-0 after:left-0 after:h-[2px] after:w-full ${detailSideTab === tab ? "text-[#161a18] after:bg-[#183229]" : "text-[#667085] after:bg-transparent hover:text-[#161a18]"}`}>
                 {tab === "status" ? "Order status" : "Receipt"}
               </button>
             ))}
           </div>
           {detailSideTab === "status" ? <>
-            <section className="rounded-[12px] bg-[var(--app-soft)] p-5">
-              <h2 className="text-[17px] font-semibold">Order status</h2>
-              <div className="mt-5">{['Order created','In progress','Shipped','Delivered'].map((step,index) => (
-                <div key={step} className="flex gap-3">
+            <section className="rounded-[14px] bg-[#FBFBFB] p-6">
+              <h2 className="text-[18px] font-semibold text-[#161a18]">Order status</h2>
+              <div className="mt-6">{statusSteps.map((step,index) => (
+                <div key={step} className="flex gap-4">
                   <div className="flex flex-col items-center">
-                    <span className={`flex size-8 items-center justify-center rounded-full ${index === 0 ? "bg-gradient-to-br from-[#31583F] to-[#56203B] text-white" : "bg-[#F0F1EF] text-[#8c95a1]"}`}>{index === 0 ? <Package size={14}/> : <CheckCircle2 size={14}/>}</span>
-                    {index < 3 && <span className="h-9 w-px bg-[#dfe5e2]" />}
+                    <span className={`flex size-9 items-center justify-center rounded-full ${index <= activeStep ? "bg-[#56203B] text-white" : "bg-[#edf0f2] text-[#9aa1a8]"}`}>{index === 0 ? <Package size={15}/> : <CheckCircle2 size={15}/>}</span>
+                    {index < statusSteps.length - 1 && <span className="h-10 w-px bg-[#dfe5e2]" />}
                   </div>
-                  <div className="pt-1"><p className="text-[12px] font-semibold">{step}</p>{index === 0 && <p className="mt-1 text-[10px] font-medium text-[#7B003B]">Payment {order.payStatus.toLowerCase()}</p>}</div>
+                  <div className="pt-1"><p className="text-[13px] font-semibold text-[#161a18]">{step}</p>{index === 0 && <><p className="mt-1 text-[11px] text-[#667085]">{order.timestamp}</p><p className="mt-1 text-[11px] font-semibold text-[#d92d20]">Payment {order.payStatus.toLowerCase()}</p></>}</div>
                 </div>
               ))}</div>
-              <div className="mt-5 flex items-center gap-3 rounded-[10px] bg-gradient-to-r from-[#CADDD9] to-[#E8E5B0] px-3.5 py-3">
-                <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-white/80 text-[#31583F]"><Bell size={14} /></span>
-                <div><p className="text-[12px] font-semibold text-[#1a1a1a]">Live updates</p><p className="mt-0.5 text-[10px] leading-4 text-[#52645c]">We’ll keep you informed as this order progresses.</p></div>
+              <div className="mt-6 flex items-center gap-3 rounded-[12px] bg-gradient-to-r from-[#CADDD9] to-[#E8E5B0] px-4 py-3">
+                <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-white text-[#667085]"><Bell size={15} /></span>
+                <div><p className="text-[12px] font-semibold text-[#161a18]">Live updates.</p><p className="mt-0.5 text-[11px] leading-4 text-[#667085]">Always in the know.</p></div>
               </div>
             </section>
-            <section className="rounded-[12px] bg-white p-5">
-              <h3 className="text-[14px] font-semibold">Share with patient</h3>
-              <p className="mt-1 text-[11px] leading-4 text-[#667085]">Send this link so the patient can track the order.</p>
-              <div className="mt-3 flex items-center gap-2 rounded-[9px] bg-[#FBFBFB] px-3 py-2.5">
-                <span className="min-w-0 flex-1 truncate text-[10px] text-[#52645c]">{patientTrackingLink}</span>
-                <button onClick={() => navigator.clipboard.writeText(patientTrackingLink).then(() => { setTrackingLinkCopied(true); window.setTimeout(() => setTrackingLinkCopied(false), 1600); })} className="flex shrink-0 items-center gap-1 rounded-full bg-white px-3 py-1.5 text-[10px] font-semibold text-[#183229] shadow-sm">{trackingLinkCopied ? <CheckCircle2 size={12} /> : <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><rect x="3.5" y="3.5" width="7" height="7" rx="1.2" stroke="currentColor"/><path d="M1.5 8V1.5H8" stroke="currentColor" strokeLinecap="round"/></svg>}{trackingLinkCopied ? 'Copied' : 'Copy'}</button>
+            <section className="bg-white px-5 py-4">
+              <h3 className="text-[15px] font-semibold text-[#161a18]">Share with patient</h3>
+              <p className="mt-1 text-[12px] leading-5 text-[#667085]">Send this link so your patient can track their order.</p>
+              <div className="mt-4 flex items-center gap-2 rounded-[9px] border border-[#e1e5e8] bg-[#FBFBFB] px-3 py-2.5">
+                <span className="min-w-0 flex-1 truncate text-[11px] text-[#52645c]">{patientTrackingLink}</span>
+                <button onClick={() => navigator.clipboard.writeText(patientTrackingLink).then(() => { setTrackingLinkCopied(true); window.setTimeout(() => setTrackingLinkCopied(false), 1600); })} className="flex shrink-0 items-center justify-center text-[#98a2b3] hover:text-[#183229]" aria-label="Copy patient tracking link">{trackingLinkCopied ? <CheckCircle2 size={15} /> : <svg width="15" height="15" viewBox="0 0 12 12" fill="none"><rect x="3.5" y="3.5" width="7" height="7" rx="1.2" stroke="currentColor"/><path d="M1.5 8V1.5H8" stroke="currentColor" strokeLinecap="round"/></svg>}</button>
               </div>
             </section>
-          </> : <section className={section}><h2 className="text-[18px] font-semibold">Receipt</h2><p className="mt-1 text-[11px] text-[#667085]">Order {order.id}</p><div className="mt-5 space-y-3">{order.items.map(item => <div key={item.name} className="flex justify-between gap-3 text-[11px]"><span className="text-[#667085]">{item.name}</span><span className="font-semibold">{item.price}</span></div>)}</div><div className="mt-5 border-t border-[#e8e3df] pt-4"><div className="flex justify-between text-[12px]"><span>Shipping</span><span className="font-semibold">Included</span></div><div className="mt-3 flex justify-between text-[15px] font-bold"><span>Total</span><span className="text-[#183229]">{order.total}</span></div></div><button className="mt-5 flex h-10 w-full items-center justify-center gap-2 rounded-full bg-[#111] text-[11px] font-semibold text-white"><Download size={13} /> Download receipt</button></section>}
+          </> : <section className="rounded-[18px] bg-white p-6 shadow-[0_18px_50px_rgba(20,26,23,0.06)]"><h2 className="text-[18px] font-semibold">Receipt</h2><p className="mt-1 text-[11px] text-[#667085]">Order {order.id}</p><div className="mt-5 space-y-3">{order.items.map(item => <div key={item.name} className="flex justify-between gap-3 text-[11px]"><span className="text-[#667085]">{item.name}</span><span className="font-semibold">{item.price}</span></div>)}</div><div className="mt-5 border-t border-[#e8e3df] pt-4"><div className="flex justify-between text-[12px]"><span>Shipping</span><span className="font-semibold">Included</span></div><div className="mt-3 flex justify-between text-[15px] font-bold"><span>Total</span><span className="text-[#183229]">{order.total}</span></div></div><button className="mt-5 flex h-10 w-full items-center justify-center gap-2 rounded-[8px] bg-[#111] text-[11px] font-semibold text-white"><Download size={13} /> Download receipt</button></section>}
         </aside>
+      </div>
       </div>
     </>
   );
@@ -2711,12 +2891,12 @@ function PharmaciesPage({ onNavigate }: { onNavigate: (p: Page) => void }) {
 // ─── Support ──────────────────────────────────────────────────────────────────
 
 const TICKETS = [
-  { id: "#089", subject: "Order not received after 5 days", patient: "Sarah Mitchell", status: "Open", priority: "Urgent", created: "Jul 8", assigned: "Dr. Chen" },
-  { id: "#088", subject: "Wrong product shipped - need replacement", patient: "John Reynolds", status: "Open", priority: "Urgent", created: "Jul 7", assigned: "Unassigned" },
-  { id: "#087", subject: "Question about dosage instructions", patient: "Emily Krause", status: "Resolved", priority: "Normal", created: "Jul 6", assigned: "Nurse Kim" },
-  { id: "#086", subject: "Billing discrepancy on last invoice", patient: "David Lim", status: "Open", priority: "Normal", created: "Jul 5", assigned: "Admin Team" },
-  { id: "#085", subject: "Side effects consultation request", patient: "Maria Santos", status: "Resolved", priority: "Normal", created: "Jul 4", assigned: "Dr. Chen" },
-  { id: "#084", subject: "Insurance coverage question", patient: "Chris Baker", status: "Resolved", priority: "Normal", created: "Jul 3", assigned: "Admin Team" },
+  { id: "#089", subject: "Order not received after 5 days", patient: "Sarah Mitchell", phone: "(646)-617-9881", address: "2823 Middletown Road, Bronx, NY 10461", status: "Open", priority: "Urgent", created: "Jul 8", assigned: "Dr. Chen" },
+  { id: "#088", subject: "Wrong product shipped - need replacement", patient: "John Reynolds", phone: "(718)-555-0143", address: "88 Park Blvd, Queens, NY 11375", status: "Open", priority: "Urgent", created: "Jul 7", assigned: "Unassigned" },
+  { id: "#087", subject: "Question about dosage instructions", patient: "Emily Krause", phone: "(718)-555-0187", address: "302 Maple Ave, Brooklyn, NY 11201", status: "Resolved", priority: "Normal", created: "Jul 6", assigned: "Nurse Kim" },
+  { id: "#086", subject: "Billing discrepancy on last invoice", patient: "David Lim", phone: "(646)-389-7766", address: "95 Windermere Drive, Westchester County, NY 10710", status: "Open", priority: "Normal", created: "Jul 5", assigned: "Admin Team" },
+  { id: "#085", subject: "Side effects consultation request", patient: "Maria Santos", phone: "(555)-789-0123", address: "852 Cedar Ln, Seattle, WA 98101", status: "Resolved", priority: "Normal", created: "Jul 4", assigned: "Dr. Chen" },
+  { id: "#084", subject: "Insurance coverage question", patient: "Chris Baker", phone: "(555)-890-1234", address: "963 Birch Blvd, Denver, CO 80201", status: "Resolved", priority: "Normal", created: "Jul 3", assigned: "Admin Team" },
 ];
 
 function SupportPage({ onNavigate }: { onNavigate: (p: Page) => void }) {
@@ -2727,7 +2907,7 @@ function SupportPage({ onNavigate }: { onNavigate: (p: Page) => void }) {
   const filtered = TICKETS.filter((t) => {
     const matchesTab = tab === "All" ? true : tab === "Urgent" ? t.priority === "Urgent" : t.status === tab;
     const search = query.trim().toLowerCase();
-    const matchesSearch = !search || [t.id, t.subject, t.patient, t.assigned].some(value => value.toLowerCase().includes(search));
+    const matchesSearch = !search || [t.id, t.subject, t.patient, t.phone, t.address, t.assigned].some(value => value.toLowerCase().includes(search));
     return matchesTab && matchesSearch;
   });
 
@@ -2743,13 +2923,13 @@ function SupportPage({ onNavigate }: { onNavigate: (p: Page) => void }) {
 
       <section className="mb-6 grid grid-cols-4 gap-3 max-lg:grid-cols-2 max-sm:grid-cols-1">
         {[
-          { label: "Open tickets", value: "17", note: "2 need attention", icon: MessageSquare, gradient: "from-[#CADDD9] to-[#E4EFEA]", color: "text-[#31584A]" },
-          { label: "Urgent", value: "3", note: "Review today", icon: AlertCircle, gradient: "from-[#FFE1DA] to-[#FFF0D6]", color: "text-[#8A4338]" },
-          { label: "Average response", value: "4.2h", note: "Within target", icon: Clock, gradient: "from-[#FFF0C5] to-[#F4F2C7]", color: "text-[#6E642A]" },
-          { label: "Resolved today", value: "8", note: "6 more this week", icon: CheckCircle2, gradient: "from-[#C5F5DD] to-[#E7F5A5]", color: "text-[#31583F]" },
-        ].map(({ label, value, note, icon: Icon, gradient, color }) => (
+          { label: "Open tickets", value: "17", note: "2 need attention", icon: MessageSquare, bg: "bg-[#f5f8f6]", color: "text-[#31584A]" },
+          { label: "Urgent", value: "3", note: "Review today", icon: AlertCircle, bg: "bg-[#fff7f2]", color: "text-[#8A4338]" },
+          { label: "Average response", value: "4.2h", note: "Within target", icon: Clock, bg: "bg-[#fafafa]", color: "text-[#6E642A]" },
+          { label: "Resolved today", value: "8", note: "6 more this week", icon: CheckCircle2, bg: "bg-[#f2fbf5]", color: "text-[#31583F]" },
+        ].map(({ label, value, note, icon: Icon, bg, color }) => (
           <div key={label} className="flex min-h-[108px] items-center gap-4 rounded-[14px] border border-[#efefec] bg-white p-4">
-            <div className={`flex size-11 shrink-0 items-center justify-center rounded-[12px] bg-gradient-to-br ${gradient} ${color}`}>
+            <div className={`flex size-11 shrink-0 items-center justify-center rounded-[12px] ${bg} ${color}`}>
               <Icon size={18} strokeWidth={1.7} />
             </div>
             <div className="min-w-0">
@@ -2790,26 +2970,28 @@ function SupportPage({ onNavigate }: { onNavigate: (p: Page) => void }) {
 
         <div className="space-y-2 p-2">
           {filtered.map((ticket) => {
-            const initials = ticket.patient.split(" ").map(part => part[0]).join("").slice(0, 2);
             return (
               <article key={ticket.id} className="group grid grid-cols-[minmax(260px,1.7fr)_minmax(160px,.85fr)_105px_105px_95px_36px] items-center gap-4 rounded-[11px] bg-white px-4 py-3.5 transition-colors hover:bg-[#fffcfa] max-xl:grid-cols-[minmax(250px,1.7fr)_minmax(150px,.9fr)_100px_95px_36px] max-xl:[&_.created-column]:hidden max-md:grid-cols-[1fr_auto]">
                 <div className="min-w-0">
                   <div className="flex items-center gap-2">
                     <span className="text-[10px] font-semibold text-[#8A4A24]">{ticket.id}</span>
-                    {ticket.priority === "Urgent" && <span className="rounded-full bg-gradient-to-r from-[#FFE1DA] to-[#FFF0D6] px-2 py-1 text-[9px] font-semibold text-[#8A4338]">Urgent</span>}
+                    {ticket.priority === "Urgent" && <span className="rounded-full bg-[#fff4eb] px-2 py-1 text-[9px] font-semibold text-[#8A4338]">Urgent</span>}
                   </div>
                   <p className="mt-1.5 truncate text-[12px] font-semibold text-[#1a1a1a]">{ticket.subject}</p>
                   <p className="mt-1 text-[10px] text-[#989b99]">Created {ticket.created}</p>
                 </div>
                 <div className="flex min-w-0 items-center gap-2.5 max-md:hidden">
-                  <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-[#FFE9D8] to-[#FFD8B8] text-[9px] font-bold text-[#8A4A24]">{initials}</span>
-                  <div className="min-w-0"><p className="truncate text-[11px] font-semibold text-[#292929]">{ticket.patient}</p><p className="mt-0.5 text-[9px] text-[#999]">Patient</p></div>
+                  <div className="min-w-0">
+                    <p className="truncate text-[11px] font-semibold text-[#292929]">{ticket.patient}</p>
+                    <p className="mt-0.5 truncate text-[10px] text-[#6f7782]">{ticket.phone}</p>
+                    <p className="mt-0.5 truncate text-[9px] text-[#999]">{ticket.address}</p>
+                  </div>
                 </div>
                 <div className="max-md:hidden">
                   <p className="text-[9px] uppercase tracking-[0.08em] text-[#a0a3a1]">Assigned</p>
                   <p className="mt-1 truncate text-[11px] font-medium text-[#4e514f]">{ticket.assigned}</p>
                 </div>
-                <span className={`w-fit rounded-full px-2.5 py-1.5 text-[10px] font-semibold ${ticket.status === "Open" ? "bg-gradient-to-r from-[#CADDD9] to-[#E4EFEA] text-[#31584A]" : "bg-gradient-to-r from-[#C5F5DD] to-[#E7F5A5] text-[#31583F]"}`}>{ticket.status}</span>
+                <span className={`w-fit rounded-full px-2.5 py-1.5 text-[10px] font-semibold ${ticket.status === "Open" ? "bg-[#edf6f2] text-[#31584A]" : "bg-[#ecf8ef] text-[#31583F]"}`}>{ticket.status}</span>
                 <p className="created-column text-[10px] text-[#989b99]">{ticket.created}</p>
                 <button className="flex size-8 items-center justify-center rounded-[8px] text-[#8c8f8d] transition-colors hover:bg-[#f1efec] hover:text-[#1a1a1a]" aria-label={`Open ticket ${ticket.id}`}><ChevronRight size={15} /></button>
               </article>
@@ -2960,7 +3142,15 @@ function UsersPage({ onNavigate }: { onNavigate: (p: Page) => void }) {
       p.primaryPhone.includes(search)
   );
 
-  const COLS = ["Patient", "Phone", "Address", ""];
+  function patientOrderCount(patient: typeof PATIENTS[number]) {
+    const name = `${patient.firstName} ${patient.lastName}`.toLowerCase();
+    return ORDERS.filter(order => {
+      const orderPatients = "patients" in order ? order.patients : [order.patient];
+      return orderPatients.some(orderPatient => orderPatient.name.toLowerCase() === name);
+    }).length;
+  }
+
+  const COLS = ["Patient", "Phone", "Address", "Orders", ""];
 
   if (selectedPatientIndex !== null && patients[selectedPatientIndex]) {
     return <><PatientDetailsView patient={patients[selectedPatientIndex]} onBack={() => setSelectedPatientIndex(null)} onEdit={() => setCreatePatientOpen(true)} /><PatientCreateModal open={createPatientOpen} onClose={() => setCreatePatientOpen(false)} /></>;
@@ -3027,8 +3217,8 @@ function UsersPage({ onNavigate }: { onNavigate: (p: Page) => void }) {
                 >
                   <td className="px-5 py-4">
                     <div className="min-w-0">
-                      <p className="whitespace-nowrap text-[14px] font-semibold text-[#1a1a1a]">{p.firstName} {p.lastName} <span className="font-semibold text-[#666]">({p.gender})</span></p>
-                      <p className="mt-1 text-[12px] font-medium text-[#8c95a1]">Date of birth {p.birthDate}</p>
+                      <p className="whitespace-nowrap text-[13px] font-semibold text-[#1a1a1a]">{p.firstName} {p.lastName} <span className="font-semibold text-[#666]">({p.gender})</span></p>
+                      <p className="mt-0.5 text-[12px] font-normal text-[#8c95a1]">Date of birth {p.birthDate}</p>
                     </div>
                   </td>
                   <td className="whitespace-nowrap px-5 py-4 text-[13px] font-medium text-[#4b4b4b]">{p.primaryPhone}</td>
@@ -3039,6 +3229,7 @@ function UsersPage({ onNavigate }: { onNavigate: (p: Page) => void }) {
                       <p className="text-[#6f7780]">{p.city}, {p.state} {p.zip}</p>
                     </div>
                   </td>
+                  <td className="whitespace-nowrap px-5 py-4 text-[13px] font-medium text-[#4b4b4b]">{patientOrderCount(p)}</td>
                   <td onClick={event => event.stopPropagation()} className="relative px-4 py-4 text-right">
                     <button onClick={() => setOpenPatientMenu(current => current === patientIndex ? null : patientIndex)} className={`flex size-7 items-center justify-center rounded-[7px] text-[#777] transition-all hover:bg-[#eceae7] hover:text-[#111] ${openPatientMenu === patientIndex ? "bg-[#eceae7] opacity-100" : "opacity-0 group-hover:opacity-100"}`} aria-label={`Actions for ${p.firstName} ${p.lastName}`}>
                       <MoreHorizontal size={16} />
@@ -3119,8 +3310,8 @@ function SettingsPage({ onNavigate }: { onNavigate: (p: Page) => void }) {
         </div>
         {rows.map(row => (
           <div key={`${type}-${row[0]}`} className="grid grid-cols-[40px_1.25fr_1fr_1.55fr_1fr_92px_38px] items-center bg-white px-4 py-3.5 text-[12px] text-[#1a1a1a] transition-colors hover:bg-[var(--app-soft-hover)]">
-            {row.map((cell, index) => index === 1 ? <span key={cell} className="flex min-w-0 items-center gap-2.5"><span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-[#FFE9D8] to-[#FFD8B8] text-[9px] font-bold text-[#8A4A24]">{cell.split(" ").map(part => part[0]).join("").slice(0,2).toUpperCase()}</span><span className="truncate font-semibold">{cell}</span></span> : <span key={`${index}-${cell}`} className={`min-w-0 truncate ${index === 0 ? "text-[#999]" : ""}`}>{cell}</span>)}
-            <span className="inline-flex w-fit rounded-full bg-gradient-to-r from-[#C5F5DD] to-[#E7F5A5] px-3 py-1.5 text-[10px] font-semibold text-[#31583F]">Active</span>
+            {row.map((cell, index) => index === 1 ? <span key={cell} className="min-w-0 truncate font-semibold">{cell}</span> : <span key={`${index}-${cell}`} className={`min-w-0 truncate ${index === 0 ? "text-[#999]" : ""}`}>{cell}</span>)}
+            <span className="inline-flex w-fit rounded-full bg-[#ecf8ef] px-3 py-1.5 text-[10px] font-semibold text-[#31583F]">Active</span>
             <button className="flex size-7 items-center justify-center rounded-[7px] text-[#8c95a1] transition-colors hover:bg-[#f2f7f4] hover:text-[#183229]" aria-label="More actions">
               <MoreHorizontal size={15} />
             </button>
@@ -3146,8 +3337,8 @@ function SettingsPage({ onNavigate }: { onNavigate: (p: Page) => void }) {
             <button
               key={label}
               onClick={() => setActiveTab(label)}
-              className={`flex items-center gap-2.5 rounded-[9px] px-3 py-2.5 text-left text-[12px] font-semibold transition-colors ${
-                activeTab === label ? "bg-[#f7efe9] text-[#1a1a1a]" : "text-[#858b88] hover:bg-[#FBFBFB] hover:text-[#1a1a1a]"
+              className={`flex items-center gap-2.5 rounded-[9px] px-3 py-2.5 text-left text-[12px] font-medium transition-colors ${
+                activeTab === label ? "bg-[var(--app-menu-bg)] text-[#1a1a1a]" : "text-[#858b88] hover:bg-[var(--app-menu-bg)] hover:text-[#1a1a1a]"
               }`}
             >
               <Icon size={15} strokeWidth={1.5} />
@@ -3217,7 +3408,7 @@ function SettingsPage({ onNavigate }: { onNavigate: (p: Page) => void }) {
               <button
                 onClick={() => setPayByClinicTab("cards")}
                 className={`rounded-[8px] px-3 py-2 text-[12px] font-medium transition-colors ${
-                  payByClinicTab === "cards" ? "bg-[#f7efe9] text-[#1a1a1a]" : "text-[#9d9d9d] hover:bg-[#f7efe9]/60 hover:text-[#1a1a1a]"
+                  payByClinicTab === "cards" ? "bg-[var(--app-menu-bg)] text-[#1a1a1a]" : "text-[#9d9d9d] hover:bg-[var(--app-menu-bg)] hover:text-[#1a1a1a]"
                 }`}
               >
                 Credit Cards
@@ -3228,7 +3419,7 @@ function SettingsPage({ onNavigate }: { onNavigate: (p: Page) => void }) {
               <button
                 onClick={() => setPayByClinicTab("ach")}
                 className={`rounded-[8px] px-3 py-2 text-[12px] font-medium transition-colors ${
-                  payByClinicTab === "ach" ? "bg-[#f7efe9] text-[#1a1a1a]" : "text-[#9d9d9d] hover:bg-[#f7efe9]/60 hover:text-[#1a1a1a]"
+                  payByClinicTab === "ach" ? "bg-[var(--app-menu-bg)] text-[#1a1a1a]" : "text-[#9d9d9d] hover:bg-[var(--app-menu-bg)] hover:text-[#1a1a1a]"
                 }`}
               >
                 ACH Payout Account
@@ -3247,7 +3438,7 @@ function SettingsPage({ onNavigate }: { onNavigate: (p: Page) => void }) {
                     <Plus size={15} /> Add Credit Card
                   </button>
                 </div>
-                <div className="rounded-[10px] border border-[#eaeaea] bg-[#f7efe9]/40 p-6">
+                <div className="rounded-[10px] border border-[#eaeaea] bg-[#FAFAFA] p-6">
                   <AlertCircle size={17} className="mb-4 text-[#667085]" />
                   <p className="max-w-[420px] text-[13px] leading-relaxed text-[#667085]">
                     To have the Pay by Clinic feature enabled, you must have a valid credit card on file. The credit card will be charged upon submitting a new prescription.
@@ -3311,7 +3502,7 @@ function SettingsPage({ onNavigate }: { onNavigate: (p: Page) => void }) {
                   View Agreement
                 </button>
               </div>
-              <div className="rounded-[10px] border border-[#eaeaea] bg-[#f7efe9]/40 p-6">
+              <div className="rounded-[10px] border border-[#eaeaea] bg-[#FAFAFA] p-6">
                 <AlertCircle size={17} className="mb-4 text-[#667085]" />
                 <p className="max-w-[430px] text-[13px] leading-relaxed text-[#667085]">
                   The ACH Debit Authorization Agreement authorizes ScriptLinkRx to initiate ACH debit entries to your designated bank account for payment of fees and other amounts owed.
@@ -4065,12 +4256,14 @@ function MultiPatientCartPage({
   setCartMode,
   selectedPatientIds,
   cartEntries,
+  extraVariants,
 }: {
   onNavigate: (p: Page) => void;
   cartMode: CartMode;
   setCartMode: (mode: CartMode) => void;
   selectedPatientIds: number[];
   cartEntries: PatientCartEntry[];
+  extraVariants: boolean;
 }) {
   const { runWithAppLoader } = useAppLoading();
   const cartData = useMemo(() => cartEntries.length > 0
@@ -4159,6 +4352,10 @@ function MultiPatientCartPage({
       return next;
     });
   }, [cartData]);
+
+  useEffect(() => {
+    if (!extraVariants) setCartCardVariant(4);
+  }, [extraVariants]);
 
   const pharmacyNames = [...new Set(cartData.patients.flatMap(patient =>
     patient.items.filter(item => item.kind !== "supply").map(item => item.pharmacy ?? cartData.pharmacy)
@@ -4284,7 +4481,7 @@ function MultiPatientCartPage({
       <Header title="Cart" onNavigate={onNavigate} />
 
       <div className="max-w-[1300px]">
-        <div className="mb-5 flex flex-wrap items-center gap-2">
+        {extraVariants && <div className="mb-5 flex flex-wrap items-center gap-2">
           <span className="mr-1 text-[11px] font-semibold uppercase tracking-[0.1em] text-[#777]">Card style</span>
           {([1, 4, 3] as const).map(variant => (
             <button
@@ -4295,7 +4492,7 @@ function MultiPatientCartPage({
               {variant === 1 ? "1. Current" : variant === 4 ? "2. Adnan Suggestion" : "3. Boom"}
             </button>
           ))}
-        </div>
+        </div>}
         <div className="grid grid-cols-1 items-start gap-10 xl:grid-cols-[minmax(0,1fr)_290px]">
           <section className="min-w-0">
             {cartRowsWithNumbers.map(({ patient, item }, rowIndex) => {
@@ -4315,11 +4512,12 @@ function MultiPatientCartPage({
               const multiPatientShipping = supportsMultiPatientShipping(pharmacy);
               const shipmentCount = multiPatientShipping ? 1 : Math.max(1, pharmacyPatientCount);
               const pharmacyShippingTotal = cartData.shipping[selectedShipping].price * shipmentCount;
+              const isActivePharmacy = hasFocusedOpenForm && cartRowsWithNumbers.some(row => (row.item.pharmacy ?? cartData.pharmacy) === pharmacy && expandedPrescriptionIds.has(row.item.id) && !addedPrescriptionIds.has(row.item.id));
 
               return (
                 <Fragment key={item.id}>
                   {isFirstInPharmacy && (
-                    <div style={{ backgroundColor: activeCardTheme.shell, borderColor: activeCardTheme.border }} className={(rowIndex === 0 ? "" : "mt-8 ") + `${cartCardVariant === 3 ? "border-b px-0 pb-3 pt-1" : "rounded-t-[10px] px-5 pb-4 pt-5"}`}>
+                    <div style={{ backgroundColor: activeCardTheme.shell, borderColor: activeCardTheme.border }} className={(rowIndex === 0 ? "" : "mt-8 ") + `transition-opacity ${hasFocusedOpenForm && !isActivePharmacy ? "opacity-55 hover:opacity-85" : ""} ${cartCardVariant === 3 ? "border-b px-0 pb-3 pt-1" : "rounded-t-[10px] px-5 pb-4 pt-5"}`}>
                       <div className="flex items-center justify-between gap-4">
                         <h2 className={cartCardVariant === 3 ? "text-[13px] font-medium text-[#171717]" : "text-[16px] font-medium text-[#171717]"}>{pharmacy} Cart</h2>
                         <div className={`flex flex-wrap items-center justify-end gap-2 ${cartCardVariant === 3 ? "hidden" : ""}`}>
@@ -4812,8 +5010,10 @@ function MultiPatientCartPage({
                 const quantity = quantities[item.id] ?? 1;
                 return (
                   <div key={item.id} className={`py-4 ${index > 0 ? "border-t border-[#e6e6e6]" : ""}`}>
-                    <p className="mb-0.5 px-4 text-[10px] font-semibold uppercase tracking-[0.08em] text-[#557d70]">Prescription {prescriptionNumber}</p>
-                    <p className="rounded-[8px] bg-[#fbfffd] px-4 py-2 text-[11px] font-medium text-[#222]">{patient.name} ({patient.name.match(/\((.*?)\)/)?.[1] ?? "M"})</p>
+                    <div className="mx-4 flex items-center gap-2 rounded-[8px] bg-[#fbfffd] px-3 py-2">
+                      <p className="min-w-0 truncate text-[11px] font-medium text-[#222]">{patient.name} ({patient.name.match(/\((.*?)\)/)?.[1] ?? "M"})</p>
+                      <span className="shrink-0 rounded-full bg-[#eeeeec] px-2 py-0.5 text-[9px] font-semibold text-[#7a7a76]">Prescription {prescriptionNumber}</span>
+                    </div>
                     <div className="mt-3 flex items-start gap-3 px-4">
                       <CartItemImage item={item} />
                       <div className="min-w-0 flex-1">
@@ -5316,6 +5516,7 @@ export default function App() {
     const savedTheme = window.localStorage.getItem("scriptlinkrx-theme");
     return savedTheme === "orange" ? "orange" : "default";
   });
+  const [extraVariants, setExtraVariants] = useState(() => window.localStorage.getItem("scriptlinkrx-extra-variants") === "true");
   const [page, setPage] = useState<Page>(DEFAULT_PAGE);
   const [cartMode, setCartMode] = useState<CartMode>("single");
   const [multiCartPatientIds, setMultiCartPatientIds] = useState<number[]>([]);
@@ -5355,6 +5556,10 @@ export default function App() {
   useEffect(() => {
     window.localStorage.setItem("scriptlinkrx-theme", appTheme);
   }, [appTheme]);
+
+  useEffect(() => {
+    window.localStorage.setItem("scriptlinkrx-extra-variants", String(extraVariants));
+  }, [extraVariants]);
 
   useEffect(() => {
     if (!chatOpen) return;
@@ -5527,11 +5732,11 @@ export default function App() {
       case "favorites":
         return <FavoritesPage onNavigate={setPage} cartPage={cartPage} onProductSelect={setSelectedProduct} />;
       case "product-detail":
-        return <ProductDetailPage onNavigate={setPage} cartMode={cartMode} setCartMode={setCartMode} onAddToPatientCart={addToPatientCart} product={selectedProduct} />;
+        return <ProductDetailPage onNavigate={setPage} cartMode={cartMode} setCartMode={setCartMode} onAddToPatientCart={addToPatientCart} product={selectedProduct} extraVariants={extraVariants} />;
       case "pharmacies":
         return <PharmaciesPage onNavigate={setPage} />;
       case "orders":
-        return <OrdersPage onNavigate={setPage} onOrderSelect={(order) => { setSelectedOrder(order); setPage("order-detail"); }} />;
+        return <OrdersPage onNavigate={setPage} onOrderSelect={(order) => { setSelectedOrder(order); setPage("order-detail"); }} extraVariants={extraVariants} />;
       case "order-detail":
         return <OrderDetailPage order={selectedOrder} onNavigate={setPage} />;
       case "support":
@@ -5541,9 +5746,9 @@ export default function App() {
       case "settings":
         return <SettingsPage onNavigate={setPage} />;
       case "cart-single":
-        return <MultiPatientCartPage onNavigate={setPage} cartMode={cartMode} setCartMode={setCartMode} selectedPatientIds={multiCartPatientIds} cartEntries={patientCartEntries} />;
+        return <MultiPatientCartPage onNavigate={setPage} cartMode={cartMode} setCartMode={setCartMode} selectedPatientIds={multiCartPatientIds} cartEntries={patientCartEntries} extraVariants={extraVariants} />;
       case "cart-multi":
-        return <MultiPatientCartPage onNavigate={setPage} cartMode={cartMode} setCartMode={setCartMode} selectedPatientIds={multiCartPatientIds} cartEntries={patientCartEntries} />;
+        return <MultiPatientCartPage onNavigate={setPage} cartMode={cartMode} setCartMode={setCartMode} selectedPatientIds={multiCartPatientIds} cartEntries={patientCartEntries} extraVariants={extraVariants} />;
       case "checkout-prescription":
         return <CheckoutPrescriptionPage onNavigate={setPage} />;
       default:
@@ -5610,7 +5815,7 @@ export default function App() {
         <ProductFavoritesContext.Provider value={{ favoriteProductIds, setFavoriteProductIds, favoriteProducts }}>
           <div className={`app-theme app-theme-${appTheme} flex h-screen overflow-hidden bg-[var(--app-soft-hover)] font-['Inter',sans-serif]`}>
             {/* Sidebar Navigation */}
-            <Sidebar active={page} onNavigate={setPage} cartPage={cartPage} onLogout={() => setIsAuthenticated(false)} appTheme={appTheme} setAppTheme={setAppTheme} />
+            <Sidebar active={page} onNavigate={setPage} cartPage={cartPage} onLogout={() => setIsAuthenticated(false)} appTheme={appTheme} setAppTheme={setAppTheme} extraVariants={extraVariants} setExtraVariants={setExtraVariants} />
 
             {/* Main content area */}
             <main className="app-main-scroll h-screen min-w-0 flex-1 overflow-y-scroll p-3 pl-1.5">
