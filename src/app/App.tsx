@@ -1,4 +1,4 @@
-import { Fragment, createContext, useContext, useState, useRef, useEffect, useLayoutEffect, useMemo, type Dispatch, type FormEvent, type SetStateAction } from "react";
+import { Fragment, createContext, useContext, useState, useRef, useEffect, useLayoutEffect, useMemo, type CSSProperties, type Dispatch, type FormEvent, type PointerEvent as ReactPointerEvent, type SetStateAction } from "react";
 import {
   LayoutDashboard,
   BookOpen,
@@ -71,8 +71,13 @@ import imgNadInjection from "@/assets/nad-injection.png";
 import imgOrderAminoQuad from "@/assets/order-amino-quad.png";
 import imgOrderOxytocin from "@/assets/order-oxytocin.png";
 import imgOrderOxytocinAlt from "@/assets/order-oxytocin-alt.png";
+import landingGlutathione from "@/assets/landing-glutathione.png";
+import landingNadInjection from "@/assets/landing-nad-injection.png";
+import landingTestosterone from "@/assets/landing-testosterone-cypionate.png";
+import landingTriMix from "@/assets/landing-tri-mix.png";
 import imgProduct452 from "@/imports/ScriptlinkrxProductPage/a7404d4186f9383142485474193c8c2ca1b2259c.png";
 import scriptlinkrxLogo from "@/assets/scriptlinkrx-logo.svg";
+import scriptlinkrxLandingLogo from "@/assets/scriptlinkrx-landing-logo.png";
 import userVerifiedIcon from "@/assets/user-verified.svg";
 
 type Page =
@@ -1637,7 +1642,7 @@ function ProductDetailPage({
   const [expandedPatientIds, setExpandedPatientIds] = useState<Set<number>>(new Set());
   const [addedItemCount, setAddedItemCount] = useState<number | null>(null);
   const [activeInfoTab, setActiveInfoTab] = useState<"overview" | "formula" | "dosage" | "safety">("overview");
-  const [productDetailVariant, setProductDetailVariant] = useState<1 | 2 | 3>(1);
+  const [productDetailVariant, setProductDetailVariant] = useState<1 | 2 | 3>(2);
   const configurationCardRef = useRef<HTMLDivElement>(null);
   const [productCardHeight, setProductCardHeight] = useState(825);
   const { addCartItems } = useCartSummary();
@@ -1658,7 +1663,7 @@ function ProductDetailPage({
   }, [defaultSize, defaultStrength, product.dosage, product.id, product.pharmacy]);
 
   useEffect(() => {
-    if (!extraVariants) setProductDetailVariant(3);
+    if (!extraVariants) setProductDetailVariant(2);
   }, [extraVariants]);
 
   useLayoutEffect(() => {
@@ -1833,17 +1838,17 @@ function ProductDetailPage({
               {pharmacies.slice(0, 2).map(option => {
                 const selected = pharmacy === option.name;
                 return (
-                  <button key={option.name} onClick={() => setPharmacy(option.name)} className={`grid w-full grid-cols-[minmax(0,1fr)_90px] items-center rounded-[8px] border px-3 py-3 text-left transition-colors ${selected && productDetailVariant === 2 ? "border-[#183229] bg-[#eef7f2] shadow-[0_8px_18px_rgba(24,50,41,0.08)]" : selected ? "border-2 border-[#202c27] bg-[#fcfdfc]" : "border-[#bdbdbd] bg-white hover:border-[#555]"}`}>
+                  <button key={option.name} onClick={() => setPharmacy(option.name)} className={`grid w-full grid-cols-[minmax(0,1fr)_90px] items-center rounded-[8px] border px-3 py-3 text-left transition-colors ${selected && productDetailVariant === 2 ? "border-[#183229] bg-[#183229] text-white shadow-[0_8px_18px_rgba(24,50,41,0.16)]" : selected ? "border-2 border-[#202c27] bg-[#fcfdfc]" : "border-[#bdbdbd] bg-white hover:border-[#555]"}`}>
                     <span className="min-w-0">
-                      <span className="flex items-center gap-1.5 truncate text-[12px] font-medium text-[#111]">
-                        {selected && productDetailVariant === 2 && <CheckCircle2 size={13} className="shrink-0 text-[#183229]" />}
+                      <span className={`flex items-center gap-1.5 truncate text-[12px] font-medium ${selected && productDetailVariant === 2 ? "text-white" : "text-[#111]"}`}>
+                        {selected && productDetailVariant === 2 && <CheckCircle2 size={13} className="shrink-0 text-white" />}
                         {option.name}
                       </span>
-                      <span className="mt-0.5 block text-[9px] text-[#777]">Beyond use 90 days</span>
+                      <span className={`mt-0.5 block text-[9px] ${selected && productDetailVariant === 2 ? "text-white/70" : "text-[#777]"}`}>Beyond use 90 days</span>
                     </span>
                     <span className="text-right">
-                      <span className="block text-[12px] font-medium text-[#111]">${option.price.toFixed(2)}</span>
-                      <span className="block text-[8px] leading-tight text-[#777]">1-2 Days<br />Processing</span>
+                      <span className={`block text-[12px] font-medium ${selected && productDetailVariant === 2 ? "text-white" : "text-[#111]"}`}>${option.price.toFixed(2)}</span>
+                      <span className={`block text-[8px] leading-tight ${selected && productDetailVariant === 2 ? "text-white/70" : "text-[#777]"}`}>1-2 Days<br />Processing</span>
                     </span>
                   </button>
                 );
@@ -1855,10 +1860,12 @@ function ProductDetailPage({
             <p className="text-[12px] font-medium text-[#111]">Shipping</p>
             <p className="mt-1 text-[12px] text-[#252525]">Choose where to ship the prescription</p>
             <div className="mt-3 flex flex-wrap gap-2">
-              <button disabled={selectedPatientCount > 1} onClick={() => selectShippingChoice("patient")} className={`inline-flex h-9 items-center gap-2 rounded-full border px-3 text-[11px] font-semibold transition-colors ${selectedPatientCount > 1 ? "cursor-not-allowed border-[#e0e2e1] bg-[#f7f7f6] text-[#a7aaa8] opacity-70" : shippingChoice === "patient" ? "border-2 border-[#202020] bg-[#f6f4f5] text-[#202020]" : "border-[#d8dedd] bg-white text-[#6f7782]"}`}>
+              <button disabled={selectedPatientCount > 1} onClick={() => selectShippingChoice("patient")} className={`inline-flex h-9 items-center gap-2 rounded-full border px-3 text-[11px] font-semibold transition-colors ${selectedPatientCount > 1 ? "cursor-not-allowed border-[#e0e2e1] bg-[#f7f7f6] text-[#a7aaa8] opacity-70" : shippingChoice === "patient" && productDetailVariant === 2 ? "border-[#183229] bg-[#183229] text-white shadow-[0_8px_18px_rgba(24,50,41,0.16)]" : shippingChoice === "patient" ? "border-2 border-[#202020] bg-[#f6f4f5] text-[#202020]" : "border-[#d8dedd] bg-white text-[#6f7782]"}`}>
+                {shippingChoice === "patient" && productDetailVariant === 2 && <CheckCircle2 size={13} />}
                 Ship to Patient <User size={13} />
               </button>
-              <button onClick={() => selectShippingChoice("clinic")} className={`inline-flex h-9 items-center gap-2 rounded-full border px-3 text-[11px] font-semibold transition-colors ${shippingChoice === "clinic" ? "border-2 border-[#202020] bg-[#f6f4f5] text-[#202020]" : "border-[#d8dedd] bg-white text-[#6f7782]"}`}>
+              <button onClick={() => selectShippingChoice("clinic")} className={`inline-flex h-9 items-center gap-2 rounded-full border px-3 text-[11px] font-semibold transition-colors ${shippingChoice === "clinic" && productDetailVariant === 2 ? "border-[#183229] bg-[#183229] text-white shadow-[0_8px_18px_rgba(24,50,41,0.16)]" : shippingChoice === "clinic" ? "border-2 border-[#202020] bg-[#f6f4f5] text-[#202020]" : "border-[#d8dedd] bg-white text-[#6f7782]"}`}>
+                {shippingChoice === "clinic" && productDetailVariant === 2 && <CheckCircle2 size={13} />}
                 Ship to Clinic <Building2 size={13} />
               </button>
             </div>
@@ -4329,7 +4336,7 @@ function MultiPatientCartPage({
   const [selectedShippingByPharmacy, setSelectedShippingByPharmacy] = useState<Record<string, number>>({});
   const [removed, setRemoved] = useState<Set<number>>(new Set());
   const [showAllSummaryItems, setShowAllSummaryItems] = useState(false);
-  const [cartCardVariant, setCartCardVariant] = useState<1 | 2 | 3 | 4>(4);
+  const [cartCardVariant, setCartCardVariant] = useState<1 | 2 | 3 | 4 | 5 | 6>(4);
   const [expandedSupplies, setExpandedSupplies] = useState<Set<number>>(new Set([1]));
   const [previewOpen, setPreviewOpen] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState<"patient" | "clinic">("patient");
@@ -4470,11 +4477,15 @@ function MultiPatientCartPage({
     2: { label: "Silver", shell: "#FBFBFB", border: "#FBFBFB", item: "#ffffff" },
     3: { label: "Boom", shell: "#ffffff", border: "#E8E8E8", item: "#ffffff" },
     4: { label: "Compact", shell: "#FAFAFA", border: "#FAFAFA", item: "#ffffff" },
+    5: { label: "Zee", shell: "#FAFAFA", border: "#FAFAFA", item: "#ffffff" },
+    6: { label: "Simple", shell: "#FAFAFA", border: "#FAFAFA", item: "#ffffff" },
   } as const;
   const activeCardTheme = cartCardThemes[cartCardVariant];
   const hasBoomOpenForm = cartCardVariant === 3 && cartRows.some(({ item }) => expandedPrescriptionIds.has(item.id) && !addedPrescriptionIds.has(item.id));
   const hasCompactOpenForm = cartCardVariant === 4 && cartRows.some(({ item }) => expandedPrescriptionIds.has(item.id) && !addedPrescriptionIds.has(item.id));
-  const hasFocusedOpenForm = hasBoomOpenForm || hasCompactOpenForm;
+  const hasZeeOpenForm = cartCardVariant === 5 && cartRows.some(({ item }) => expandedPrescriptionIds.has(item.id) && !addedPrescriptionIds.has(item.id));
+  const hasSimpleOpenForm = cartCardVariant === 6 && cartRows.some(({ item }) => expandedPrescriptionIds.has(item.id) && !addedPrescriptionIds.has(item.id));
+  const hasFocusedOpenForm = hasBoomOpenForm || hasCompactOpenForm || hasZeeOpenForm || hasSimpleOpenForm;
 
   return (
     <>
@@ -4483,13 +4494,13 @@ function MultiPatientCartPage({
       <div className="max-w-[1300px]">
         {extraVariants && <div className="mb-5 flex flex-wrap items-center gap-2">
           <span className="mr-1 text-[11px] font-semibold uppercase tracking-[0.1em] text-[#777]">Card style</span>
-          {([1, 4, 3] as const).map(variant => (
+          {([1, 4, 3, 5, 6] as const).map(variant => (
             <button
               key={variant}
               onClick={() => setCartCardVariant(variant)}
               className={`h-8 rounded-full px-3 text-[11px] font-semibold transition-colors ${cartCardVariant === variant ? "bg-[#111] text-white" : "border border-[#ddd] bg-white text-[#555] hover:border-[#999]"}`}
             >
-              {variant === 1 ? "1. Current" : variant === 4 ? "2. Adnan Suggestion" : "3. Boom"}
+              {variant === 1 ? "1. Current" : variant === 4 ? "2. Adnan Suggestion" : variant === 3 ? "3. Boom" : variant === 5 ? "4. Zee version" : "5. Simple"}
             </button>
           ))}
         </div>}
@@ -4503,9 +4514,10 @@ function MultiPatientCartPage({
               const isExpanded = expandedPrescriptionIds.has(item.id);
               const showBoomCompletedCard = cartCardVariant === 3 && addedPrescriptionIds.has(item.id) && !isExpanded;
               const isBoomDimmed = cartCardVariant === 3 && hasBoomOpenForm && !(isExpanded && !addedPrescriptionIds.has(item.id));
-              const isCompactActive = cartCardVariant === 4 && isExpanded && !addedPrescriptionIds.has(item.id);
-              const isCompactDimmed = cartCardVariant === 4 && hasCompactOpenForm && !isCompactActive;
-              const isCompactCompleted = cartCardVariant === 4 && addedPrescriptionIds.has(item.id) && !isExpanded;
+              const isAdnanStyleVariant = cartCardVariant === 4 || cartCardVariant === 5 || cartCardVariant === 6;
+              const isCompactActive = isAdnanStyleVariant && isExpanded && !addedPrescriptionIds.has(item.id);
+              const isCompactDimmed = isAdnanStyleVariant && (hasCompactOpenForm || hasZeeOpenForm || hasSimpleOpenForm) && !isCompactActive;
+              const isCompactCompleted = isAdnanStyleVariant && addedPrescriptionIds.has(item.id) && !isExpanded;
               const details = prescriptionDetails[item.id];
               const selectedShipping = selectedShippingByPharmacy[pharmacy] ?? 0;
               const pharmacyPatientCount = new Set(cartRowsWithNumbers.filter(row => (row.item.pharmacy ?? cartData.pharmacy) === pharmacy).map(row => row.patient.name)).size;
@@ -4520,12 +4532,6 @@ function MultiPatientCartPage({
                     <div style={{ backgroundColor: activeCardTheme.shell, borderColor: activeCardTheme.border }} className={(rowIndex === 0 ? "" : "mt-8 ") + `transition-opacity ${hasFocusedOpenForm && !isActivePharmacy ? "opacity-55 hover:opacity-85" : ""} ${cartCardVariant === 3 ? "border-b px-0 pb-3 pt-1" : "rounded-t-[10px] px-5 pb-4 pt-5"}`}>
                       <div className="flex items-center justify-between gap-4">
                         <h2 className={cartCardVariant === 3 ? "text-[13px] font-medium text-[#171717]" : "text-[16px] font-medium text-[#171717]"}>{pharmacy} Cart</h2>
-                        <div className={`flex flex-wrap items-center justify-end gap-2 ${cartCardVariant === 3 ? "hidden" : ""}`}>
-                          <span className="inline-flex items-center gap-1.5 rounded-full bg-white px-3 py-1.5 text-[10px] font-semibold text-[#303030]">
-                            {pharmacyPatientCount > 1 ? <Building2 size={13} /> : <User size={13} />}
-                            {pharmacyPatientCount > 1 ? "Ship to clinic" : "Ship to patient"}
-                          </span>
-                        </div>
                       </div>
                     </div>
                   )}
@@ -4535,19 +4541,28 @@ function MultiPatientCartPage({
                     className={`relative transition-opacity ${
                       cartCardVariant === 3
                         ? `${isExpanded ? "border-l-2 border-l-[#183229] bg-[#FCFCFC] px-5" : "px-3"} border-b py-7 ${isBoomDimmed ? "opacity-45 hover:opacity-75" : ""}`
-                        : cartCardVariant === 4
+                        : isAdnanStyleVariant
                           ? `px-5 border-x-[12px] border-b-[12px] ${isExpanded ? "pb-5 pt-5" : "py-7"} ${isCompactActive ? "z-10 rounded-[12px] shadow-[0_18px_42px_rgba(24,50,41,0.12)] ring-1 ring-[#DDE8E2]" : ""} ${isCompactDimmed ? "opacity-55 hover:opacity-85" : ""}`
                           : `px-5 border-x-[12px] border-b-[12px] ${isExpanded ? "pb-5 pt-5" : "py-7"}`
                     }`}
                   >
+                    {cartCardVariant === 5 && !showBoomCompletedCard && (
+                      <div className="mb-4 hidden grid-cols-[minmax(270px,1fr)_210px_112px_90px] gap-5 text-[10px] font-semibold uppercase tracking-[0.08em] text-[#8c8c88] lg:grid">
+                        <span>Product Details</span>
+                        <span>Patient</span>
+                        <span className="text-center">Qty</span>
+                        <span className="text-right">Price</span>
+                      </div>
+                    )}
+
                     {!showBoomCompletedCard && <div className={cartCardVariant === 3 ? "grid grid-cols-1 gap-5 lg:grid-cols-[minmax(250px,1fr)_210px_90px_66px] lg:items-start" : "grid grid-cols-1 gap-5 lg:grid-cols-[minmax(270px,1fr)_210px_112px_90px] lg:items-start"}>
                       <div className="flex min-w-0 gap-4">
                         <CartItemImage item={item} />
                         <div className="min-w-0">
-                          <p className="text-[14px] font-semibold leading-tight text-[#191919]">{item.name}</p>
-                          <p className="mt-1 text-[13px] text-[#858585]">{item.detail}</p>
+                          <p className="whitespace-nowrap text-[14px] font-semibold leading-tight text-[#191919]">{item.name}</p>
+                          <p className="mt-1 whitespace-nowrap text-[13px] text-[#858585]">{item.detail}</p>
                           {includedSupplies.length > 0 && (
-                            <button onClick={() => toggleSupplies(item.id)} className="mt-2 inline-flex items-center gap-1 text-[12px] text-[#666] underline underline-offset-4">
+                            <button onClick={() => toggleSupplies(item.id)} className="mt-2 inline-flex whitespace-nowrap items-center gap-1 text-[12px] text-[#666] underline underline-offset-4">
                               Included Supplies
                               <ChevronDown size={13} className={expandedSupplies.has(item.id) ? "rotate-180 transition-transform" : "transition-transform"} />
                             </button>
@@ -4589,8 +4604,8 @@ function MultiPatientCartPage({
                                 <div className="flex min-w-0 gap-3">
                                   <CartItemImage item={item} />
                                   <div className="min-w-0">
-                                    <p className="text-[13px] font-semibold leading-tight text-[#1f2933]">{item.name}</p>
-                                    <p className="mt-1 text-[11px] text-[#69727d]">{item.detail}</p>
+                                    <p className="whitespace-nowrap text-[13px] font-semibold leading-tight text-[#1f2933]">{item.name}</p>
+                                    <p className="mt-1 whitespace-nowrap text-[11px] text-[#69727d]">{item.detail}</p>
                                     {includedSupplies.length > 0 && (
                                       <button onClick={() => toggleSupplies(item.id)} className="mt-2 text-[12px] text-[#666] underline underline-offset-4">
                                         Included Supplies
@@ -4613,7 +4628,7 @@ function MultiPatientCartPage({
                                   </div>
                                 </div>
                                 <div className="flex items-start justify-end gap-3">
-                                  <button onClick={() => setExpandedPrescriptionIds(current => cartCardVariant === 3 || cartCardVariant === 4 ? new Set([item.id]) : new Set([...current, item.id]))} className="text-[#183229] hover:text-black" aria-label="Edit prescription">
+                                  <button onClick={() => setExpandedPrescriptionIds(current => cartCardVariant === 3 || cartCardVariant === 4 || cartCardVariant === 5 || cartCardVariant === 6 ? new Set([item.id]) : new Set([...current, item.id]))} className="text-[#183229] hover:text-black" aria-label="Edit prescription">
                                     <Edit3 size={14} />
                                   </button>
                                   <button onClick={() => setAddedPrescriptionIds(current => { const next = new Set(current); next.delete(item.id); return next; })} className="text-[#183229] hover:text-black" aria-label="Remove prescription">
@@ -4621,7 +4636,7 @@ function MultiPatientCartPage({
                                   </button>
                                 </div>
                               </div>
-                              <button onClick={() => setExpandedPrescriptionIds(current => cartCardVariant === 3 || cartCardVariant === 4 ? new Set([item.id]) : new Set([...current, item.id]))} className="flex w-full items-center gap-1 border-t border-[#ECECEC] px-3 py-2 text-left text-[11px] font-medium text-[#1f2933] hover:bg-[#FAFAFA]">
+                              <button onClick={() => setExpandedPrescriptionIds(current => cartCardVariant === 3 || cartCardVariant === 4 || cartCardVariant === 5 || cartCardVariant === 6 ? new Set([item.id]) : new Set([...current, item.id]))} className="flex w-full items-center gap-1 border-t border-[#ECECEC] px-3 py-2 text-left text-[11px] font-medium text-[#1f2933] hover:bg-[#FAFAFA]">
                                 <span className="text-[9px]">▶</span>
                                 Show details
                               </button>
@@ -4633,13 +4648,13 @@ function MultiPatientCartPage({
                                   <CheckCircle2 size={14} />
                                   Prescription complete
                                 </span>
-                                <button onClick={() => setExpandedPrescriptionIds(current => cartCardVariant === 3 || cartCardVariant === 4 ? new Set([item.id]) : new Set([...current, item.id]))} className="text-[11px] font-semibold text-[#202020] hover:underline hover:underline-offset-4">
+                                <button onClick={() => setExpandedPrescriptionIds(current => cartCardVariant === 3 || cartCardVariant === 4 || cartCardVariant === 5 || cartCardVariant === 6 ? new Set([item.id]) : new Set([...current, item.id]))} className="text-[11px] font-semibold text-[#202020] hover:underline hover:underline-offset-4">
                                   Show Details
                                 </button>
                               </div>
                             ) : (
                               <div className="ml-16 flex items-center gap-4">
-                                <button onClick={() => setExpandedPrescriptionIds(current => cartCardVariant === 3 || cartCardVariant === 4 ? new Set([item.id]) : new Set([...current, item.id]))} className="text-[12px] font-medium text-[#202020] hover:underline hover:underline-offset-4">
+                                <button onClick={() => setExpandedPrescriptionIds(current => cartCardVariant === 3 || cartCardVariant === 4 || cartCardVariant === 5 || cartCardVariant === 6 ? new Set([item.id]) : new Set([...current, item.id]))} className="text-[12px] font-medium text-[#202020] hover:underline hover:underline-offset-4">
                                   Show Details
                                 </button>
                                 <span className="inline-flex items-center gap-2 rounded-[8px] bg-[#eaf4ed] px-3 py-2 text-[11px] font-semibold text-[#315f49]">
@@ -4651,7 +4666,7 @@ function MultiPatientCartPage({
                           )
                         ) : (
                           <button
-                            onClick={() => setExpandedPrescriptionIds(current => cartCardVariant === 3 || cartCardVariant === 4 ? new Set([item.id]) : new Set([...current, item.id]))}
+                            onClick={() => setExpandedPrescriptionIds(current => cartCardVariant === 3 || cartCardVariant === 4 || cartCardVariant === 5 || cartCardVariant === 6 ? new Set([item.id]) : new Set([...current, item.id]))}
                             className={cartCardVariant === 3 ? "ml-16 inline-flex items-center gap-2 rounded-[5px] bg-[#f3f3f3] px-3 py-2 text-[11px] font-semibold text-[#202020] transition-colors hover:bg-[#e8e8e8]" : cartCardVariant === 4 ? "ml-16 inline-flex items-center gap-2 rounded-[8px] bg-[#f5f5f3] px-3 py-2 text-[11px] font-semibold text-[#4d4d4d] transition-colors hover:bg-[#ececea] hover:text-[#202020]" : "ml-16 inline-flex items-center gap-2 rounded-[8px] bg-[#f0f0ee] px-3 py-2 text-[11px] font-semibold text-[#202020] transition-colors hover:bg-[#e5e5e2]"}
                           >
                             <Plus size={14} />
@@ -4686,11 +4701,11 @@ function MultiPatientCartPage({
                           </div>
                         </div>
                       ) : (
-                        <div className={cartCardVariant === 3 ? "px-0 py-0" : `rounded-[8px] px-6 py-5 ${cartCardVariant === 2 || cartCardVariant === 4 ? "bg-[#FAFAFA]" : "bg-[#fffdfb]"}`}>
+                        <div className={cartCardVariant === 3 ? "px-0 py-0" : `rounded-[8px] px-6 py-5 ${cartCardVariant === 2 || cartCardVariant === 4 || cartCardVariant === 5 || cartCardVariant === 6 ? "bg-[#FAFAFA]" : "bg-[#fffdfb]"}`}>
                           <div className={cartCardVariant === 3 ? "hidden" : "mb-5 flex items-center justify-between gap-3"}>
                             <div className="flex items-center gap-2">
-                              <h3 className="text-[14px] font-medium text-[#202020]">{cartCardVariant === 4 ? `Prescription for ${item.name}` : "Create Prescription"}</h3>
-                              {cartCardVariant === 4 && (
+                              <h3 className="text-[14px] font-medium text-[#202020]">{cartCardVariant === 4 || cartCardVariant === 5 || cartCardVariant === 6 ? `Prescription for ${item.name}` : "Create Prescription"}</h3>
+                              {(cartCardVariant === 4 || cartCardVariant === 5 || cartCardVariant === 6) && (
                                 <span className="rounded-full bg-[#183229] px-2.5 py-1 text-[9px] font-semibold text-white">Active</span>
                               )}
                             </div>
@@ -4768,6 +4783,165 @@ function MultiPatientCartPage({
                                     Add Order
                                   </button>
                                   <button onClick={() => setExpandedPrescriptionIds(current => { const next = new Set(current); next.delete(item.id); return next; })} className="text-[12px] font-medium text-[#202020]">
+                                    Cancel
+                                  </button>
+                                </div>
+                              </div>
+                            </div>
+	                          ) : cartCardVariant === 6 ? (
+	                            <div className="rounded-[10px] bg-white px-5 py-5 ring-1 ring-[#DDE8E2]">
+	                              <div className="grid gap-x-3 gap-y-3 md:grid-cols-[minmax(150px,0.44fr)_76px_76px_minmax(280px,1fr)]">
+	                                <label className="block">
+	                                  <span className="mb-1 flex h-[20px] items-end text-[11px] font-semibold text-[#858585]">Strength + Size</span>
+	                                  <input disabled value={item.detail} className="h-[34px] w-full rounded-[8px] border border-[#EAE8E1] bg-white px-3 text-[12px] font-medium text-[#cfcfcd] outline-none" />
+	                                </label>
+	                                <label className="block">
+	                                  <span className="mb-1 flex h-[20px] items-end text-[10px] font-semibold leading-[10px] text-[#171717]">Authorized<br />Refills <span className="text-[#b44b42]">*</span></span>
+	                                  <input type="number" min="0" placeholder="Days" value={details?.refills ?? ""} onChange={event => updatePrescriptionDetail(item.id, "refills", event.target.value)} className={"h-[34px] w-full rounded-[8px] border px-3 text-[11px] outline-none " + requiredFieldClass(details?.refills)} />
+	                                </label>
+	                                <label className="block">
+	                                  <span className="mb-1 flex h-[20px] items-end whitespace-nowrap text-[10px] font-semibold text-[#171717]">Days Supply <span className="text-[#b44b42]">*</span></span>
+	                                  <input type="number" min="1" placeholder="Days" value={details?.days ?? ""} onChange={event => updatePrescriptionDetail(item.id, "days", event.target.value)} className={"h-[34px] w-full rounded-[8px] border px-3 text-[11px] outline-none " + requiredFieldClass(details?.days)} />
+	                                </label>
+	                                <label className="block min-w-0">
+	                                  <span className="mb-1 flex h-[20px] items-end whitespace-nowrap text-[10px] font-semibold text-[#171717]">Directions of Use <span className="text-[#b44b42]">*</span></span>
+	                                  <select value={details?.directions ?? ""} onChange={event => updatePrescriptionDetail(item.id, "directions", event.target.value)} className={"h-[34px] w-full rounded-[8px] border px-3 text-[11px] outline-none " + requiredFieldClass(details?.directions)}>
+	                                    <option value="" disabled>Select directions</option>
+	                                    <option>Apply a small amount to affected areas twice daily (morning and evening).</option>
+	                                    <option>Inject (10 mg) subcutaneously once weekly.</option>
+	                                    <option>Inject (2.5 mg) subcutaneously once weekly.</option>
+	                                    <option>Use as directed by prescriber</option>
+	                                  </select>
+	                                </label>
+	                                <label className="block md:col-span-4">
+	                                  <span className="mb-1.5 block text-[10px] font-semibold text-[#171717]">Reason to Compound <span className="text-[#b44b42]">*</span></span>
+	                                  <select value={details?.reason ?? ""} onChange={event => updatePrescriptionDetail(item.id, "reason", event.target.value)} className={"h-[34px] w-full rounded-[8px] border px-3 text-[11px] outline-none " + requiredFieldClass(details?.reason)}>
+	                                    <option value="" disabled>Select reason below or type out your own</option>
+	                                    <option>Patient has an allergy to X ingredient in the commercially available product.</option>
+	                                    <option>Patient requires a dosage form not commercially available.</option>
+	                                    <option>Patient requires excipient avoidance.</option>
+	                                    <option>Prescriber requested custom strength.</option>
+	                                  </select>
+	                                </label>
+	                              </div>
+	                              {openPrescriptionNoteIds.has(item.id) && (
+	                                <label className="mt-4 block rounded-[10px] bg-[#FAFAFA] px-4 py-3">
+	                                  <span className="mb-2 block text-[11px] font-semibold text-[#171717]">Prescription Note (Optional)</span>
+	                                  <textarea placeholder="Enter Prescription Note" className="min-h-[72px] w-full resize-y rounded-[8px] border border-[#EAE8E1] bg-white px-3 py-3 text-[12px] outline-none placeholder:text-[#b7b7b4] focus:border-[#183229]" />
+	                                </label>
+	                              )}
+	                              <div className="mt-5 flex items-center justify-between gap-4">
+	                                <button onClick={() => togglePrescriptionNote(item.id)} className="text-[12px] font-semibold text-[#171717]">
+	                                  {openPrescriptionNoteIds.has(item.id) ? "- Hide prescription note" : "+ Add a prescription note"}
+	                                </button>
+	                                <div className="flex items-center gap-4">
+	                                  <button
+	                                    onClick={() => {
+	                                      if (!isPrescriptionComplete(item.id)) return;
+	                                      setAddedPrescriptionIds(current => new Set([...current, item.id]));
+	                                      setExpandedPrescriptionIds(current => {
+	                                        const next = new Set(current);
+	                                        next.delete(item.id);
+	                                        const currentIndex = cartRows.findIndex(row => row.item.id === item.id);
+	                                        const nextPrescription = cartRows[currentIndex + 1];
+	                                        if (nextPrescription) next.add(nextPrescription.item.id);
+	                                        return next;
+	                                      });
+	                                    }}
+	                                    disabled={!isPrescriptionComplete(item.id)}
+	                                    className="h-8 min-w-[76px] rounded-[7px] bg-[#111] px-4 text-[11px] font-medium text-white transition-colors hover:bg-black disabled:cursor-not-allowed disabled:bg-[#dfdfdc] disabled:text-[#92928f]"
+	                                  >
+	                                    Add Order
+	                                  </button>
+	                                  <button
+	                                    onClick={() => setExpandedPrescriptionIds(current => {
+	                                      const next = new Set(current);
+	                                      next.delete(item.id);
+	                                      return next;
+	                                    })}
+	                                    className="text-[11px] font-medium text-[#202020]"
+	                                  >
+	                                    Cancel
+	                                  </button>
+	                                </div>
+	                              </div>
+	                            </div>
+	                          ) : cartCardVariant === 5 ? (
+                            <div className="rounded-[10px] bg-white px-5 py-5 ring-1 ring-[#DDE8E2]">
+                              <div className="grid gap-x-4 gap-y-3 md:grid-cols-[150px_150px_88px_88px_minmax(0,1fr)]">
+                                <label className="block">
+                                  <span className="mb-1.5 block text-[10px] font-semibold text-[#676767]">Strength</span>
+                                  <input disabled value={item.detail.split("|")[0]?.trim() ?? item.detail} className="h-[34px] w-full rounded-[8px] border border-[#EAE8E1] bg-white px-3 text-[11px] font-medium text-[#cfcfcd] outline-none" />
+                                </label>
+                                <label className="block">
+                                  <span className="mb-1.5 block text-[10px] font-semibold text-[#676767]">Size</span>
+                                  <input disabled value={item.detail.split("|")[1]?.trim() ?? item.detail} className="h-[34px] w-full rounded-[8px] border border-[#EAE8E1] bg-white px-3 text-[11px] font-medium text-[#cfcfcd] outline-none" />
+                                </label>
+                                <label className="block">
+                                  <span className="mb-1.5 block whitespace-nowrap text-[10px] font-semibold text-[#171717]">Authorized Refills <span className="text-[#b44b42]">*</span></span>
+                                  <input type="number" min="0" placeholder="Days" value={details?.refills ?? ""} onChange={event => updatePrescriptionDetail(item.id, "refills", event.target.value)} className={"h-[34px] w-full rounded-[8px] border px-3 text-[11px] outline-none " + requiredFieldClass(details?.refills)} />
+                                </label>
+                                <label className="block">
+                                  <span className="mb-1.5 block text-[10px] font-semibold text-[#171717]">Days Supply <span className="text-[#b44b42]">*</span></span>
+                                  <input type="number" min="1" placeholder="Days" value={details?.days ?? ""} onChange={event => updatePrescriptionDetail(item.id, "days", event.target.value)} className={"h-[34px] w-full rounded-[8px] border px-3 text-[11px] outline-none " + requiredFieldClass(details?.days)} />
+                                </label>
+                                <label className="block md:col-span-5">
+                                  <span className="mb-1.5 block text-[10px] font-semibold text-[#171717]">Directions of Use <span className="text-[#b44b42]">*</span></span>
+                                  <select value={details?.directions ?? ""} onChange={event => updatePrescriptionDetail(item.id, "directions", event.target.value)} className={"h-[34px] w-full rounded-[8px] border px-3 text-[11px] outline-none " + requiredFieldClass(details?.directions)}>
+                                    <option value="" disabled>Select reason below or type out your own</option>
+                                    <option>Inject (10 mg) subcutaneously once weekly.</option>
+                                    <option>Inject (2.5 mg) subcutaneously once weekly.</option>
+                                    <option>Inject (5 mg) subcutaneously once weekly.</option>
+                                    <option>Use as directed by prescriber</option>
+                                  </select>
+                                </label>
+                                <label className="block md:col-span-5">
+                                  <span className="mb-1.5 block text-[10px] font-semibold text-[#171717]">Reason to Compound <span className="text-[#b44b42]">*</span></span>
+                                  <select value={details?.reason ?? ""} onChange={event => updatePrescriptionDetail(item.id, "reason", event.target.value)} className={"h-[34px] w-full rounded-[8px] border px-3 text-[11px] outline-none " + requiredFieldClass(details?.reason)}>
+                                    <option value="" disabled>Select reason below or type out your own</option>
+                                    <option>Patient requires a dosage form not commercially available.</option>
+                                    <option>Patient requires excipient avoidance.</option>
+                                    <option>Prescriber requested custom strength.</option>
+                                  </select>
+                                </label>
+                              </div>
+                              {openPrescriptionNoteIds.has(item.id) && (
+                                <label className="mt-4 block rounded-[10px] bg-white px-4 py-3">
+                                  <span className="mb-2 block text-[10px] font-semibold text-[#171717]">Prescription Note (Optional)</span>
+                                  <textarea placeholder="Enter Prescription Note" className="min-h-[64px] w-full resize-y rounded-[8px] border border-[#EAE8E1] bg-white px-3 py-3 text-[11px] outline-none placeholder:text-[#b7b7b4] focus:border-[#183229]" />
+                                </label>
+                              )}
+                              <div className="mt-5 flex items-center justify-between gap-4">
+                                <button onClick={() => togglePrescriptionNote(item.id)} className="text-[11px] font-semibold text-[#171717]">
+                                  {openPrescriptionNoteIds.has(item.id) ? "- Hide prescription note" : "+ Add a prescription note"}
+                                </button>
+                                <div className="flex items-center gap-4">
+                                  <button
+                                    onClick={() => {
+                                      if (!isPrescriptionComplete(item.id)) return;
+                                      setAddedPrescriptionIds(current => new Set([...current, item.id]));
+                                      setExpandedPrescriptionIds(current => {
+                                        const next = new Set(current);
+                                        next.delete(item.id);
+                                        const currentIndex = cartRows.findIndex(row => row.item.id === item.id);
+                                        const nextPrescription = cartRows[currentIndex + 1];
+                                        if (nextPrescription) next.add(nextPrescription.item.id);
+                                        return next;
+                                      });
+                                    }}
+                                    disabled={!isPrescriptionComplete(item.id)}
+                                    className="h-8 min-w-[76px] rounded-[7px] bg-[#111] px-4 text-[11px] font-medium text-white transition-colors hover:bg-black disabled:cursor-not-allowed disabled:bg-[#dfdfdc] disabled:text-[#92928f]"
+                                  >
+                                    Add Order
+                                  </button>
+                                  <button
+                                    onClick={() => setExpandedPrescriptionIds(current => {
+                                      const next = new Set(current);
+                                      next.delete(item.id);
+                                      return next;
+                                    })}
+                                    className="text-[11px] font-medium text-[#202020]"
+                                  >
                                     Cancel
                                   </button>
                                 </div>
@@ -5450,7 +5624,9 @@ function CheckoutPrescriptionPage({ onNavigate }: { onNavigate: (p: Page) => voi
   );
 }
 
-function LoginPage({ onLogin }: { onLogin: () => void }) {
+function LoginPage({ onLogin, onRegister, onSingleSignOn }: { onLogin: () => void; onRegister: () => void; onSingleSignOn: () => void }) {
+  const [loginRole, setLoginRole] = useState<"provider" | "pharmacy">("provider");
+
   function submitLogin(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     onLogin();
@@ -5468,18 +5644,33 @@ function LoginPage({ onLogin }: { onLogin: () => void }) {
         </div>
 
         <section className="mt-[110px] w-full max-w-[430px] text-center">
-          <h1 className="font-['Georgia',serif] text-[48px] font-semibold leading-none tracking-[-0.02em] text-[#1a1a1a]">
+          <h1 className="text-[48px] font-semibold leading-none tracking-[-0.02em] text-[#1a1a1a]">
             Welcome back
           </h1>
           <p className="mt-5 text-[15px] text-[#1a1a1a]">Let’s get you logged in.</p>
 
-          <form onSubmit={submitLogin} className="mt-12">
-            <input
-              type="email"
-              defaultValue="demo@scriptlinkrx.com"
-              className="h-[52px] w-full rounded-[8px] border border-[#1a1a1a] bg-white px-4 text-[13px] font-medium text-[#1a1a1a] outline-none placeholder:text-[#6f7782] focus:border-[#183229]"
-              placeholder="Email"
-            />
+          <form onSubmit={submitLogin} className="mt-8">
+            <label className="block text-left">
+              <span className="text-[13px] font-medium text-[#1a1a1a]">Email address</span>
+              <input
+                type="email"
+                value={loginRole === "provider" ? "demo@scriptlinkrx.com" : "pharmacy@scriptlinkrx.com"}
+                readOnly
+                className="mt-2 h-[52px] w-full rounded-[8px] border border-[#1a1a1a] bg-white px-4 text-[13px] font-medium text-[#1a1a1a] outline-none placeholder:text-[#6f7782] focus:border-[#183229]"
+                placeholder="Email"
+              />
+            </label>
+            <label className="mt-4 block text-left">
+              <span className="text-[13px] font-medium text-[#1a1a1a]">Password</span>
+              <div className="mt-2 flex h-[52px] items-center rounded-[8px] border border-[#1a1a1a] bg-white px-4 focus-within:border-[#183229]">
+                <input
+                  type="password"
+                  className="min-w-0 flex-1 bg-transparent text-[13px] font-medium text-[#1a1a1a] outline-none placeholder:text-[#6f7782]"
+                  placeholder="Password"
+                />
+                <Eye size={17} className="text-[#6f7782]" />
+              </div>
+            </label>
             <button type="submit" className="mt-3 flex h-[46px] w-full items-center justify-center rounded-[999px] bg-[#1a1a1a] text-[13px] font-semibold text-white transition-colors hover:bg-[#183229]">
               Continue to log in
             </button>
@@ -5492,12 +5683,26 @@ function LoginPage({ onLogin }: { onLogin: () => void }) {
           </div>
 
           <button
-            onClick={onLogin}
+            onClick={onSingleSignOn}
             className="flex h-[48px] w-full items-center justify-center gap-5 rounded-[999px] border border-[#cfd6d2] bg-white text-[14px] font-semibold text-[#1a1a1a] transition-colors hover:border-[#183229]/50 hover:bg-[#fbfaf8]"
           >
-            <span className="text-[22px] font-bold leading-none text-[#4285f4]">G</span>
-            Sign in with Google
+            Sign in with Single-Sign-On Link
           </button>
+
+          <div className="mt-7 space-y-3 text-[12px] font-medium text-[#6f7782]">
+            <p>
+              Don't have an account?{" "}
+              <button type="button" onClick={onRegister} className="inline cursor-pointer align-baseline text-[12px] font-medium leading-none text-[#6f7782] transition-colors hover:text-[#1a1a1a]">
+                Register here
+              </button>
+            </p>
+            <p>
+              Are you a Pharmacy user?{" "}
+              <button type="button" onClick={() => setLoginRole("pharmacy")} className="inline cursor-pointer align-baseline text-[12px] font-medium leading-none text-[#6f7782] transition-colors hover:text-[#1a1a1a]">
+                Login here
+              </button>
+            </p>
+          </div>
 
           <button type="button" className="mt-8 text-[12px] font-semibold text-[#1a1a1a] underline underline-offset-4 hover:text-[#183229]">
             Forgot password?
@@ -5508,10 +5713,913 @@ function LoginPage({ onLogin }: { onLogin: () => void }) {
   );
 }
 
+function SingleSignOnPage({ onBackToLogin }: { onBackToLogin: () => void }) {
+  function submitSingleSignOn(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    onBackToLogin();
+  }
+
+  return (
+    <main className="relative min-h-screen overflow-hidden bg-white font-['Inter',sans-serif] text-[#1a1a1a]">
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-[520px] bg-[radial-gradient(circle_at_50%_0%,rgba(197,216,83,0.28),rgba(217,251,244,0.26)_32%,rgba(255,255,255,0)_72%)]" />
+      <div className="relative mx-auto flex min-h-screen w-full max-w-[620px] flex-col items-center px-6 pt-7">
+        <button type="button" onClick={onBackToLogin} className="flex cursor-pointer items-center gap-2.5">
+          <img src={scriptlinkrxLogo} alt="ScriptLinkRx" className="h-[30px] w-9 object-contain" />
+          <span className="font-['Poppins',sans-serif] text-[18px] font-semibold uppercase tracking-wide text-[#183229]">
+            S<span className="lowercase">CRIPTLINKrx</span>
+          </span>
+        </button>
+
+        <section className="mt-[110px] w-full max-w-[430px] text-center">
+          <h1 className="text-[48px] font-semibold leading-none tracking-[-0.02em] text-[#1a1a1a]">
+            Single sign-on
+          </h1>
+          <p className="mx-auto mt-5 max-w-[340px] text-[15px] leading-6 text-[#1a1a1a]">
+            Get a single sign-on link sent to your email to log in without a password.
+          </p>
+
+          <form onSubmit={submitSingleSignOn} className="mt-8">
+            <label className="block text-left">
+              <span className="text-[13px] font-medium text-[#1a1a1a]">Email address</span>
+              <input
+                type="email"
+                className="mt-2 h-[52px] w-full rounded-[8px] border border-[#1a1a1a] bg-white px-4 text-[13px] font-medium text-[#1a1a1a] outline-none placeholder:text-[#6f7782] focus:border-[#183229]"
+                placeholder="info@mail.com"
+              />
+            </label>
+            <button type="submit" className="mt-3 flex h-[46px] w-full items-center justify-center rounded-[999px] bg-[#1a1a1a] text-[13px] font-semibold text-white transition-colors hover:bg-[#183229]">
+              Send Single Sign-On Link
+            </button>
+          </form>
+
+          <button type="button" onClick={onBackToLogin} className="mt-8 cursor-pointer text-[12px] font-semibold text-[#1a1a1a] underline underline-offset-4 hover:text-[#183229]">
+            Back to Login
+          </button>
+        </section>
+      </div>
+    </main>
+  );
+}
+
+function RegisterPage({ onBackToLogin }: { onBackToLogin: () => void }) {
+  function submitRegister(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    onBackToLogin();
+  }
+
+  const inputClass = "mt-2 h-[52px] w-full rounded-[8px] border border-[#1a1a1a] bg-white px-4 text-[13px] font-medium text-[#1a1a1a] outline-none placeholder:text-[#6f7782] focus:border-[#183229]";
+  const selectClass = `${inputClass} appearance-none pr-10`;
+
+  return (
+    <main className="relative min-h-screen overflow-hidden bg-white font-['Inter',sans-serif] text-[#1a1a1a]">
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-[520px] bg-[radial-gradient(circle_at_50%_0%,rgba(197,216,83,0.28),rgba(217,251,244,0.26)_32%,rgba(255,255,255,0)_72%)]" />
+      <div className="relative mx-auto flex min-h-screen w-full max-w-[620px] flex-col items-center px-6 pt-7">
+        <button type="button" onClick={onBackToLogin} className="flex cursor-pointer items-center gap-2.5">
+          <img src={scriptlinkrxLogo} alt="ScriptLinkRx" className="h-[30px] w-9 object-contain" />
+          <span className="font-['Poppins',sans-serif] text-[18px] font-semibold uppercase tracking-wide text-[#183229]">
+            S<span className="lowercase">CRIPTLINKrx</span>
+          </span>
+        </button>
+
+        <section className="mt-[88px] w-full max-w-[520px] text-center">
+          <h1 className="text-[48px] font-semibold leading-none tracking-[-0.02em] text-[#1a1a1a]">
+            Create account
+          </h1>
+          <p className="mx-auto mt-5 max-w-[390px] text-[15px] leading-6 text-[#1a1a1a]">
+            Join ScriptLinkRx as a provider and tell us where your business operates.
+          </p>
+
+          <form onSubmit={submitRegister} className="mt-8 text-left">
+            <div className="grid gap-4 sm:grid-cols-2">
+              <label className="block text-left">
+                <span className="text-[13px] font-medium text-[#1a1a1a]">Business Name <span className="text-[#c7532f]">*</span></span>
+                <input className={inputClass} placeholder="Enter business name" />
+              </label>
+              <label className="block text-left">
+                <span className="text-[13px] font-medium text-[#1a1a1a]">NPI Number <span className="text-[#8c95a1]">(Optional)</span></span>
+                <input className={inputClass} placeholder="1234567890" />
+              </label>
+              <label className="relative block text-left">
+                <span className="text-[13px] font-medium text-[#1a1a1a]">Business Type <span className="text-[#c7532f]">*</span></span>
+                <select className={selectClass} defaultValue="">
+                  <option value="" disabled>Select a type</option>
+                  <option>Clinic</option>
+                  <option>Prescriber Group</option>
+                  <option>Pharmacy</option>
+                </select>
+                <ChevronDown size={15} className="pointer-events-none absolute bottom-4 right-4 text-[#6f7782]" />
+              </label>
+              <label className="relative block text-left">
+                <span className="text-[13px] font-medium text-[#1a1a1a]">User Type <span className="text-[#c7532f]">*</span></span>
+                <select className={selectClass} defaultValue="">
+                  <option value="" disabled>Select user type...</option>
+                  <option>Manager</option>
+                  <option>Prescriber</option>
+                </select>
+                <ChevronDown size={15} className="pointer-events-none absolute bottom-4 right-4 text-[#6f7782]" />
+              </label>
+            </div>
+
+            <div className="my-7 grid grid-cols-[1fr_auto_1fr] items-center gap-3">
+              <span className="h-px bg-[#1a1a1a]/45" />
+              <span className="text-[12px] text-[#6f7782]">Business address</span>
+              <span className="h-px bg-[#1a1a1a]/45" />
+            </div>
+
+            <div>
+              <div className="grid gap-4 sm:grid-cols-2">
+                <label className="block text-left">
+                  <span className="text-[13px] font-medium text-[#1a1a1a]">Address Line 1 <span className="text-[#c7532f]">*</span></span>
+                  <input className={inputClass} placeholder="Start typing address..." />
+                </label>
+                <label className="block text-left">
+                  <span className="text-[13px] font-medium text-[#1a1a1a]">Address Line 2</span>
+                  <input className={inputClass} placeholder="Apt, suite, floor (optional)" />
+                </label>
+              </div>
+              <div className="mt-4 grid gap-4 sm:grid-cols-3">
+                <label className="block text-left">
+                  <span className="text-[13px] font-medium text-[#1a1a1a]">City <span className="text-[#c7532f]">*</span></span>
+                  <input className={inputClass} placeholder="City" />
+                </label>
+                <label className="relative block text-left">
+                  <span className="text-[13px] font-medium text-[#1a1a1a]">State <span className="text-[#c7532f]">*</span></span>
+                  <select className={selectClass} defaultValue="">
+                    <option value="" disabled>Select state</option>
+                    <option>New York</option>
+                    <option>California</option>
+                    <option>Texas</option>
+                    <option>Florida</option>
+                  </select>
+                  <ChevronDown size={15} className="pointer-events-none absolute bottom-4 right-4 text-[#6f7782]" />
+                </label>
+                <label className="block text-left">
+                  <span className="text-[13px] font-medium text-[#1a1a1a]">Zip Code <span className="text-[#c7532f]">*</span></span>
+                  <input className={inputClass} placeholder="12345" />
+                </label>
+              </div>
+              <div className="mt-4 grid gap-4 sm:grid-cols-2">
+                <label className="block text-left">
+                  <span className="text-[13px] font-medium text-[#1a1a1a]">Business Phone <span className="text-[#c7532f]">*</span></span>
+                  <input className={inputClass} placeholder="(555) 123-4567" />
+                </label>
+                <label className="block text-left">
+                  <span className="text-[13px] font-medium text-[#1a1a1a]">Business Fax</span>
+                  <input className={inputClass} placeholder="(555) 123-4567" />
+                </label>
+              </div>
+            </div>
+
+            <button type="submit" className="mt-6 flex h-[46px] w-full items-center justify-center rounded-[999px] bg-[#1a1a1a] text-[13px] font-semibold text-white transition-colors hover:bg-[#183229]">
+              Continue registration
+            </button>
+
+            <div className="mt-7 text-center text-[12px] font-medium text-[#6f7782]">
+              Already have an account?{" "}
+              <button type="button" onClick={onBackToLogin} className="cursor-pointer font-semibold text-[#1a1a1a] underline underline-offset-4 hover:text-[#183229]">
+                Back to login
+              </button>
+            </div>
+          </form>
+        </section>
+      </div>
+    </main>
+  );
+}
+
+function RequestDemoPage({ onBackToLanding, onLoginClick }: { onBackToLanding: () => void; onLoginClick: () => void }) {
+  function submitDemo(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    onLoginClick();
+  }
+
+  const inputClass = "mt-2 h-[52px] w-full rounded-[8px] border border-[#1a1a1a] bg-white px-4 text-[13px] font-medium text-[#1a1a1a] outline-none placeholder:text-[#6f7782] focus:border-[#183229]";
+  const selectClass = `${inputClass} appearance-none pr-10`;
+
+  return (
+    <main className="relative min-h-screen overflow-hidden bg-white font-['Inter',sans-serif] text-[#1a1a1a]">
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-[520px] bg-[radial-gradient(circle_at_50%_0%,rgba(197,216,83,0.28),rgba(217,251,244,0.26)_32%,rgba(255,255,255,0)_72%)]" />
+      <div className="relative mx-auto flex min-h-screen w-full max-w-[980px] flex-col items-center px-6 pt-7">
+        <button type="button" onClick={onBackToLanding} className="flex cursor-pointer items-center gap-2.5">
+          <img src={scriptlinkrxLogo} alt="ScriptLinkRx" className="h-[30px] w-9 object-contain" />
+          <span className="font-['Poppins',sans-serif] text-[18px] font-semibold uppercase tracking-wide text-[#183229]">
+            S<span className="lowercase">CRIPTLINKrx</span>
+          </span>
+        </button>
+
+        <section className="mt-[88px] w-full max-w-[620px] text-center">
+          <h1 className="text-[48px] font-semibold leading-none tracking-[-0.02em] text-[#1a1a1a]">
+            Request a demo
+          </h1>
+          <p className="mx-auto mt-5 max-w-[440px] text-[15px] leading-6 text-[#1a1a1a]">
+            See how ScriptLinkRx can simplify compounding workflows for your clinic or pharmacy.
+          </p>
+
+          <form onSubmit={submitDemo} className="mt-8 text-left">
+            <div className="grid gap-4 sm:grid-cols-2">
+              <label className="block">
+                <span className="text-[13px] font-medium text-[#1a1a1a]">Business Name <span className="text-[#c7532f]">*</span></span>
+                <input className={inputClass} placeholder="Enter your business name" />
+              </label>
+              <label className="relative block">
+                <span className="text-[13px] font-medium text-[#1a1a1a]">Business Type <span className="text-[#c7532f]">*</span></span>
+                <select className={selectClass} defaultValue="">
+                  <option value="" disabled>Select business type</option>
+                  <option>Clinic</option>
+                  <option>Prescriber Group</option>
+                  <option>Pharmacy</option>
+                </select>
+                <ChevronDown size={15} className="pointer-events-none absolute bottom-4 right-4 text-[#6f7782]" />
+              </label>
+              <label className="block">
+                <span className="text-[13px] font-medium text-[#1a1a1a]">Contact Name <span className="text-[#c7532f]">*</span></span>
+                <input className={inputClass} placeholder="Enter your full name" />
+              </label>
+              <label className="block">
+                <span className="text-[13px] font-medium text-[#1a1a1a]">Business Address <span className="text-[#c7532f]">*</span></span>
+                <input className={inputClass} placeholder="Enter your business address" />
+              </label>
+              <label className="block">
+                <span className="text-[13px] font-medium text-[#1a1a1a]">Contact Email <span className="text-[#c7532f]">*</span></span>
+                <input type="email" className={inputClass} placeholder="Enter your email address" />
+              </label>
+              <label className="block">
+                <span className="text-[13px] font-medium text-[#1a1a1a]">Contact Phone <span className="text-[#c7532f]">*</span></span>
+                <input className={inputClass} placeholder="(555) 123-4567" />
+              </label>
+              <label className="block sm:col-span-2">
+                <span className="text-[13px] font-medium text-[#1a1a1a]">Notes</span>
+                <textarea className="mt-2 min-h-[118px] w-full resize-none rounded-[8px] border border-[#1a1a1a] bg-white px-4 py-3 text-[13px] font-medium text-[#1a1a1a] outline-none placeholder:text-[#6f7782] focus:border-[#183229]" placeholder="Any additional details or questions..." />
+              </label>
+            </div>
+
+            <button type="submit" className="mt-5 flex h-[46px] w-full items-center justify-center rounded-[999px] bg-[#1a1a1a] text-[13px] font-semibold text-white transition-colors hover:bg-[#183229]">
+              Submit request
+            </button>
+
+            <div className="mt-7 text-center text-[12px] font-medium text-[#6f7782]">
+              Already have access?{" "}
+              <button type="button" onClick={onLoginClick} className="cursor-pointer font-semibold text-[#1a1a1a] underline underline-offset-4 hover:text-[#183229]">
+                Back to login
+              </button>
+            </div>
+          </form>
+        </section>
+      </div>
+    </main>
+  );
+}
+
+function ContactPage({ onBackToLanding }: { onBackToLanding: () => void }) {
+  function submitContact(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    onBackToLanding();
+  }
+
+  const inputClass = "mt-2 h-[46px] w-full rounded-[8px] border border-[#1a1a1a] bg-white px-4 text-[13px] font-medium text-[#1a1a1a] outline-none placeholder:text-[#6f7782] focus:border-[#183229]";
+
+  return (
+    <main className="relative min-h-screen overflow-hidden bg-white font-['Inter',sans-serif] text-[#1a1a1a]">
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-[520px] bg-[radial-gradient(circle_at_50%_0%,rgba(197,216,83,0.28),rgba(217,251,244,0.26)_32%,rgba(255,255,255,0)_72%)]" />
+      <div className="relative mx-auto flex min-h-screen w-full max-w-[980px] flex-col items-center px-6 pt-7">
+        <button type="button" onClick={onBackToLanding} className="flex cursor-pointer items-center gap-2.5">
+          <img src={scriptlinkrxLogo} alt="ScriptLinkRx" className="h-[30px] w-9 object-contain" />
+          <span className="font-['Poppins',sans-serif] text-[18px] font-semibold uppercase tracking-wide text-[#183229]">
+            S<span className="lowercase">CRIPTLINKrx</span>
+          </span>
+        </button>
+
+        <section className="mt-[92px] w-full text-center">
+          <h1 className="text-[48px] font-semibold leading-none tracking-[-0.02em] text-[#1a1a1a]">Reach ScriptLinkRx</h1>
+          <p className="mx-auto mt-5 max-w-[460px] text-[15px] leading-6 text-[#1a1a1a]">
+            A simple place for support, partnership questions, and compliance verification.
+          </p>
+
+          <div className="mt-12 grid items-stretch gap-6 text-left md:grid-cols-2">
+            <section className="relative h-full overflow-hidden rounded-[22px] border border-white/70 bg-white/45 p-7 shadow-[0_24px_70px_rgba(24,50,41,0.10),inset_0_1px_0_rgba(255,255,255,0.92)] backdrop-blur-xl">
+              <div className="pointer-events-none absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-white/65 to-transparent" />
+              <div className="relative">
+                <p className="text-[11px] font-normal uppercase tracking-[0.16em] text-[#8c95a1]">Contact details</p>
+                <h2 className="mt-2 text-[22px] font-semibold tracking-[-0.04em] text-[#1a1a1a]">ScriptLinkRx</h2>
+                <div className="mt-6 divide-y divide-white/70 rounded-[14px] border border-white/70 bg-white/45 px-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.78)]">
+                  {[
+                    ["Support", "support@scriptlinkrx.com"],
+                    ["Sales", "sales@scriptlinkrx.com"],
+                    ["Phone", "(917) 284-8124"],
+                  ].map(([label, value]) => (
+                    <div key={label} className="grid grid-cols-[82px_1fr] gap-5 py-3">
+                      <span className="text-[12px] font-medium text-[#6f7782]">{label}</span>
+                      <span className="break-words text-[13px] font-semibold text-[#1a1a1a]">{value}</span>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="mt-8 border-t border-white/70 pt-7">
+                  <p className="text-[11px] font-normal uppercase tracking-[0.16em] text-[#8c95a1]">Partner pharmacy</p>
+                  <h3 className="mt-2 text-[17px] font-semibold tracking-[-0.03em] text-[#1a1a1a]">Precision Compounding Pharmacy</h3>
+                  <div className="mt-5 rounded-[14px] border border-white/70 bg-white/40 p-4 text-[12px] leading-5 text-[#56615b] shadow-[inset_0_1px_0_rgba(255,255,255,0.72)]">
+                    <p>2657 Merrick Road, Bellmore, NY 11710</p>
+                    <div className="mt-3 space-y-2">
+                      <p>(516) 833-6262</p>
+                      <p>Text: 1-855-535-8333</p>
+                      <p>Fax: (516) 222-0605</p>
+                      <p>hello@mypcphealth.com</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <form onSubmit={submitContact} className="flex h-full flex-col rounded-[18px] border border-[#e7e4dd] bg-white p-7">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[#8c95a1]">Send a message</p>
+              <div className="mt-5 grid flex-1 gap-4 sm:grid-cols-2">
+                <label className="block">
+                  <span className="text-[13px] font-medium text-[#1a1a1a]">Name <span className="text-[#c7532f]">*</span></span>
+                  <input className={inputClass} placeholder="Your name" />
+                </label>
+                <label className="block">
+                  <span className="text-[13px] font-medium text-[#1a1a1a]">Organization</span>
+                  <input className={inputClass} placeholder="Company name" />
+                </label>
+                <label className="block sm:col-span-2">
+                  <span className="text-[13px] font-medium text-[#1a1a1a]">Email <span className="text-[#c7532f]">*</span></span>
+                  <input type="email" className={inputClass} placeholder="you@company.com" />
+                </label>
+                <label className="block sm:col-span-2">
+                  <span className="text-[13px] font-medium text-[#1a1a1a]">Message <span className="text-[#c7532f]">*</span></span>
+                  <textarea className="mt-2 min-h-[104px] w-full resize-none rounded-[8px] border border-[#1a1a1a] bg-white px-4 py-3 text-[13px] font-medium text-[#1a1a1a] outline-none placeholder:text-[#6f7782] focus:border-[#183229]" placeholder="How can we help?" />
+                </label>
+              </div>
+              <button type="submit" className="mt-5 flex h-[46px] w-full items-center justify-center rounded-[999px] bg-[#1a1a1a] text-[13px] font-semibold text-white transition-colors hover:bg-[#183229]">
+                Send message
+              </button>
+            </form>
+          </div>
+
+        </section>
+      </div>
+    </main>
+  );
+}
+
+function LandingPage({ onLoginClick, onRegisterClick, onRequestDemoClick, onContactClick }: { onLoginClick: () => void; onRegisterClick: () => void; onRequestDemoClick: () => void; onContactClick: () => void }) {
+  const pharmacyLogos = [
+    "R Pharmacy",
+    "pharm a",
+    "Precision Medicine",
+    "Precision Medicine",
+    "Silver Pharmacy",
+    "1st Choice",
+    "R TX",
+    "R TX",
+    "THESIS",
+    "DCA",
+    "Optimal",
+    "Optimal",
+    "DCA",
+    "Optimal",
+  ];
+
+  const products = [
+    { image: landingNadInjection, name: "NAD+ Injection", dosage: "20mg/mL" },
+    { image: landingTestosterone, name: "Testosterone Cypionate", dosage: "200mg/mL" },
+    { image: landingGlutathione, name: "Glutathione", dosage: "200mg/mL" },
+    { image: landingTriMix, name: "TRI-MIX", dosage: "30mg/mL" },
+    { image: landingNadInjection, name: "NAD+ Injection", dosage: "20mg/mL" },
+  ];
+
+  const treatments = [
+    { title: "Hormone Therapy", text: "Peptides, injectables, and oral HRT for treatment plans.", tone: "from-[#55331f]" },
+    { title: "Peptides & Longevity", text: "Formulas that support performance, age-management, and recovery.", tone: "from-[#314433]" },
+    { title: "Weight Management", text: "Injectable, capsules, and oral GLP-1 support for care plans.", tone: "from-[#4b5338]" },
+    { title: "General Health & Wellness", text: "Topical, oral, and injectable support across categories.", tone: "from-[#3e3328]" },
+  ];
+
+  const stats = [
+    ["30+", "Pharmacies"],
+    ["5,000+", "Product SKUs"],
+    ["1250+", "Clinics"],
+    ["50+", "States"],
+  ];
+
+  const heroBottles = [
+    { id: "nad", image: landingNadInjection, label: "NAD+ Injection", left: "45px", top: 480, x: 45, y: 255, height: 360, width: 132, baseY: 0, rotate: -14, entranceRotate: -24 },
+    { id: "testosterone", image: landingTestosterone, label: "Testosterone Cypionate", left: "392px", top: 455, x: 392, y: 238, height: 350, width: 126, baseY: -20, rotate: 0, entranceRotate: 18 },
+    { id: "glutathione", image: landingGlutathione, label: "Glutathione", left: "calc(100% - 520px)", top: 545, x: 760, y: 288, height: 330, width: 122, baseY: 20, rotate: 7, entranceRotate: 24 },
+    { id: "tri-mix", image: landingTriMix, label: "TRI-MIX", left: "calc(100% - 335px)", top: 280, x: 1060, y: 150, height: 580, width: 205, baseY: -55, rotate: 1, entranceRotate: 20 },
+  ];
+
+  const heroRef = useRef<HTMLElement>(null);
+  const heroStageRef = useRef<HTMLDivElement>(null);
+  const animationFrameRef = useRef<number | null>(null);
+  const activeBottleRef = useRef<{ id: string; offsetX: number; offsetY: number; lastX: number; lastY: number; lastTime: number } | null>(null);
+  const [heroProgress, setHeroProgress] = useState(0);
+  const [bottleBodies, setBottleBodies] = useState(() => heroBottles.map((bottle, index) => ({
+    id: bottle.id,
+    x: bottle.x,
+    y: bottle.y - 520 - index * 30,
+    vx: (index - 1.5) * 1.2,
+    vy: 0,
+    rotation: bottle.rotate - 18 + index * 8,
+    angularVelocity: (index - 1.5) * 0.8,
+  })));
+  const bottleProgress = Math.min(0.62, Math.max(0, (heroProgress - 0.08) / 0.78));
+  const bottleOpacity = Math.min(1, Math.max(0, (heroProgress - 0.06) / 0.22));
+  const bottleLift = 360 - bottleProgress * 580;
+  const bottlePlaygroundActive = heroProgress > 0.72;
+
+  useEffect(() => {
+    function updateHeroProgress() {
+      const hero = heroRef.current;
+      if (!hero) return;
+      const rect = hero.getBoundingClientRect();
+      const scrollable = Math.max(1, rect.height - window.innerHeight);
+      setHeroProgress(Math.min(1, Math.max(0, -rect.top / scrollable)));
+    }
+
+    updateHeroProgress();
+    window.addEventListener("scroll", updateHeroProgress, { passive: true });
+    window.addEventListener("resize", updateHeroProgress);
+    return () => {
+      window.removeEventListener("scroll", updateHeroProgress);
+      window.removeEventListener("resize", updateHeroProgress);
+    };
+  }, []);
+
+  useEffect(() => {
+    const stage = heroStageRef.current;
+    if (!stage || !bottlePlaygroundActive) {
+      if (animationFrameRef.current) {
+        cancelAnimationFrame(animationFrameRef.current);
+        animationFrameRef.current = null;
+      }
+      return;
+    }
+
+    const bounds = stage.getBoundingClientRect();
+    setBottleBodies(heroBottles.map((bottle, index) => ({
+      id: bottle.id,
+      x: Math.min(Math.max(26, bottle.x), Math.max(26, bounds.width - bottle.width - 26)),
+      y: -bottle.height - index * 92,
+      vx: (index - 1.5) * 1.65,
+      vy: 2 + index * 0.55,
+      rotation: bottle.rotate + (index - 1.5) * 10,
+      angularVelocity: (index - 1.5) * 1.1,
+    })));
+  }, [bottlePlaygroundActive]);
+
+  useEffect(() => {
+    if (!bottlePlaygroundActive) return;
+
+    let lastTime = performance.now();
+
+    function tick(now: number) {
+      const stage = heroStageRef.current;
+      if (!stage) return;
+
+      const bounds = stage.getBoundingClientRect();
+      const delta = Math.min(2.2, (now - lastTime) / 16.67);
+      lastTime = now;
+
+      setBottleBodies((currentBodies) => {
+        const nextBodies = currentBodies.map((body) => {
+          const bottle = heroBottles.find((item) => item.id === body.id);
+          if (!bottle || activeBottleRef.current?.id === body.id) return body;
+
+          let x = body.x + body.vx * delta;
+          let y = body.y + body.vy * delta;
+          let vx = body.vx * 0.998;
+          let vy = body.vy + 0.58 * delta;
+          let rotation = body.rotation + body.angularVelocity * delta;
+          let angularVelocity = body.angularVelocity * 0.996;
+          const floor = bounds.height - bottle.height - 22;
+          const right = bounds.width - bottle.width - 22;
+
+          if (y > floor) {
+            y = floor;
+            vy = -Math.abs(vy) * 0.58;
+            vx *= 0.9;
+            angularVelocity += vx * 0.08;
+          }
+          if (x < 22) {
+            x = 22;
+            vx = Math.abs(vx) * 0.72;
+            angularVelocity += 1.5;
+          }
+          if (x > right) {
+            x = right;
+            vx = -Math.abs(vx) * 0.72;
+            angularVelocity -= 1.5;
+          }
+
+          return { ...body, x, y, vx, vy, rotation, angularVelocity };
+        });
+
+        for (let i = 0; i < nextBodies.length; i += 1) {
+          for (let j = i + 1; j < nextBodies.length; j += 1) {
+            const firstBottle = heroBottles.find((item) => item.id === nextBodies[i].id);
+            const secondBottle = heroBottles.find((item) => item.id === nextBodies[j].id);
+            if (!firstBottle || !secondBottle) continue;
+
+            const firstRadius = Math.max(firstBottle.width, firstBottle.height * 0.36) / 2;
+            const secondRadius = Math.max(secondBottle.width, secondBottle.height * 0.36) / 2;
+            const firstCenterX = nextBodies[i].x + firstBottle.width / 2;
+            const firstCenterY = nextBodies[i].y + firstBottle.height / 2;
+            const secondCenterX = nextBodies[j].x + secondBottle.width / 2;
+            const secondCenterY = nextBodies[j].y + secondBottle.height / 2;
+            const dx = secondCenterX - firstCenterX;
+            const dy = secondCenterY - firstCenterY;
+            const distance = Math.max(1, Math.hypot(dx, dy));
+            const minDistance = (firstRadius + secondRadius) * 0.58;
+
+            if (distance < minDistance) {
+              const nx = dx / distance;
+              const ny = dy / distance;
+              const overlap = (minDistance - distance) / 2;
+              nextBodies[i] = { ...nextBodies[i], x: nextBodies[i].x - nx * overlap, y: nextBodies[i].y - ny * overlap };
+              nextBodies[j] = { ...nextBodies[j], x: nextBodies[j].x + nx * overlap, y: nextBodies[j].y + ny * overlap };
+
+              const firstPush = nextBodies[i].vx * nx + nextBodies[i].vy * ny;
+              const secondPush = nextBodies[j].vx * nx + nextBodies[j].vy * ny;
+              const impulse = (secondPush - firstPush) * 0.74;
+              nextBodies[i] = {
+                ...nextBodies[i],
+                vx: nextBodies[i].vx + impulse * nx,
+                vy: nextBodies[i].vy + impulse * ny,
+                angularVelocity: nextBodies[i].angularVelocity - impulse * 0.32,
+              };
+              nextBodies[j] = {
+                ...nextBodies[j],
+                vx: nextBodies[j].vx - impulse * nx,
+                vy: nextBodies[j].vy - impulse * ny,
+                angularVelocity: nextBodies[j].angularVelocity + impulse * 0.32,
+              };
+            }
+          }
+        }
+
+        return nextBodies;
+      });
+
+      animationFrameRef.current = requestAnimationFrame(tick);
+    }
+
+    animationFrameRef.current = requestAnimationFrame(tick);
+    return () => {
+      if (animationFrameRef.current) {
+        cancelAnimationFrame(animationFrameRef.current);
+        animationFrameRef.current = null;
+      }
+    };
+  }, [bottlePlaygroundActive]);
+
+  function bottleStyle(bottle: (typeof heroBottles)[number]): CSSProperties {
+    const physicsBody = bottleBodies.find((body) => body.id === bottle.id);
+    if (bottlePlaygroundActive && physicsBody) {
+      return {
+        left: 0,
+        top: 0,
+        height: bottle.height,
+        opacity: 1,
+        transform: `translate3d(${physicsBody.x}px, ${physicsBody.y}px, 0) rotate(${physicsBody.rotation}deg)`,
+        transition: "none",
+      };
+    }
+
+    const easeIn = Math.min(1, Math.max(0, bottleProgress / 0.45));
+    const scale = 0.9 + easeIn * 0.2;
+    const activeRotate = bottle.rotate + bottle.entranceRotate * (1 - easeIn);
+    return {
+      left: bottle.left,
+      top: bottle.top,
+      height: bottle.height,
+      opacity: bottleOpacity,
+      transform: `translate3d(0, ${bottleLift + bottle.baseY}px, 0) rotate(${activeRotate}deg) scale(${scale})`,
+      transition: "opacity 120ms linear",
+    };
+  }
+
+  function handleBottlePointerDown(event: ReactPointerEvent<HTMLImageElement>, id: string) {
+    if (!bottlePlaygroundActive) return;
+    const stage = heroStageRef.current;
+    const bottle = heroBottles.find((item) => item.id === id);
+    const body = bottleBodies.find((item) => item.id === id);
+    if (!stage || !bottle || !body) return;
+
+    const rect = stage.getBoundingClientRect();
+    event.currentTarget.setPointerCapture(event.pointerId);
+    activeBottleRef.current = {
+      id,
+      offsetX: event.clientX - rect.left - body.x,
+      offsetY: event.clientY - rect.top - body.y,
+      lastX: event.clientX,
+      lastY: event.clientY,
+      lastTime: performance.now(),
+    };
+  }
+
+  function handleBottlePointerMove(event: ReactPointerEvent<HTMLImageElement>) {
+    const active = activeBottleRef.current;
+    const stage = heroStageRef.current;
+    if (!active || !stage) return;
+
+    const rect = stage.getBoundingClientRect();
+    const bottle = heroBottles.find((item) => item.id === active.id);
+    if (!bottle) return;
+
+    const now = performance.now();
+    const elapsed = Math.max(16, now - active.lastTime);
+    const vx = ((event.clientX - active.lastX) / elapsed) * 16.67;
+    const vy = ((event.clientY - active.lastY) / elapsed) * 16.67;
+    const x = Math.min(Math.max(22, event.clientX - rect.left - active.offsetX), Math.max(22, rect.width - bottle.width - 22));
+    const y = Math.min(Math.max(18, event.clientY - rect.top - active.offsetY), Math.max(18, rect.height - bottle.height - 22));
+
+    activeBottleRef.current = { ...active, lastX: event.clientX, lastY: event.clientY, lastTime: now };
+    setBottleBodies((currentBodies) => currentBodies.map((body) => (
+      body.id === active.id
+        ? { ...body, x, y, vx, vy, angularVelocity: vx * 0.16 }
+        : body
+    )));
+  }
+
+  function handleBottlePointerUp(event: ReactPointerEvent<HTMLImageElement>) {
+    if (activeBottleRef.current) {
+      event.currentTarget.releasePointerCapture(event.pointerId);
+    }
+    activeBottleRef.current = null;
+  }
+
+  return (
+    <main className="min-h-screen bg-white font-['Inter',sans-serif] text-[#183229]">
+      <div className="w-full px-5 py-5">
+        <section ref={heroRef} className="relative h-[205vh] rounded-[18px]">
+          <div ref={heroStageRef} className="sticky top-5 h-[calc(100vh-40px)] min-h-[760px] overflow-hidden rounded-[18px] bg-[#eeeade]">
+          <header className="relative z-20 flex items-center justify-between px-10 py-8">
+            <button type="button" onClick={onLoginClick} className="flex cursor-pointer items-center gap-2">
+              <img src={scriptlinkrxLandingLogo} alt="ScriptLinkRx" className="h-[18px] w-auto object-contain" />
+            </button>
+            <div className="flex items-center gap-4 text-[14px] font-medium text-[#2a342f]">
+              <button
+                type="button"
+                onClick={onRegisterClick}
+                className="cursor-pointer hover:text-[#00a83b]"
+              >
+                Login
+              </button>
+              <button
+                type="button"
+                onClick={onLoginClick}
+                className="flex h-[43px] w-[97px] cursor-pointer items-center justify-center gap-2.5 rounded-[32px] bg-white px-5 py-[11px] text-[14px] font-medium text-[#2a342f] shadow-none hover:bg-[#f8f8f8]"
+              >
+                Register
+              </button>
+            </div>
+          </header>
+
+          <div className="relative z-10 mx-auto mt-[122px] max-w-[820px] text-center">
+            <h1 className="text-[64px] font-normal leading-[0.82] tracking-[-0.065em] text-[#1e2522]">
+              Scale Your Compounding
+              <span className="block text-[#56766c]">Pharmacy Network Through</span>
+              <span className="block">One Platform</span>
+            </h1>
+            <p className="mx-auto mt-[58px] max-w-[430px] text-[28px] font-normal leading-[0.82] tracking-[-0.055em] text-[#1e2522]">
+              Simplify compounding, boost your
+              <span className="block">offerings, and elevate <span className="text-[#517367]">patient care</span></span>
+              <span className="block text-[#517367]">no matter your specialty.</span>
+            </p>
+            <div className="mt-5 flex justify-center gap-3">
+              <button type="button" onClick={onLoginClick} className="h-8 cursor-pointer rounded-full bg-white px-5 text-[10px] font-semibold text-[#183229] shadow-sm hover:bg-[#f7f7f4]">See how it works</button>
+              <button type="button" onClick={onRequestDemoClick} className="h-8 cursor-pointer rounded-full bg-[#90958b] px-5 text-[10px] font-semibold text-white shadow-sm hover:bg-[#7e8579]">Request a demo</button>
+            </div>
+          </div>
+
+          {heroBottles.map((bottle) => (
+            <img
+              key={bottle.id}
+              src={bottle.image}
+              alt={bottle.label}
+              draggable={false}
+              onPointerDown={(event) => handleBottlePointerDown(event, bottle.id)}
+              onPointerMove={handleBottlePointerMove}
+              onPointerUp={handleBottlePointerUp}
+              onPointerCancel={handleBottlePointerUp}
+              style={bottleStyle(bottle)}
+              className={`absolute z-20 w-auto select-none object-contain drop-shadow-[0_20px_24px_rgba(0,0,0,0.13)] will-change-transform ${bottlePlaygroundActive ? "cursor-grab touch-none active:cursor-grabbing" : "pointer-events-none"}`}
+            />
+          ))}
+          <div style={{ opacity: bottleOpacity }} className="absolute right-[260px] top-[480px] flex h-7 w-7 items-center justify-center rounded-full border border-[#dce889] bg-[#f4f8c9] text-[12px] text-[#9ea71d] transition-opacity duration-150">
+            <Plus size={13} />
+          </div>
+          </div>
+        </section>
+
+        <section className="mx-auto mt-12 max-w-[1060px] text-center">
+          <h2 className="text-[20px] font-medium tracking-[-0.03em] text-[#343936]">Trusted by leading compounding pharmacies</h2>
+          <div className="mx-auto mt-8 grid max-w-[850px] grid-cols-4 gap-4">
+            {pharmacyLogos.map((logo, index) => (
+              <div key={`${logo}-${index}`} className="flex h-[72px] items-center justify-center rounded-[8px] border border-[#e5e5e0] bg-white text-[17px] font-semibold tracking-[-0.04em] text-[#37423d] shadow-[0_8px_22px_rgba(24,50,41,0.04)]">
+                {logo}
+              </div>
+            ))}
+          </div>
+        </section>
+
+        <section className="mx-auto mt-16 max-w-[1180px] text-center">
+          <h2 className="text-[21px] font-medium tracking-[-0.03em] text-[#343936]">We've Got You Covered.</h2>
+          <div className="mt-9 grid grid-cols-5 gap-5">
+            {products.map((product) => (
+              <article key={product.name} className="rounded-[8px] border border-[#eeeae3] bg-[#fdfcf9] px-5 py-6 text-left">
+                <div className="flex h-[150px] items-center justify-center">
+                  <img src={product.image} alt={product.name} className="max-h-[138px] w-auto object-contain" />
+                </div>
+                <h3 className="mt-4 text-[12px] font-semibold text-[#1f2723]">{product.name}</h3>
+                <p className="mt-1 text-[9px] font-medium text-[#9a9f9a]">{product.dosage}</p>
+              </article>
+            ))}
+          </div>
+        </section>
+
+        <section className="mx-auto mt-20 max-w-[1120px] rounded-[18px] bg-[#fafaf7] px-16 py-16 text-center">
+          <h2 className="mx-auto max-w-[420px] text-[22px] font-medium leading-tight tracking-[-0.04em]">
+            Watch an order travel from your clinic to your patient's door
+          </h2>
+          <div className="mx-auto mt-12 grid max-w-[760px] grid-cols-2 overflow-hidden rounded-[4px] bg-white shadow-[0_20px_45px_rgba(24,50,41,0.06)]">
+            <div className="flex min-h-[330px] flex-col justify-end bg-[#f7f8f3] p-10 text-left">
+              <div className="relative h-[210px]">
+                <div className="absolute left-12 top-20 h-24 w-24 rounded-full bg-[#bad1aa]" />
+                <div className="absolute left-24 top-8 h-28 w-[90px] rounded-t-full bg-[#e6eadf]" />
+                <div className="absolute right-20 top-12 flex h-12 w-12 items-center justify-center rounded-full bg-[#557a56] text-white">
+                  <MapPin size={22} />
+                </div>
+                <div className="absolute left-36 top-20 h-px w-24 rotate-[-22deg] border-t border-dashed border-[#8fa18c]" />
+                <div className="absolute left-20 top-28 flex h-10 w-10 items-center justify-center rounded-full bg-white text-[#5b805f] shadow">
+                  <Plus size={18} />
+                </div>
+              </div>
+              <h3 className="text-[16px] font-semibold">Spot the need</h3>
+              <p className="mt-2 max-w-[250px] text-[12px] leading-5 text-[#6f7670]">
+                A patient needs a custom formula, strength, or delivery method you don't stock. With ScriptLinkRx, you say yes anyway.
+              </p>
+            </div>
+            <div className="min-h-[330px] bg-white p-10 text-left">
+              <h3 className="text-[20px] font-semibold tracking-[-0.04em]">Order<br />Status</h3>
+              <div className="mt-8 space-y-5">
+                {["Order Created", "In Progress", "Shipped", "Delivered"].map((step, index) => (
+                  <div key={step} className="flex items-center gap-4">
+                    <span className={`flex h-7 w-7 items-center justify-center rounded-full ${index === 3 ? "bg-[#bde6bc]" : "bg-[#c7d46e]"} text-white`}>
+                      <CheckCircle2 size={14} />
+                    </span>
+                    <div>
+                      <p className="text-[12px] font-semibold text-[#24302b]">{step}</p>
+                      <p className="text-[9px] text-[#96a09a]">Jun 18 - 1:16 PM</p>
+                    </div>
+                  </div>
+                ))}
+                <div className="mt-8 rounded-[16px] bg-[#f3f5e7] p-5">
+                  <p className="text-[12px] font-semibold">Live updates</p>
+                  <p className="mt-1 text-[10px] text-[#71786f]">Always in the know.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section className="mx-auto mt-20 max-w-[1120px] rounded-[16px] bg-[#fafaf7] p-16">
+          <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-10">
+            <div className="rounded-[14px] bg-white p-10">
+              <p className="text-[11px] font-semibold uppercase text-[#9d7b62]">The old way</p>
+              <h3 className="mt-3 text-[30px] font-medium leading-[0.98] tracking-[-0.05em]">Complex. Costly.<br />Hard to Scale.</h3>
+              <ul className="mt-8 space-y-3 text-[12px] text-[#5f6862]">
+                {["30 Pharmacies", "30 Logins", "30 Workflows", "Multiple Vendors", "High Overhead"].map(item => <li key={item}>x {item}</li>)}
+              </ul>
+            </div>
+            <span className="text-[18px] font-semibold">VS</span>
+            <div className="rounded-[14px] bg-white p-10">
+              <p className="text-[11px] font-semibold uppercase text-[#64746b]">The ScriptLinkRx Way</p>
+              <h3 className="mt-3 text-[30px] font-medium leading-[0.98] tracking-[-0.05em]">Simple. Unified.<br />Built for Growth.</h3>
+              <ul className="mt-8 space-y-3 text-[12px] text-[#5f6862]">
+                {["30 Pharmacies", "1 Login", "1 Platform", "1 Workflow", "Lower Overhead"].map(item => <li key={item}>✓ {item}</li>)}
+              </ul>
+            </div>
+          </div>
+        </section>
+
+        <section className="mx-auto mt-20 max-w-[1280px] text-center">
+          <h2 className="mx-auto max-w-[520px] text-[24px] font-medium leading-tight tracking-[-0.04em]">
+            We provide custom compounding solutions for a wide range of specialties
+          </h2>
+          <div className="mt-10 grid grid-cols-4 gap-5">
+            {treatments.map((item) => (
+              <article key={item.title} className={`flex h-[360px] flex-col justify-end overflow-hidden rounded-[8px] bg-gradient-to-t ${item.tone} to-[#d5d3c8] p-6 text-left text-white shadow-[0_12px_28px_rgba(24,50,41,0.08)]`}>
+                <h3 className="text-[18px] font-semibold">{item.title}</h3>
+                <p className="mt-2 text-[11px] leading-5 text-white/80">{item.text}</p>
+              </article>
+            ))}
+          </div>
+        </section>
+
+        <section className="mx-auto mt-20 max-w-[1120px] rounded-[18px] bg-[#fafaf7] p-12">
+          <h2 className="text-center text-[23px] font-medium tracking-[-0.04em]">Pharmacy-grade quality, in every formulation your patients need.</h2>
+          <div className="mt-10 grid grid-cols-2 gap-6">
+            <div className="rounded-[8px] bg-[#eef7ef] p-8">
+              <h3 className="text-[18px] font-semibold">Why clinics choose us</h3>
+              <ul className="mt-7 space-y-4 text-[12px] leading-5 text-[#4f5c56]">
+                {["Every ticket built in checkout for parity and freedom from unnecessary extras.", "Ingredients come only from FDA-registered suppliers.", "Easy medication is independently verified through every step.", "A wide range of dosage forms tailored to each patient's treatment plan."].map(item => (
+                  <li key={item} className="flex gap-3"><CheckCircle2 size={14} className="mt-0.5 shrink-0 text-[#00a83b]" />{item}</li>
+                ))}
+              </ul>
+            </div>
+            <div className="relative overflow-hidden rounded-[8px] bg-[#f4ecd7] p-8">
+              <h3 className="max-w-[240px] text-[28px] font-medium leading-none tracking-[-0.05em]">Available in multiple formulations</h3>
+              <img src={landingNadInjection} alt="" className="absolute bottom-4 right-28 h-[255px] w-auto rotate-[-15deg] object-contain" />
+              <img src={landingTestosterone} alt="" className="absolute -right-4 bottom-8 h-[245px] w-auto rotate-[15deg] object-contain" />
+            </div>
+          </div>
+        </section>
+
+        <section className="mx-auto mt-20 max-w-[1120px]">
+          <h2 className="max-w-[260px] text-[22px] font-medium leading-tight tracking-[-0.04em]">Here's what our great customers say</h2>
+          <div className="mt-8 grid grid-cols-2 gap-5">
+            {["I can now offer precise dermatology prescriptions without sourcing headaches. My patients get exactly what they need.", "ScriptLinkRx cut our turnaround time and boosted client satisfaction with clear workflows and fewer reworks."].map((quote, index) => (
+              <article key={quote} className="rounded-[8px] bg-[#f7f8ef] p-8">
+                <p className="text-[16px] leading-6 tracking-[-0.03em] text-[#27312d]">{quote}</p>
+                <div className="mt-8 flex items-center justify-between">
+                  <p className="text-[10px] font-semibold text-[#66706b]">{index === 0 ? "Dr. Michael Chen" : "Sarah Johnson"}</p>
+                  <div className="flex gap-1 text-[#77826e]">{Array.from({ length: 5 }).map((_, starIndex) => <Star key={starIndex} size={14} fill="currentColor" />)}</div>
+                </div>
+              </article>
+            ))}
+          </div>
+        </section>
+
+        <section className="mx-auto mt-20 max-w-[1120px] text-center">
+          <h2 className="text-left text-[20px] font-medium tracking-[-0.04em]">Certifications Behind Every Partnership</h2>
+          <div className="mt-8 flex items-center justify-center gap-16 rounded-[8px] bg-[#f8faf4] py-12 text-[18px] font-semibold text-[#26322d]">
+            <span>LegitScript</span>
+            <span>PCAB</span>
+            <span>NABP</span>
+          </div>
+        </section>
+
+        <section className="mx-auto mt-20 max-w-[1120px] text-center">
+          <h2 className="text-[24px] font-medium leading-tight tracking-[-0.04em]">Proudly Serving<br />Nationwide</h2>
+          <div className="relative mx-auto mt-10 h-[410px] max-w-[720px] rounded-[18px] bg-[#eef2e8]">
+            <div className="absolute left-12 top-14 h-[290px] w-[500px] rounded-[45%] bg-[#b7c0a6] opacity-80" />
+            <div className="absolute left-[340px] top-[120px] rounded-[8px] bg-white p-5 text-left shadow-[0_20px_40px_rgba(24,50,41,0.12)]">
+              <p className="text-[13px] font-semibold">Texas</p>
+              <p className="mt-1 text-[10px] text-[#8a938e]">5 Pharmacies Active</p>
+              <div className="mt-4 space-y-2 text-[10px] text-[#435047]">
+                {["DCA Pharmacy", "Optimal Balance Pharmacy", "Thesis Pharmacy", "Precision Compounding Pharmacy"].map(item => <p key={item}>{item}</p>)}
+              </div>
+            </div>
+          </div>
+          <div className="mt-10 grid grid-cols-4 gap-3">
+            {stats.map(([number, label]) => (
+              <div key={label} className="rounded-[8px] border border-[#ededed] bg-white p-8 text-left">
+                <p className="text-[48px] font-semibold tracking-[-0.06em] text-[#1f2723]">{number}</p>
+                <p className="mt-4 text-[11px] font-medium text-[#9a9f9a]">{label}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        <section className="mx-auto mt-20 max-w-[1430px] overflow-hidden rounded-[26px] bg-[#8a5a28] px-6 py-14 text-center text-white">
+          <div className="mx-auto max-w-[760px] rounded-[18px] bg-black/20 px-8 py-12 backdrop-blur-sm">
+            <h2 className="text-[42px] font-medium leading-none tracking-[-0.05em]">Ready to Simplify Pharmacy Fulfillment?</h2>
+            <p className="mx-auto mt-5 max-w-[430px] text-[12px] leading-5 text-white/80">Discover how ScriptLinkRx can help your clinic streamline operations and expand treatment offerings.</p>
+            <div className="mt-8 flex justify-center gap-3">
+              <button type="button" onClick={onRequestDemoClick} className="h-10 cursor-pointer rounded-full bg-white px-6 text-[12px] font-semibold text-[#183229]">Request Demo</button>
+              <button type="button" onClick={onLoginClick} className="h-10 cursor-pointer rounded-full bg-[#1d1d1a] px-6 text-[12px] font-semibold text-white">Talk to Sales</button>
+            </div>
+          </div>
+        </section>
+
+        <footer className="mx-auto mt-6 overflow-hidden rounded-[20px] bg-[#050609] px-10 pb-10 pt-16 text-white">
+          <div className="grid grid-cols-[1.4fr_1fr_1fr_1fr] gap-12 text-[11px] text-white/55">
+            <p>Trusted compounding, patient care, efficiency, and access under one modern ordering platform.</p>
+            <div>
+              <p className="mb-4 font-semibold text-white">Company</p>
+              <p>Blog Management</p>
+              <p>About Us</p>
+              <button type="button" onClick={onContactClick} className="cursor-pointer text-left transition-colors hover:text-white">Contact</button>
+            </div>
+            <div><p className="mb-4 font-semibold text-white">Info</p><p>Mission</p><p>Request a demo</p><p>View Catalog</p></div>
+            <div><p className="mb-4 font-semibold text-white">Menu</p><p>Privacy Policy</p><p>Terms</p></div>
+          </div>
+          <h2 className="mt-28 w-fit cursor-pointer text-[96px] font-semibold tracking-[-0.07em] text-white/20 transition-colors duration-300 hover:text-white">
+            Scriptlinkrx
+          </h2>
+        </footer>
+      </div>
+    </main>
+  );
+}
+
 // ─── App Shell ────────────────────────────────────────────────────────────────
 
 export default function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(() => window.localStorage.getItem("scriptlinkrx-authenticated") === "true");
+  const [authView, setAuthView] = useState<"landing" | "login" | "register" | "single-sign-on" | "request-demo" | "contact">("landing");
   const [appTheme, setAppTheme] = useState<AppTheme>(() => {
     const savedTheme = window.localStorage.getItem("scriptlinkrx-theme");
     return savedTheme === "orange" ? "orange" : "default";
@@ -5764,13 +6872,39 @@ export default function App() {
   }
 
   if (!isAuthenticated) {
-    return <LoginPage onLogin={() => {
-      setIsAuthenticated(true);
-      setPlatformTourStep(0);
-      setPage("products");
-      setShowPlatformTour(true);
-      setPlatformTourTooltipVisible(true);
-    }} />;
+    if (authView === "login") {
+      return (
+        <LoginPage
+          onRegister={() => setAuthView("register")}
+          onSingleSignOn={() => setAuthView("single-sign-on")}
+          onLogin={() => {
+            setIsAuthenticated(true);
+            setPlatformTourStep(0);
+            setPage("dashboard");
+            setShowPlatformTour(false);
+            setPlatformTourTooltipVisible(false);
+          }}
+        />
+      );
+    }
+
+    if (authView === "single-sign-on") {
+      return <SingleSignOnPage onBackToLogin={() => setAuthView("login")} />;
+    }
+
+    if (authView === "register") {
+      return <RegisterPage onBackToLogin={() => setAuthView("login")} />;
+    }
+
+    if (authView === "request-demo") {
+      return <RequestDemoPage onBackToLanding={() => setAuthView("landing")} onLoginClick={() => setAuthView("login")} />;
+    }
+
+    if (authView === "contact") {
+      return <ContactPage onBackToLanding={() => setAuthView("landing")} />;
+    }
+
+    return <LandingPage onLoginClick={() => setAuthView("login")} onRegisterClick={() => setAuthView("register")} onRequestDemoClick={() => setAuthView("request-demo")} onContactClick={() => setAuthView("contact")} />;
   }
 
   const platformTourSteps = [
