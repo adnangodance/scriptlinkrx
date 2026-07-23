@@ -451,19 +451,6 @@ function Sidebar({
         <span className="flex size-7 shrink-0 items-center justify-center rounded-[7px] text-[#666] hover:bg-[#F1F2F2]" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="2.25" y="2.25" width="11.5" height="11.5" rx="3" stroke="currentColor" strokeWidth="1.2"/><path d="M9.25 2.75V13.25" stroke="currentColor" strokeWidth="1.2"/></svg></span>
       </button>
 
-      {/* Search */}
-      <div className="pb-4">
-        <div className="flex h-11 items-center gap-2 rounded-[11px] border border-[#DFE1E3] bg-white px-3 transition-colors focus-within:border-[#AEB4B1]">
-          <Search size={15} strokeWidth={1.7} className="flex-shrink-0 text-[#454947]" />
-          <input
-            type="text"
-            placeholder="Search stock or Orders"
-            className="min-w-0 flex-1 bg-transparent text-[12px] font-normal text-[#1a1a1a] outline-none placeholder:text-[#777c79]"
-          />
-          <span className="flex shrink-0 items-center gap-0.5 text-[#9a9e9c]"><kbd className="flex size-5 items-center justify-center rounded-[4px] bg-[#F1F2F3] text-[10px]">⌘</kbd><kbd className="flex size-5 items-center justify-center rounded-[4px] bg-[#F1F2F3] text-[10px]">K</kbd></span>
-        </div>
-      </div>
-
       {/* Main Menu */}
       <div>
         <p className="mb-1.5 px-2.5 text-[10px] font-medium uppercase tracking-[0.08em] text-[#A0A4A2]">Main Menu</p>
@@ -487,7 +474,6 @@ function Sidebar({
 function SidebarSupportVersion() {
   const supportContacts = [
     { name: "Shayne", role: "Head Operator", phone: "917-274-7648", initials: "SH" },
-    { name: "Adam", role: "Pharmacy Support", phone: "917-409-7598", initials: "AD" },
     { name: "Zee", role: "CEO", phone: "(646)-617-9881", initials: "ZR" },
   ];
 
@@ -3474,7 +3460,7 @@ function SettingsPage({ onNavigate }: { onNavigate: (p: Page) => void }) {
                         <p className="mt-1 text-[11px] text-[#8c8c8c]">**** **** **** 2826</p>
                         <p className="mt-2 text-[11px] text-[#667085]">Checking</p>
                       </div>
-                      <span className="w-fit rounded-full bg-[#F1F2F2] px-2.5 py-1 text-[10px] font-medium text-[#5f6662]">
+                      <span className="w-fit rounded-full bg-black px-2.5 py-1 text-[10px] font-medium text-white">
                         Primary
                       </span>
                       <button className="rounded-[8px] border border-[#D9DEDB] px-3 py-2 text-[12px] font-medium text-[#1a1a1a] transition-colors hover:bg-[#F7F8F7]">
