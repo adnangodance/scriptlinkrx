@@ -596,6 +596,9 @@ function UserChip({
         <button onClick={() => setMenuOpen(current => !current)} className="flex min-w-0 flex-1 items-center gap-2 text-left" aria-expanded={menuOpen} aria-label="Open account menu">
           <div className="relative flex size-7 shrink-0 items-center justify-center rounded-full bg-[#b9a8ff] text-[#6b46f2]">
             <span className="text-[12px] font-medium">Z</span>
+            <span className="absolute -right-1.5 -top-1.5 flex min-w-[16px] items-center justify-center rounded-full border-2 border-white bg-[#ef4444] px-1 text-[9px] font-bold leading-[12px] text-white">
+              2
+            </span>
           </div>
           <span className="flex min-w-0 items-center gap-1.5">
             <span className="truncate text-[12px] font-medium text-[#181a19]">Hi, Zee</span>
