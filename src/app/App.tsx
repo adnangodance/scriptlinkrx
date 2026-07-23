@@ -50,7 +50,6 @@ import {
   LogOut,
   Flag,
   Send,
-  Headphones,
 } from "lucide-react";
 
 import img430 from "@/imports/ScriptlinkrxDashboard/9b6fa0a3b334659006bcf39e91b4da387a7b4cf0.png";
@@ -79,6 +78,8 @@ import landingTriMix from "@/assets/landing-tri-mix.png";
 import imgProduct452 from "@/imports/ScriptlinkrxProductPage/a7404d4186f9383142485474193c8c2ca1b2259c.png";
 import scriptlinkrxLogo from "@/assets/scriptlinkrx-logo.svg";
 import scriptlinkrxLandingLogo from "@/assets/scriptlinkrx-landing-logo.png";
+import supportShayne from "@/assets/support-shayne.png";
+import supportZee from "@/assets/support-zee.png";
 import userVerifiedIcon from "@/assets/user-verified.svg";
 
 type Page =
@@ -451,6 +452,21 @@ function Sidebar({
         <span className="flex size-7 shrink-0 items-center justify-center rounded-[7px] text-[#666] hover:bg-[#F1F2F2]" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="2.25" y="2.25" width="11.5" height="11.5" rx="3" stroke="currentColor" strokeWidth="1.2"/><path d="M9.25 2.75V13.25" stroke="currentColor" strokeWidth="1.2"/></svg></span>
       </button>
 
+      {/* New Order */}
+      <div className="pb-4">
+        <button
+          type="button"
+          onClick={() => onNavigate("products")}
+          className="flex h-11 w-full cursor-pointer items-center gap-2 rounded-[11px] border border-[#DFE1E3] bg-white px-3 text-left transition-colors hover:border-[#C7CECA] hover:bg-[#F8F9F8]"
+        >
+          <span className="flex size-5 shrink-0 items-center justify-center text-[#1f2220]">
+            <Plus size={15} strokeWidth={1.9} />
+          </span>
+          <span className="min-w-0 flex-1 truncate text-[13px] font-medium text-[#1a1a1a]">New Order</span>
+          <span className="flex shrink-0 items-center gap-0.5 text-[#9a9e9c]"><kbd className="flex size-5 items-center justify-center rounded-[4px] bg-[#F1F2F3] text-[10px]">⌘</kbd><kbd className="flex size-5 items-center justify-center rounded-[4px] bg-[#F1F2F3] text-[10px]">K</kbd></span>
+        </button>
+      </div>
+
       {/* Main Menu */}
       <div>
         <p className="mb-1.5 px-2.5 text-[10px] font-medium uppercase tracking-[0.08em] text-[#A0A4A2]">Main Menu</p>
@@ -473,44 +489,37 @@ function Sidebar({
 
 function SidebarSupportVersion() {
   const supportContacts = [
-    { name: "Shayne", role: "Head Operator", phone: "917-274-7648", initials: "SH" },
-    { name: "Zee", role: "CEO", phone: "(646)-617-9881", initials: "ZR" },
+    { name: "Shayne", role: "Head Operator", phone: "917-274-7648", avatar: supportShayne },
+    { name: "Zee", role: "CEO", phone: "(646)-617-9881", avatar: supportZee },
   ];
 
   return (
     <div className="border-y border-[#ECEEEA] py-4">
       <div className="mb-3 flex items-center gap-2 px-1 text-[#8c948f]">
-        <Headphones size={16} strokeWidth={1.8} />
         <p className="text-[11px] font-medium uppercase tracking-[0.08em]">Customer Support</p>
       </div>
       <div className="space-y-1">
         {supportContacts.map((contact) => (
-          <div key={contact.name} className="grid grid-cols-[34px_minmax(0,1fr)_26px] items-center gap-2 rounded-[9px] px-1.5 py-1.5 transition-colors hover:bg-[var(--app-menu-bg)]">
-            <div className="flex size-8 items-center justify-center rounded-full bg-[#F1F2F2] text-[10px] font-semibold text-[#5f6662]">
-              {contact.initials}
+          <div key={contact.name} className="grid grid-cols-[34px_minmax(0,1fr)] items-center gap-2 rounded-[9px] px-1.5 py-1.5 transition-colors hover:bg-[var(--app-menu-bg)]">
+            <div className="size-8 overflow-hidden rounded-full bg-[#F1F2F2]">
+              <img src={contact.avatar} alt="" className="size-full object-cover" />
             </div>
             <div className="min-w-0">
               <p className="truncate text-[13px] font-medium leading-[16px] text-[#1f2220]">{contact.name}</p>
               <p className="truncate text-[11px] font-normal leading-[14px] text-[#8c948f]">{contact.role}</p>
-              <a href={`tel:${contact.phone.replace(/[^0-9+]/g, "")}`} className="block truncate text-[11px] font-medium leading-[14px] text-[#5f6662] hover:text-[#183229]">
-                {contact.phone}
-              </a>
             </div>
-            <a href={`tel:${contact.phone.replace(/[^0-9+]/g, "")}`} className="flex size-7 cursor-pointer items-center justify-center rounded-[7px] text-[#5f6662] transition-colors hover:bg-white hover:text-[#183229]" aria-label={`Call ${contact.name}`}>
-              <Phone size={14} strokeWidth={1.8} />
-            </a>
           </div>
         ))}
       </div>
-      <button type="button" className="mt-3 flex w-full cursor-pointer items-center justify-between rounded-[12px] border border-[#D9DEDB] bg-white px-3 py-2 text-left transition-colors hover:border-[#C7CECA] hover:bg-[var(--app-menu-bg)]">
-        <span className="min-w-0">
-          <span className="flex items-center gap-2">
-            <span className="truncate text-[13px] font-semibold leading-[16px] text-[#1f2220]">Zee Pharmacy</span>
-            <span className="flex size-5 shrink-0 items-center justify-center rounded-full bg-[#F1F2F2] text-[11px] font-semibold text-[#5f6662]">5</span>
+      <button type="button" className="mt-3 flex w-full cursor-pointer items-center gap-2 rounded-[10px] bg-[var(--app-menu-bg)] px-2.5 py-2 text-left transition-colors hover:bg-[#EEF0EF]">
+        <span className="min-w-0 flex-1">
+          <span className="flex min-w-0 items-center gap-1.5">
+            <span className="truncate text-[12px] font-medium leading-[15px] text-[#1f2220]">Zee Pharmacy</span>
+            <span className="flex size-4 shrink-0 items-center justify-center rounded-full bg-white text-[9px] font-semibold text-[#5f6662]">5</span>
           </span>
-          <span className="mt-0.5 block text-[11px] font-normal leading-[14px] text-[#8c948f]">Switch pharmacy</span>
+          <span className="block truncate text-[11px] font-normal leading-[14px] text-[#8c948f]">Switch pharmacy</span>
         </span>
-        <ChevronsUpDown size={16} className="shrink-0 text-[#8c948f]" />
+        <ChevronsUpDown size={15} className="shrink-0 text-[#8c948f]" />
       </button>
     </div>
   );
@@ -583,21 +592,20 @@ function UserChip({
           </div>
         </div>
       )}
-      <div className="flex h-14 items-center rounded-[28px] bg-[var(--app-menu-bg)] px-3 transition-colors hover:bg-[var(--app-menu-bg)]">
-        <button onClick={() => setMenuOpen(current => !current)} className="flex min-w-0 flex-1 items-center gap-2.5 text-left" aria-expanded={menuOpen} aria-label="Open account menu">
-          <div className="relative flex size-9 shrink-0 items-center justify-center rounded-full bg-[#b9a8ff] text-[#6b46f2]">
-            <span className="text-[14px] font-medium">Z</span>
-            <span className="absolute -right-0.5 -top-0.5 size-3 rounded-full border-2 border-[var(--app-menu-bg)] bg-[#ff7b83]" />
+      <div className="flex h-9 items-center gap-2">
+        <button onClick={() => setMenuOpen(current => !current)} className="flex min-w-0 flex-1 items-center gap-2 text-left" aria-expanded={menuOpen} aria-label="Open account menu">
+          <div className="relative flex size-7 shrink-0 items-center justify-center rounded-full bg-[#b9a8ff] text-[#6b46f2]">
+            <span className="text-[12px] font-medium">Z</span>
           </div>
-          <div className="min-w-0 leading-[1.15]">
-            <div className="flex min-w-0 items-center gap-1.5">
-              <span className="truncate text-[14px] font-medium text-[#181a19]">Hi, Zee</span>
-              <img src={userVerifiedIcon} alt="Verified" className="size-3.5 shrink-0" />
-            </div>
-            <span className="mt-0.5 block truncate text-[11px] font-normal text-[#737875]">Verified User</span>
-          </div>
+          <span className="flex min-w-0 items-center gap-1.5">
+            <span className="truncate text-[12px] font-medium text-[#181a19]">Hi, Zee</span>
+            <img src={userVerifiedIcon} alt="Verified" className="size-3 shrink-0" />
+            <span className="shrink-0 rounded-[7px] bg-[var(--app-menu-bg)] px-1.5 py-0.5 text-[10px] font-medium text-[#1f2220]">
+              User Verified
+            </span>
+          </span>
         </button>
-        <button onClick={() => setMenuOpen(current => !current)} className={`ml-2 flex size-8 shrink-0 flex-col items-center justify-center gap-[3px] rounded-[7px] text-[#5e6460] transition-colors hover:bg-[var(--app-menu-bg)] hover:text-[#111] ${menuOpen ? "bg-[var(--app-menu-bg)] text-[#111]" : ""}`} aria-label="More account options"><span className="size-[3px] rounded-full bg-current" /><span className="size-[3px] rounded-full bg-current" /></button>
+        <button onClick={() => setMenuOpen(current => !current)} className={`flex size-7 shrink-0 flex-col items-center justify-center gap-[3px] rounded-[7px] text-[#5e6460] transition-colors hover:bg-[var(--app-menu-bg)] hover:text-[#111] ${menuOpen ? "bg-[var(--app-menu-bg)] text-[#111]" : ""}`} aria-label="More account options"><span className="size-[3px] rounded-full bg-current" /><span className="size-[3px] rounded-full bg-current" /></button>
       </div>
     </div>
   );
