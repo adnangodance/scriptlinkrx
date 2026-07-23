@@ -50,6 +50,7 @@ import {
   LogOut,
   Flag,
   Send,
+  Headphones,
 } from "lucide-react";
 
 import img430 from "@/imports/ScriptlinkrxDashboard/9b6fa0a3b334659006bcf39e91b4da387a7b4cf0.png";
@@ -278,17 +279,16 @@ function StatCard({
 type MenuItem = { icon: React.ElementType; label: string; page: Page };
 
 const INITIAL_FAVORITES: MenuItem[] = [
-  { icon: BookOpen, label: "Catalog", page: "products" },
-  { icon: ClipboardList, label: "Orders", page: "orders" },
-  { icon: ShoppingCart, label: "Cart", page: "cart-multi" },
 ];
 
 const INITIAL_MAIN: MenuItem[] = [
+  { icon: BookOpen, label: "Catalog", page: "products" },
+  { icon: ClipboardList, label: "Orders", page: "orders" },
+  { icon: ShoppingCart, label: "Cart", page: "cart-multi" },
   { icon: Users, label: "Patients", page: "users" },
   { icon: MessageSquare, label: "Support Tickets", page: "support" },
   { icon: Settings, label: "Settings", page: "settings" },
   { icon: RefreshCw, label: "Hard Refresh", page: "dashboard" },
-  { icon: LayoutDashboard, label: "Dashboard", page: "dashboard" },
 ];
 
 function NavItem({
@@ -356,33 +356,8 @@ function NavItem({
       >
         <Icon size={16} strokeWidth={1.65} className="flex-shrink-0 text-[#303332]" />
         <span className="flex-1">{label}</span>
-        {(isHovered || menuOpen) && (
-          <button
-            className="flex size-6 flex-shrink-0 items-center justify-center rounded-[6px] transition-colors hover:bg-white"
-            onClick={(e) => { e.stopPropagation(); onOpenMenu(menuOpen ? null : label); }}
-          >
-            <MoreHorizontal size={14} className="text-[#8b8f8d]" />
-          </button>
-        )}
+        <span className="size-6 flex-shrink-0" />
       </div>
-
-      {menuOpen && (
-        <>
-          <div className="fixed inset-0 z-10" onClick={() => onOpenMenu(null)} />
-          <div className="absolute left-full top-0 ml-1.5 z-20 bg-white border border-[#e8e8e8] rounded-[8px] shadow-lg py-1 min-w-[120px]">
-            <button
-              className="w-full flex items-center gap-2 px-3 py-2 text-[12px] font-medium text-[#1a1a1a] hover:bg-[#f7efe9] transition-colors"
-              onClick={() => onPin(item, isPinned)}
-            >
-              <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
-                <path d="M8.5 1.5L11.5 4.5L7 6.5L6.5 10L3 6.5L5 2L8.5 1.5Z" stroke="#1a1a1a" strokeWidth="1.2" strokeLinejoin="round"/>
-                <path d="M1.5 11.5L4.5 8.5" stroke="#1a1a1a" strokeWidth="1.2" strokeLinecap="round"/>
-              </svg>
-              {isPinned ? "Unpin" : "Pin"}
-            </button>
-          </div>
-        </>
-      )}
     </div>
   );
 }
@@ -489,32 +464,69 @@ function Sidebar({
         </div>
       </div>
 
-      {/* Favorites */}
-      <div className="mb-4">
-        <p className="mb-1.5 px-2.5 text-[10px] font-medium uppercase tracking-[0.08em] text-[#A0A4A2]">Favorites</p>
-        <div className="flex flex-col gap-0.5">
-          {favorites.map((item) => (
-            <NavItem key={item.label} item={item} isPinned={true} isActive={item.page === "cart-multi" ? active === cartPage : item.page === "orders" ? active === "orders" || active === "order-detail" : active === item.page} section="fav" {...navItemProps} />
-          ))}
-        </div>
-      </div>
-
       {/* Main Menu */}
       <div>
         <p className="mb-1.5 px-2.5 text-[10px] font-medium uppercase tracking-[0.08em] text-[#A0A4A2]">Main Menu</p>
         <div className="flex flex-col gap-0.5">
           {mainMenu.map((item) => {
-            const isActive = active === item.page && item.label !== "Hard Refresh";
+            const isActive = item.page === "cart-multi" ? active === cartPage : item.page === "orders" ? active === "orders" || active === "order-detail" : active === item.page && item.label !== "Hard Refresh";
             return <NavItem key={item.label} item={item} isPinned={false} isActive={isActive} section="main" {...navItemProps} />;
           })}
         </div>
       </div>
 
       <div className="mt-auto" />
+      <SidebarSupportVersion />
       <div className="pb-3 pt-4">
         <UserChip onNavigate={onNavigate} onLogout={onLogout} appTheme={appTheme} setAppTheme={setAppTheme} extraVariants={extraVariants} setExtraVariants={setExtraVariants} />
       </div>
     </aside>
+  );
+}
+
+function SidebarSupportVersion() {
+  const supportContacts = [
+    { name: "Shayne", role: "Head Operator", phone: "917-274-7648", initials: "SH" },
+    { name: "Adam", role: "Pharmacy Support", phone: "917-409-7598", initials: "AD" },
+    { name: "Zee", role: "CEO", phone: "(646)-617-9881", initials: "ZR" },
+  ];
+
+  return (
+    <div className="border-y border-[#ECEEEA] py-4">
+      <div className="mb-3 flex items-center gap-2 px-1 text-[#8c948f]">
+        <Headphones size={16} strokeWidth={1.8} />
+        <p className="text-[11px] font-medium uppercase tracking-[0.08em]">Customer Support</p>
+      </div>
+      <div className="space-y-1">
+        {supportContacts.map((contact) => (
+          <div key={contact.name} className="grid grid-cols-[34px_minmax(0,1fr)_26px] items-center gap-2 rounded-[9px] px-1.5 py-1.5 transition-colors hover:bg-[var(--app-menu-bg)]">
+            <div className="flex size-8 items-center justify-center rounded-full bg-[#F1F2F2] text-[10px] font-semibold text-[#5f6662]">
+              {contact.initials}
+            </div>
+            <div className="min-w-0">
+              <p className="truncate text-[13px] font-medium leading-[16px] text-[#1f2220]">{contact.name}</p>
+              <p className="truncate text-[11px] font-normal leading-[14px] text-[#8c948f]">{contact.role}</p>
+              <a href={`tel:${contact.phone.replace(/[^0-9+]/g, "")}`} className="block truncate text-[11px] font-medium leading-[14px] text-[#5f6662] hover:text-[#183229]">
+                {contact.phone}
+              </a>
+            </div>
+            <a href={`tel:${contact.phone.replace(/[^0-9+]/g, "")}`} className="flex size-7 cursor-pointer items-center justify-center rounded-[7px] text-[#5f6662] transition-colors hover:bg-white hover:text-[#183229]" aria-label={`Call ${contact.name}`}>
+              <Phone size={14} strokeWidth={1.8} />
+            </a>
+          </div>
+        ))}
+      </div>
+      <button type="button" className="mt-3 flex w-full cursor-pointer items-center justify-between rounded-[12px] border border-[#D9DEDB] bg-white px-3 py-2 text-left transition-colors hover:border-[#C7CECA] hover:bg-[var(--app-menu-bg)]">
+        <span className="min-w-0">
+          <span className="flex items-center gap-2">
+            <span className="truncate text-[13px] font-semibold leading-[16px] text-[#1f2220]">Zee Pharmacy</span>
+            <span className="flex size-5 shrink-0 items-center justify-center rounded-full bg-[#F1F2F2] text-[11px] font-semibold text-[#5f6662]">5</span>
+          </span>
+          <span className="mt-0.5 block text-[11px] font-normal leading-[14px] text-[#8c948f]">Switch pharmacy</span>
+        </span>
+        <ChevronsUpDown size={16} className="shrink-0 text-[#8c948f]" />
+      </button>
+    </div>
   );
 }
 
@@ -3410,7 +3422,7 @@ function SettingsPage({ onNavigate }: { onNavigate: (p: Page) => void }) {
                 }`}
               >
                 Credit Cards
-                <span className="ml-2 rounded-full bg-gradient-to-r from-[#FFE2D2] to-[#FFF45C] px-2 py-0.5 text-[10px] font-semibold text-[#56203B]">
+                <span className="ml-2 rounded-full bg-[#F1F2F2] px-2 py-0.5 text-[10px] font-medium text-[#5f6662]">
                   Primary
                 </span>
               </button>
@@ -3462,15 +3474,15 @@ function SettingsPage({ onNavigate }: { onNavigate: (p: Page) => void }) {
                         <p className="mt-1 text-[11px] text-[#8c8c8c]">**** **** **** 2826</p>
                         <p className="mt-2 text-[11px] text-[#667085]">Checking</p>
                       </div>
-                      <span className="w-fit rounded-full bg-gradient-to-r from-[#C5F5DD] to-[#E7F5A5] px-2.5 py-1 text-[10px] font-semibold text-[#31583F]">
+                      <span className="w-fit rounded-full bg-[#F1F2F2] px-2.5 py-1 text-[10px] font-medium text-[#5f6662]">
                         Primary
                       </span>
-                      <button className="rounded-[8px] border border-[#00b43a] px-3 py-2 text-[12px] font-semibold text-[#00b43a] transition-colors hover:bg-[#ecfff2]">
+                      <button className="rounded-[8px] border border-[#D9DEDB] px-3 py-2 text-[12px] font-medium text-[#1a1a1a] transition-colors hover:bg-[#F7F8F7]">
                         Update
                       </button>
                     </div>
                   </div>
-                  <div className="rounded-[10px] border border-[#eaeaea] bg-[#f7efe9]/40 p-6">
+                  <div className="rounded-[10px] border border-[#eaeaea] bg-[#FAFAFA] p-6">
                     <AlertCircle size={17} className="mb-4 text-[#667085]" />
                     <p className="max-w-[420px] text-[13px] leading-relaxed text-[#667085]">
                       Add a bank account to receive payouts for patient transactions. We securely store your banking information and process payouts on a weekly basis.
@@ -3488,8 +3500,8 @@ function SettingsPage({ onNavigate }: { onNavigate: (p: Page) => void }) {
             <div className="grid grid-cols-2 gap-5 max-lg:grid-cols-1">
               <div className="rounded-[10px] border border-[#eaeaea] bg-white p-6">
                 <div className="mb-5 flex items-center gap-4">
-                  <div className="flex size-12 items-center justify-center rounded-[10px] bg-[#d4f4e3] text-[#00b43a]">
-                    <ClipboardList size={24} />
+                  <div className="flex size-12 items-center justify-center rounded-[10px] bg-[#F1F2F2] text-[#4e5652]">
+                    <Upload size={22} strokeWidth={1.8} />
                   </div>
                   <div>
                     <p className="text-[16px] font-semibold text-[#1a1a1a]">ACH Debit Authorization Agreement</p>
