@@ -579,7 +579,7 @@ function UserChip({
                 </span>
               </button>
             </div>
-            <button onClick={onLogout} className="flex h-9 w-full items-center gap-2 rounded-[7px] px-2.5 text-[12px] font-medium text-[#252525] hover:bg-[var(--app-menu-bg)]">
+            <button onClick={() => { onLogout(); setMenuOpen(false); }} className="flex h-9 w-full items-center gap-2 rounded-[7px] px-2.5 text-[12px] font-medium text-[#252525] hover:bg-[var(--app-menu-bg)]">
               <LogOut size={15} /> Log out
             </button>
           </div>
@@ -1025,7 +1025,7 @@ type CardDef = {
 const POPULAR_CARDS: CardDef[] = [
   { id: 1, name: "NAD+ Injecton", price: "$55.88", pharmacies: 4, pharmacy: "Optimal Balance Pharmacy", shippingState: "New York", areaOfTreatment: "Wellness", dosage: "Injection", img: img430, imgW: 111, imgH: 187, imgL: 47, imgT: 12, btnOffsetX: 170, heartVariant: "green" },
   { id: 2, name: "Nandrolone Decanoate", price: "$35.88", pharmacies: 2, pharmacy: "DCA Pharmacy", shippingState: "Florida", areaOfTreatment: "Men's Health", dosage: "Injection", img: img429, imgW: 138, imgH: 173, imgL: 37.4, imgT: 27, hasRxBadge: true, btnOffsetX: 168.4, heartVariant: "black" },
-  { id: 3, name: "NAD+ Injecton", price: "10 mg/Vial", pharmacies: 4, pharmacy: "1st Choice Compounding Pharmacy", shippingState: "New York", areaOfTreatment: "Wellness", dosage: "Injection", img: img431, imgW: 133, imgH: 205, imgL: 34, imgT: 2, btnOffsetX: 168, heartVariant: "none" },
+  { id: 3, name: "NAD+ Injecton", price: "$45.99", pharmacies: 4, pharmacy: "1st Choice Compounding Pharmacy", shippingState: "New York", areaOfTreatment: "Wellness", dosage: "Injection", img: img431, imgW: 133, imgH: 205, imgL: 34, imgT: 2, btnOffsetX: 168, heartVariant: "none" },
   { id: 4, name: "MIC/B12", price: "$215.98", pharmacies: 5, pharmacy: "Rush Pharmacy TX", shippingState: "Texas", areaOfTreatment: "Wellness", dosage: "Injection", img: img432, imgW: 152, imgH: 190, imgL: 31.8, imgT: 9.48, btnOffsetX: 168.2, heartVariant: "black" },
   { id: 5, name: "Esteadol", price: "$65.99", pharmacies: 4, pharmacy: "Thesis Pharmacy", shippingState: "New York", areaOfTreatment: "Women's Health", dosage: "Gel", img: img433, imgW: 99, imgH: 166, imgL: 49.8, imgT: 21, btnOffsetX: 168.8, heartVariant: "black" },
   { id: 6, name: "NAD+ Injecton", price: "$15.98", pharmacies: 4, pharmacy: "Optimal Balance Pharmacy", shippingState: "New York", areaOfTreatment: "Wellness", dosage: "Injection", img: img434, imgW: 130, imgH: 193, imgL: 33.6, imgT: 18, btnOffsetX: 168.6, heartVariant: "black" },
@@ -1035,7 +1035,7 @@ const POPULAR_CARDS: CardDef[] = [
 const ALL_CARDS: CardDef[] = [
   { id: 11, name: "NAD+ Injecton", price: "$55.88", pharmacies: 4, pharmacy: "Optimal Balance Pharmacy", shippingState: "New York", areaOfTreatment: "Wellness", dosage: "Injection", img: img435, imgW: 111, imgH: 187, imgL: 47, imgT: 12, btnOffsetX: 170, heartVariant: "green" },
   { id: 12, name: "Nandrolone Decanoate", price: "$35.88", pharmacies: 2, pharmacy: "DCA Pharmacy", shippingState: "Florida", areaOfTreatment: "Men's Health", dosage: "Injection", img: img429, imgW: 138, imgH: 173, imgL: 37.4, imgT: 27, hasRxBadge: true, btnOffsetX: 168.4, heartVariant: "black" },
-  { id: 13, name: "NAD+ Injecton", price: "10 mg/Vial", pharmacies: 4, pharmacy: "1st Choice Compounding Pharmacy", shippingState: "New York", areaOfTreatment: "Wellness", dosage: "Injection", img: img436, imgW: 133, imgH: 205, imgL: 34, imgT: 2, btnOffsetX: 168, heartVariant: "none" },
+  { id: 13, name: "NAD+ Injecton", price: "$45.99", pharmacies: 4, pharmacy: "1st Choice Compounding Pharmacy", shippingState: "New York", areaOfTreatment: "Wellness", dosage: "Injection", img: img436, imgW: 133, imgH: 205, imgL: 34, imgT: 2, btnOffsetX: 168, heartVariant: "none" },
   { id: 14, name: "MIC/B12", price: "$215.98", pharmacies: 3, pharmacy: "Thesis Pharmacy", shippingState: "Texas", areaOfTreatment: "Wellness", dosage: "Injection", img: img432, imgW: 152, imgH: 190, imgL: 31.8, imgT: 9.48, btnOffsetX: 168.2, heartVariant: "black" },
   { id: 15, name: "Esteadol", price: "$65.99", pharmacies: 4, pharmacy: "Rush Pharmacy TX", shippingState: "New York", areaOfTreatment: "Women's Health", dosage: "Gel", img: img433, imgW: 99, imgH: 166, imgL: 49.8, imgT: 21, btnOffsetX: 168.8, heartVariant: "black" },
   { id: 16, name: "NAD+ Injecton", price: "$15.98", pharmacies: 4, pharmacy: "1st Choice Compounding Pharmacy", shippingState: "New York", areaOfTreatment: "Wellness", dosage: "Injection", img: img437, imgW: 130, imgH: 193, imgL: 33.6, imgT: 18, btnOffsetX: 168.6, heartVariant: "black" },
@@ -1484,15 +1484,6 @@ function ProductsPage({
             >
               {pharmacy.name}
               <span className={`text-[11px] font-semibold ${isActive ? "text-[#183229]" : "text-[#9d9d9d]"}`}>{pharmacy.count}</span>
-              {pharmacy.name !== "All Pharmacies" && supportsMultiPatientShipping(pharmacy.name) && (
-                <span className="group relative inline-flex items-center gap-1 rounded-full bg-[#e7f5ec] px-2 py-0.5 text-[9px] font-semibold text-[#2f704c]">
-                  <CheckCircle2 size={10} /> Multi-shipping
-                  <span className="pointer-events-none absolute bottom-[calc(100%+8px)] left-1/2 z-40 hidden w-56 -translate-x-1/2 rounded-[7px] bg-[#183229] px-3 py-2 text-left text-[10px] font-medium leading-relaxed text-white shadow-lg group-hover:block">
-                    One shipping fee covers prescriptions for multiple patients ordered from this pharmacy.
-                    <span className="absolute left-1/2 top-full -translate-x-1/2 border-4 border-transparent border-t-[#183229]" />
-                  </span>
-                </span>
-              )}
             </button>
           );
         })}
@@ -6618,7 +6609,7 @@ function LandingPage({ onLoginClick, onRegisterClick, onRequestDemoClick, onCont
 // ─── App Shell ────────────────────────────────────────────────────────────────
 
 export default function App() {
-  const [isAuthenticated, setIsAuthenticated] = useState(() => window.localStorage.getItem("scriptlinkrx-authenticated") === "true");
+  const [isAuthenticated, setIsAuthenticated] = useState(true);
   const [authView, setAuthView] = useState<"landing" | "login" | "register" | "single-sign-on" | "request-demo" | "contact">("landing");
   const [appTheme, setAppTheme] = useState<AppTheme>(() => {
     const savedTheme = window.localStorage.getItem("scriptlinkrx-theme");
@@ -6949,7 +6940,7 @@ export default function App() {
         <ProductFavoritesContext.Provider value={{ favoriteProductIds, setFavoriteProductIds, favoriteProducts }}>
           <div className={`app-theme app-theme-${appTheme} flex h-screen overflow-hidden bg-[var(--app-soft-hover)] font-['Inter',sans-serif]`}>
             {/* Sidebar Navigation */}
-            <Sidebar active={page} onNavigate={setPage} cartPage={cartPage} onLogout={() => setIsAuthenticated(false)} appTheme={appTheme} setAppTheme={setAppTheme} extraVariants={extraVariants} setExtraVariants={setExtraVariants} />
+            <Sidebar active={page} onNavigate={setPage} cartPage={cartPage} onLogout={() => {}} appTheme={appTheme} setAppTheme={setAppTheme} extraVariants={extraVariants} setExtraVariants={setExtraVariants} />
 
             {/* Main content area */}
             <main className="app-main-scroll h-screen min-w-0 flex-1 overflow-y-scroll p-3 pl-1.5">
